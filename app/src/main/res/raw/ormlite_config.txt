@@ -1,0 +1,314 @@
+#
+# generated on 2014/07/23 09:22:42
+#
+# --table-start--
+dataClass=uskysd.smartvolley.data.Match
+tableName=matches
+# --table-fields-start--
+# --field-start--
+fieldName=id
+generatedId=true
+# --field-end--
+# --field-start--
+fieldName=name
+# --field-end--
+# --field-start--
+fieldName=startDateTime
+# --field-end--
+# --field-start--
+fieldName=location
+# --field-end--
+# --field-start--
+fieldName=teamA
+foreign=true
+# --field-end--
+# --field-start--
+fieldName=teamB
+foreign=true
+# --field-end--
+# --field-start--
+fieldName=playerEntries
+foreignCollection=true
+# --field-end--
+# --field-start--
+fieldName=sets
+foreignCollection=true
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################
+# --table-start--
+dataClass=uskysd.smartvolley.data.Play
+tableName=plays
+# --table-fields-start--
+# --field-start--
+fieldName=id
+generatedId=true
+# --field-end--
+# --field-start--
+fieldName=rally
+foreign=true
+# --field-end--
+# --field-start--
+fieldName=player
+foreign=true
+# --field-end--
+# --field-start--
+fieldName=playType
+# --field-end--
+# --field-start--
+fieldName=positionX
+# --field-end--
+# --field-start--
+fieldName=positionY
+# --field-end--
+# --field-start--
+fieldName=targetX
+# --field-end--
+# --field-start--
+fieldName=targetY
+# --field-end--
+# --field-start--
+fieldName=attribute
+foreign=true
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################
+# --table-start--
+dataClass=uskysd.smartvolley.data.PlayAttribute
+tableName=playAttributes
+# --table-fields-start--
+# --field-start--
+fieldName=id
+generatedId=true
+# --field-end--
+# --field-start--
+fieldName=playType
+# --field-end--
+# --field-start--
+fieldName=name
+# --field-end--
+# --field-start--
+fieldName=plays
+foreignCollection=true
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################
+# --table-start--
+dataClass=uskysk.smartvolley.data.Player
+tableName=players
+# --table-fields-start--
+# --field-start--
+fieldName=id
+columnName=id
+generatedId=true
+# --field-end--
+# --field-start--
+fieldName=firstName
+columnName=first_name
+# --field-end--
+# --field-start--
+fieldName=lastName
+columnName=last_name
+# --field-end--
+# --field-start--
+fieldName=order
+columnName=order_in_team
+# --field-end--
+# --field-start--
+fieldName=birthday
+# --field-end--
+# --field-start--
+fieldName=isMale
+# --field-end--
+# --field-start--
+fieldName=height
+# --field-end--
+# --field-start--
+fieldName=weight
+# --field-end--
+# --field-start--
+fieldName=team
+foreign=true
+# --field-end--
+# --field-start--
+fieldName=uniformNumber
+# --field-end--
+# --field-start--
+fieldName=description
+# --field-end--
+# --field-start--
+fieldName=imageBytes
+dataPersister=BYTE_ARRAY
+# --field-end--
+# --field-start--
+fieldName=startingPosition
+defaultValue=NONE
+canBeNull=false
+unknownEnumValue=uskysd.smartvolley.data.Player$StartingPosition#NONE
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################
+# --table-start--
+dataClass=uskysd.smartvolley.data.PlayerEntry
+tableName=playerEntries
+# --table-fields-start--
+# --field-start--
+fieldName=id
+generatedId=true
+# --field-end--
+# --field-start--
+fieldName=match
+foreign=true
+# --field-end--
+# --field-start--
+fieldName=player
+foreign=true
+# --field-end--
+# --field-start--
+fieldName=number
+# --field-end--
+# --field-start--
+fieldName=teamFlag
+# --field-end--
+# --field-start--
+fieldName=startingPosition
+defaultValue=NONE
+canBeNull=false
+unknownEnumValue=uskysd.smartvolley.Core$Position#NONE
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################
+# --table-start--
+dataClass=uskysd.smartvolley.data.PlayerRole
+tableName=playerrole
+# --table-fields-start--
+# --field-start--
+fieldName=id
+generatedId=true
+# --field-end--
+# --field-start--
+fieldName=player
+columnName=player_id
+foreign=true
+# --field-end--
+# --field-start--
+fieldName=role
+columnName=role_id
+foreign=true
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################
+# --table-start--
+dataClass=uskysd.smartvolley.data.Point
+tableName=points
+# --table-fields-start--
+# --field-start--
+fieldName=id
+generatedId=true
+# --field-end--
+# --field-start--
+fieldName=set
+foreign=true
+# --field-end--
+# --field-start--
+fieldName=teamFlag
+# --field-end--
+# --field-start--
+fieldName=rallies
+foreignCollection=true
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################
+# --table-start--
+dataClass=uskysd.smartvolley.data.Rally
+tableName=rallies
+# --table-fields-start--
+# --field-start--
+fieldName=id
+generatedId=true
+# --field-end--
+# --field-start--
+fieldName=point
+foreign=true
+# --field-end--
+# --field-start--
+fieldName=plays
+foreignCollection=true
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################
+# --table-start--
+dataClass=uskysd.smartvolley.data.Role
+tableName=playerRolls
+# --table-fields-start--
+# --field-start--
+fieldName=id
+columnName=id
+generatedId=true
+# --field-end--
+# --field-start--
+fieldName=roleName
+defaultValue=SUB
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################
+# --table-start--
+dataClass=uskysd.smartvolley.data.Set
+tableName=sets
+# --table-fields-start--
+# --field-start--
+fieldName=id
+generatedId=true
+# --field-end--
+# --field-start--
+fieldName=match
+foreign=true
+# --field-end--
+# --field-start--
+fieldName=points
+foreignCollection=true
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################
+# --table-start--
+dataClass=uskysd.smartvolley.data.Team
+tableName=teams
+# --table-fields-start--
+# --field-start--
+fieldName=id
+generatedId=true
+# --field-end--
+# --field-start--
+fieldName=name
+columnName=team_name
+# --field-end--
+# --field-start--
+fieldName=location
+# --field-end--
+# --field-start--
+fieldName=description
+# --field-end--
+# --field-start--
+fieldName=score
+# --field-end--
+# --field-start--
+fieldName=players
+foreignCollection=true
+# --field-end--
+# --field-start--
+fieldName=matches
+foreignCollection=true
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################
