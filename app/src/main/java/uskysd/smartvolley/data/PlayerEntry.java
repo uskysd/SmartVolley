@@ -2,7 +2,6 @@ package uskysd.smartvolley.data;
 
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
-import uskysd.smartvolley.Core;
 
 import java.io.Serializable;
 
@@ -35,7 +34,7 @@ public class PlayerEntry implements Serializable {
 	private boolean teamFlag;
 
     @DatabaseField(canBeNull=false, defaultValue="NONE", unknownEnumName="NONE")
-    private Core.Position startingPosition;
+    private Position startingPosition;
 
     public PlayerEntry() {
         //for OrmLite
@@ -62,11 +61,11 @@ public class PlayerEntry implements Serializable {
 		this.player = player;
 	}
 
-    public Core.Position getStartingPosition() {
+    public Position getStartingPosition() {
         return this.startingPosition;
     }
 
-    public void setStartingPosition(Core.Position position) {
+    public void setStartingPosition(Position position) {
         this.startingPosition = position;
     }
 

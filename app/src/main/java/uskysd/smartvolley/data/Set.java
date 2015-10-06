@@ -9,7 +9,7 @@ import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable(tableName="sets")
-public class Set implements Serializable {
+public class 	Set implements Serializable {
 
 	/**
 	 * 
