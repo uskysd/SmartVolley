@@ -24,13 +24,13 @@ import uskysd.smartvolley.data.Team;
  */
 public class DatabaseConfigUtil extends OrmLiteConfigUtil {
 
-    private static final String PATH_TO_CONFIG = "C:\\Users\\112886\\AndroidStudioProjects\\SmartVolley\\app\\src\\main\\res\\raw\\ormlite_config.txt";
+    private static final String PATH_TO_CONFIG = "ormlite_config.txt";
     private static final Class<?>[] classes = new Class[]{
             Match.class, Play.class, PlayAttribute.class, Player.class, PlayerEntry.class,
             PlayerRole.class, Point.class, Rally.class, Role.class, Set.class, Team.class,
     };
 
-	public static void main(String[] args) throws SQLException, IOException {
-		writeConfigFile(new File(PATH_TO_CONFIG), classes);
+	public static void main(String[] args) throws Exception {
+		writeConfigFile(PATH_TO_CONFIG, classes);
 	}
 }
