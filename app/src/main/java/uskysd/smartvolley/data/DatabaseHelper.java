@@ -2,6 +2,7 @@ package uskysd.smartvolley.data;
 
 import java.sql.SQLException;
 
+import android.app.ActionBar;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
@@ -158,6 +159,33 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 		rallyDao = null;
 		playDao = null;
 		playAttributeDao = null;
+	}
+
+	public void clearTables() throws SQLException {
+		// Drop tables
+		TableUtils.dropTable(getConnectionSource(), Team.class, true);
+		TableUtils.dropTable(getConnectionSource(), Player.class, true);
+		TableUtils.dropTable(getConnectionSource(), Role.class, true);
+		TableUtils.dropTable(getConnectionSource(), PlayerRole.class, true);
+		TableUtils.dropTable(getConnectionSource(), Match.class, true);
+		TableUtils.dropTable(getConnectionSource(), PlayerEntry.class, true);
+		TableUtils.dropTable(getConnectionSource(), Set.class, true);
+		TableUtils.dropTable(getConnectionSource(), Point.class, true);
+		TableUtils.dropTable(getConnectionSource(), Rally.class, true);
+		TableUtils.dropTable(getConnectionSource(), PlayAttribute.class, true);
+
+		// Recreate tables
+		TableUtils.createTable(connectionSource, Team.class);
+		TableUtils.createTable(connectionSource, Player.class);
+		TableUtils.createTable(connectionSource, Role.class);
+		TableUtils.createTable(connectionSource, PlayerRole.class);
+		TableUtils.createTable(connectionSource, Match.class);
+		TableUtils.createTable(connectionSource, Play.class);
+		TableUtils.createTable(connectionSource, PlayerEntry.class);
+		TableUtils.createTable(connectionSource, PlayAttribute.class);
+		TableUtils.createTable(connectionSource, Point.class);
+		TableUtils.createTable(connectionSource, Rally.class);
+		TableUtils.createTable(connectionSource, Set.class);
 	}
 	
 }

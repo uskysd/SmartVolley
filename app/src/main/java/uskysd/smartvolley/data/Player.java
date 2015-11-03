@@ -9,6 +9,7 @@ import org.joda.time.Years;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.IllegalFormatCodePointException;
 
 @DatabaseTable(tableName="players")
 public class Player implements Serializable, Comparable<Player> {
@@ -118,7 +119,11 @@ public class Player implements Serializable, Comparable<Player> {
 	}
 	
 	public void setHeight(float height) {
-		this.height = height;
+		if (height > 0) {
+			this.height = height;
+		} else {
+			throw new IllegalArgumentException("Height must be positive value.");
+		}
 	}
 	
 	public float getHeight() {
@@ -126,7 +131,11 @@ public class Player implements Serializable, Comparable<Player> {
 	}
 	
 	public void setWeight(float weight) {
-		this.weight = weight;
+		if (weight > 0) {
+			this.weight = weight;
+		} else {
+			throw new IllegalArgumentException("Weight must be positive value.");
+		}
 	}
 	
 	public float getWeight() {
