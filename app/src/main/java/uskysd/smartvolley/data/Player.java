@@ -8,6 +8,7 @@ import org.joda.time.DateTime;
 import org.joda.time.Years;
 
 import java.io.Serializable;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.IllegalFormatCodePointException;
 
@@ -29,7 +30,7 @@ public class Player implements Serializable, Comparable<Player> {
 	}
 	
 	@DatabaseField(generatedId=true, columnName=ID_FIELD_NAME)
-	private int id;
+	private Integer id;
 	
 	@DatabaseField(columnName=FIRSTNAME_FIELD_NAME)
 	private String firstName;
@@ -155,7 +156,13 @@ public class Player implements Serializable, Comparable<Player> {
 	}
 	
 	public void setTeam(Team team) {
+		if (team.getId()==0) {
+			throw new IllegalArgumentException("Team should be created on db before referred from player");
+		}
 		this.team = team;
+		if (!(team.getPlayers().contains(this))) {
+			team.addPlayer(this);
+		}
 	}
 
 	public String getDescription() {
@@ -225,10 +232,28 @@ public class Player implements Serializable, Comparable<Player> {
 
 	@Override
 	public int compareTo(Player another) {
-		// TODO Auto-generated method stub
-		int startingPosDiff = this.getStartingPosition().ordinal()
-				- another.getStartingPosition().ordinal();
-		return startingPosDiff;
+		return this.getFullName().compareTo(another.getFullName());
+
+		//int startingPosDiff = this.getStartingPosition().ordinal()
+		//		- another.getStartingPosition().ordinal();
+		//return startingPosDiff;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o==this) return true;
+		if (o==null) return false;
+		if (!(o instanceof Player)) return false;
+		Player p = (Player) o;
+		if ((p.getId()==null)||(p.getId()==0)){
+			return false;
+		} else if (p.getId()==this.getId()) {
+			return true;
+		} else {
+			return false;
+		}
+
+
 	}
 
 

@@ -1,5 +1,5 @@
 #
-# generated on 2015/11/01 10:30:41
+# generated on 2015/12/31 04:40:04
 #
 # --table-start--
 dataClass=uskysd.smartvolley.data.Match
@@ -17,6 +17,9 @@ fieldName=startDateTime
 # --field-end--
 # --field-start--
 fieldName=location
+# --field-end--
+# --field-start--
+fieldName=teamWonFlag
 # --field-end--
 # --field-start--
 fieldName=teamA
@@ -214,6 +217,9 @@ fieldName=id
 generatedId=true
 # --field-end--
 # --field-start--
+fieldName=number
+# --field-end--
+# --field-start--
 fieldName=set
 foreign=true
 # --field-end--
@@ -234,6 +240,9 @@ tableName=rallies
 # --field-start--
 fieldName=id
 generatedId=true
+# --field-end--
+# --field-start--
+fieldName=number
 # --field-end--
 # --field-start--
 fieldName=point
@@ -269,6 +278,12 @@ tableName=sets
 # --field-start--
 fieldName=id
 generatedId=true
+# --field-end--
+# --field-start--
+fieldName=setNumber
+# --field-end--
+# --field-start--
+fieldName=teamWonFlag
 # --field-end--
 # --field-start--
 fieldName=match

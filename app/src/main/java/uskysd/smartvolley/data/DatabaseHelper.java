@@ -169,6 +169,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 		TableUtils.dropTable(getConnectionSource(), PlayerRole.class, true);
 		TableUtils.dropTable(getConnectionSource(), Match.class, true);
 		TableUtils.dropTable(getConnectionSource(), PlayerEntry.class, true);
+		TableUtils.dropTable(getConnectionSource(), Play.class, true);
 		TableUtils.dropTable(getConnectionSource(), Set.class, true);
 		TableUtils.dropTable(getConnectionSource(), Point.class, true);
 		TableUtils.dropTable(getConnectionSource(), Rally.class, true);

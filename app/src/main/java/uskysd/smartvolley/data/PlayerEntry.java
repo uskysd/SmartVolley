@@ -39,10 +39,15 @@ public class PlayerEntry implements Serializable {
     public PlayerEntry() {
         //for OrmLite
     }
-    public PlayerEntry(Player player, int number, boolean teamFlag) {
-        this.player = player;
+    public PlayerEntry(Match match, Player player, int number, boolean teamFlag, Position startingPosition) {
+        if (match.getId()==null || match.getId()==0) {
+			throw new IllegalArgumentException("Match should be created on db before register player-entry.");
+		}
+		this.match = match;
+		this.player = player;
         this.number = number;
         this.teamFlag = teamFlag;
+		this.startingPosition = startingPosition;
     }
 	
 	public Integer getId() {
@@ -77,15 +82,6 @@ public class PlayerEntry implements Serializable {
 		this.number = number;
 	}
 
-	public void setTeamFlag(boolean teamFlag) {
-		//true: team A, false: team B
-		this.teamFlag = teamFlag;
-	}
-	
-	public boolean getTeamFlag() {
-		return this.teamFlag;
-	}
-	
 	public void setForTeamA() {
 		this.teamFlag = TEAM_A;
 	}
@@ -102,16 +98,26 @@ public class PlayerEntry implements Serializable {
 		return !teamFlag;
 	}
 	
-	public void setMatch(Match match) {
-		this.match = match;
-	}
-	
+
 	public Match getMatch() {
 		return this.match;
 	}
-	
-	
-	
-	
 
+	@Override
+	public boolean equals(Object o) {
+		if (o==this) return true;
+		if (o==null) return false;
+		if (!(o instanceof PlayerEntry)) {
+			return false;
+		}
+		PlayerEntry pe = (PlayerEntry) o;
+		if ((pe.getId()==0)||(pe.getId()==null)) {
+			return false;
+		} else if (pe.getId()==this.getId()) {
+			return true;
+		} else {
+			return false;
+		}
+
+	}
 }

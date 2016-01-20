@@ -1,7 +1,10 @@
 package uskysd.smartvolley.data;
 
 import java.io.Serializable;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
@@ -9,7 +12,7 @@ import com.j256.ormlite.table.DatabaseTable;
 
 
 @DatabaseTable(tableName="teams")
-public class Team implements Serializable {
+public class Team implements Serializable, Comparable<Team> {
 	
 	/**
 	 * Team information object saved to the database
@@ -31,7 +34,7 @@ public class Team implements Serializable {
 	private String description;
 	
 	@DatabaseField
-	private Integer score = null;
+	private Integer score;
 	
 	@ForeignCollectionField
 	Collection<Player> players;
@@ -46,8 +49,38 @@ public class Team implements Serializable {
 	
 	public Team(String name) {
 		this.name = name;
+		initCollections();
+
 	}
-	
+
+	private void initCollections() {
+		if (this.players==null) {
+			this.players = new ArrayList<Player>();
+		}
+		if (this.matches==null) {
+			this.matches = new ArrayList<Match>();
+		}
+	}
+
+	public void addPlayer(Player player) {
+		if ((this.getId()==null)||this.getId()==0) {
+			throw new IllegalArgumentException("Team must be created on db before referred from player.");
+		}
+		this.players.add(player);
+		if (player.getTeam()!=this) {
+			player.setTeam(this);
+		}
+	}
+
+	public void addMatch(Match match) {
+
+		if (match.getTeamA()==this||match.getTeamB()==this) {
+			this.matches.add(match);
+		} else {
+			throw new IllegalArgumentException("Team must be registered as Team A or B to the match");
+		}
+	}
+
 	public Collection<Player> getPlayers() {
 		return players;
 	}
@@ -105,4 +138,24 @@ public class Team implements Serializable {
 		return name + " @" + location;
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (o == this) return true;
+		if (o == null) return false;
+		if (!(o instanceof Team)) return false;
+		Team team = (Team) o;
+		if ((team.getId() == null) || (team.getId() == 0)) {
+			return false;
+		} else if (team.getId() == this.id) {
+			return true;
+		} else {
+			return false;
+		}
+
+	}
+
+	@Override
+	public int compareTo(Team another) {
+		return this.name.compareTo(another.getName());
+	}
 }

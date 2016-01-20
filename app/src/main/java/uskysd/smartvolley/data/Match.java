@@ -2,8 +2,11 @@ package uskysd.smartvolley.data;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+
 
 import org.joda.time.DateTime;
 
@@ -13,12 +16,14 @@ import com.j256.ormlite.table.DatabaseTable;
 
 
 @DatabaseTable(tableName="matches")
-public class Match implements Serializable {
+public class Match implements Serializable, Comparable<Match> {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 403945017757332672L;
+	private static final Boolean TEAM_A = true;
+	private static final Boolean TEAM_B = false;
 	
 	
 	@DatabaseField(generatedId = true)
@@ -32,6 +37,9 @@ public class Match implements Serializable {
 	
 	@DatabaseField
 	private String location;
+
+	@DatabaseField
+	private Boolean teamWonFlag;
 	
 	@DatabaseField(foreign=true)
 	private Team teamA;
@@ -52,8 +60,27 @@ public class Match implements Serializable {
 	
 	public Match(String name, Team teamA, Team teamB) {
 		this.name = name;
-		this.teamA = teamA;
-		this.teamB = teamB;
+		this.setTeamA(teamA);
+		this.setTeamB(teamB);
+		this.startDateTime = DateTime.now();
+		initCollections();
+	}
+
+	public Match(String name, Team teamA, Team teamB, DateTime dateTime) {
+		this.name = name;
+		this.setTeamA(teamA);
+		this.setTeamB(teamB);
+		this.startDateTime = dateTime;
+		initCollections();
+	}
+
+	private void initCollections() {
+		if (this.sets==null) {
+			this.sets = new ArrayList<Set>();
+		}
+		if (this.playerEntries==null) {
+			this.playerEntries = new ArrayList<PlayerEntry>();
+		}
 	}
 	
 	
@@ -85,24 +112,34 @@ public class Match implements Serializable {
 		return sets;
 	}
 	
-	public Collection<Set> getSetsWonByTeamA() {
-		Collection<Set> result = new ArrayList<Set>();
+	public List<Set> getSetsWonByTeamA() {
+		List<Set> result = new ArrayList<Set>();
 		for (Set set: sets) {
-			if (set.wonByTeamA()) {
+			if (set.wonByTeamA()==true) {
 				result.add(set);
 			}
 		}
 		return result;
 	}
 	
-	public Collection<Set> getSetsWonByTeamB() {
-		Collection<Set> result = new ArrayList<Set>();
+	public List<Set> getSetsWonByTeamB() {
+		List<Set> result = new ArrayList<Set>();
 		for (Set set: sets) {
-			if (set.wonByTeamB()) {
+			if (set.wonByTeamB()==true) {
 				result.add(set);
 			}
 		}
 		return result;
+	}
+
+	public int getSetCount() {
+		if (this.id==0||this.getId()==null) {
+			throw new IllegalStateException("Match must be created on db before counting sets");
+		} else if (getSets()==null) {
+			throw new IllegalStateException("Match must be queried object");
+		}
+
+		return getSets().size();
 	}
 	
 	public Integer getId() {
@@ -141,29 +178,129 @@ public class Match implements Serializable {
 		return teamA;
 	}
 
-	public void setTeamA(Team teamA) {
-		this.teamA = teamA;
+	public void setTeamA(Team team) throws IllegalArgumentException {
+		if ((team.getId()==null)||(team.getId()==0)) {
+			throw new IllegalArgumentException("Team should be created on database before assigned to match");
+		}
+		if (team.equals(this.teamB)) {
+			throw new IllegalArgumentException("Team A & B cannot be the same.");
+		}
+		this.teamA = team;
+		if (!(team.getMatches().contains(this))) {
+			team.addMatch(this);
+		}
 	}
 
 	public Team getTeamB() {
 		return teamB;
 	}
 
-	public void setTeamB(Team teamB) {
-		this.teamB = teamB;
+	public void setTeamB(Team team) {
+		if ((team.getId()==null)||(team.getId()==0)) {
+			throw new IllegalArgumentException("Team should be created on database before assigned to match");
+		}
+		if (team.equals(this.teamA)) {
+			throw new IllegalArgumentException("Team A & B cannot be the same.");
+		}
+		this.teamB = team;
+		if (!(team.getMatches().contains(this))) {
+			team.addMatch(this);
+		}
 	}
 
-    public void addPlayerEntry(PlayerEntry entry) {
-        this.playerEntries.add(entry);
-    }
+	public void setTeamAWon() {
+		this.teamWonFlag = TEAM_A;
+	}
 
-    public void addPlayerEntries(List<PlayerEntry> entries) {
-        this.playerEntries.addAll(entries);
-    }
+	public void setTeamBWon() {
+		this.teamWonFlag = TEAM_B;
+	}
 
-	
-	
-	
-	
+	public void resetTeamWon() {
+		this.teamWonFlag = null;
+	}
 
+	public void updateTeamWon() {
+		//
+		int setNumA = getSetsWonByTeamA().size();
+		int setNumB = getSetsWonByTeamB().size();
+		if ((setNumA<3)&&(setNumB<3)) {
+			this.teamWonFlag = null;
+		} else if (setNumA==3) {
+			this.teamWonFlag = TEAM_A;
+		} else if (setNumB==3) {
+			this.teamWonFlag = TEAM_B;
+		} else {
+			throw new IllegalStateException("Illegal set count state found in the match.");
+		}
+
+	}
+
+	public boolean wonByTeamA() {
+		if (this.teamWonFlag==TEAM_A) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public boolean wonByTeamB() {
+		if (this.teamWonFlag==TEAM_B) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public boolean isOnGoing() {
+		if (this.teamWonFlag==null){
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public void addSet(Set set) {
+		this.sets.add(set);
+		set.setMatch(this);
+	}
+
+	public void renumberSets() {
+		//Renumber set
+		List<Set> sets = new ArrayList<Set>(this.getSets());
+		Collections.sort(sets);
+		for (int i=0; i<sets.size(); i++) {
+			Set s = sets.get(i);
+			s.setSetNumber(i+1);
+			s.renumberPoints();
+
+		}
+	}
+
+
+	@Override
+	public boolean equals(Object o) {
+		if (o==this) return true;
+		if (o==null) return false;
+		if (!(o instanceof Match)) return false;
+		Match match = (Match) o;
+		if ((match.getId()==null)||(match.getId()==0)) {
+			return false;
+		} else if (match.getId()==this.getId()) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	@Override
+	public int compareTo(Match another) {
+		if (this.startDateTime.isBefore(another.getStartDateTime())) {
+			return 1;
+		} else if (this.startDateTime.isAfter(another.getStartDateTime())) {
+			return -1;
+		} else {
+			return this.name.compareTo(another.name);
+		}
+	}
 }
