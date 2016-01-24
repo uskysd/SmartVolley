@@ -262,7 +262,7 @@ public class Match implements Serializable, Comparable<Match> {
 
 	public void addSet(Set set) {
 		this.sets.add(set);
-		set.setMatch(this);
+
 	}
 
 	public void renumberSets() {

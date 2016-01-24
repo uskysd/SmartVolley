@@ -44,7 +44,7 @@ public class SetTest extends OrmLiteAndroidTestCase {
         matchDao.create(match);
 
         //Exercise
-        Set sut = new Set(match, 1);
+        Set sut = new Set(match);
         setDao.create(sut);
 
         //Verify
@@ -73,7 +73,7 @@ public class SetTest extends OrmLiteAndroidTestCase {
         matchDao.create(match);
 
         //Create Set
-        Set sut = new Set(match, 1);
+        Set sut = new Set(match);
         setDao.create(sut);
 
         //Exrecise & Verify
@@ -101,7 +101,7 @@ public class SetTest extends OrmLiteAndroidTestCase {
         matchDao.create(match);
 
         //Create Set
-        Set sut = new Set(match, 1);
+        Set sut = new Set(match);
         setDao.create(sut);
 
         //Exercise & Verify
@@ -145,7 +145,7 @@ public class SetTest extends OrmLiteAndroidTestCase {
         matchDao.create(match);
 
         //Create Set
-        Set sut = new Set(match, 1);
+        Set sut = new Set(match);
         setDao.create(sut);
 
         //Exercise
@@ -197,7 +197,7 @@ public class SetTest extends OrmLiteAndroidTestCase {
         matchDao.create(match);
 
         //Create Set
-        Set sut = new Set(match, 1);
+        Set sut = new Set(match);
         setDao.create(sut);
 
         //Exercise and Verify
@@ -259,7 +259,7 @@ public class SetTest extends OrmLiteAndroidTestCase {
         matchDao.create(match);
 
         //Create Set
-        Set sut = new Set(match, 1);
+        Set sut = new Set(match);
         setDao.create(sut);
 
         //Create points

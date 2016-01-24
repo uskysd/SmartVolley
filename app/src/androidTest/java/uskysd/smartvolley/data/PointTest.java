@@ -37,7 +37,7 @@ public class PointTest extends OrmLiteAndroidTestCase {
         teamDao.create(team2);
         match = new Match("Test match", team1, team2);
         matchDao.create(match);
-        set = new Set(match, 1);
+        set = new Set(match);
         setDao.create(set);
     }
 

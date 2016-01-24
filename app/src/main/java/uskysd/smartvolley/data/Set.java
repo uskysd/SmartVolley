@@ -43,9 +43,9 @@ public class Set implements Serializable, Comparable<Set> {
 		//needed by ormlite
 	}
 	
-	public Set(Match match, int setNumber) {
-		match.addSet(this);
-		this.setNumber = setNumber;
+	public Set(Match match) {
+		this.setMatch(match);
+
 		if (this.points==null) {
 			this.points = new ArrayList<Point>();
 		}
@@ -79,6 +79,10 @@ public class Set implements Serializable, Comparable<Set> {
 			throw new IllegalArgumentException("Cannot add set to match already ended.");
 		}
 		this.match = match;
+		match.addSet(this);
+		
+		//Setting set number
+		this.setSetNumber(match.getSetCount());
 	}
 
 	public Collection<Point> getPoints() {

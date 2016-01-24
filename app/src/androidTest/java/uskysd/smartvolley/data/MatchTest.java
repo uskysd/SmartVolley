@@ -375,8 +375,8 @@ public class MatchTest extends OrmLiteAndroidTestCase {
         matchDao.create(sut);
 
         //Exercise
-        Set set1 = new Set(sut, 1);
-        Set set2 = new Set(sut, 2);
+        Set set1 = new Set(sut);
+        Set set2 = new Set(sut);
         setDao.create(set1);
         setDao.create(set2);
 
@@ -402,11 +402,11 @@ public class MatchTest extends OrmLiteAndroidTestCase {
         matchDao.create(sut);
 
         //Create & add sets
-        Set set1 = new Set(sut, 1);
-        Set set2 = new Set(sut, 2);
-        Set set3 = new Set(sut, 3);
-        Set set4 = new Set(sut, 4);
-        Set set5 = new Set(sut, 5);
+        Set set1 = new Set(sut);
+        Set set2 = new Set(sut);
+        Set set3 = new Set(sut);
+        Set set4 = new Set(sut);
+        Set set5 = new Set(sut);
         set1.setTeamAWon();
         set2.setTeamAWon();
         set3.setTeamBWon();
@@ -467,11 +467,11 @@ public class MatchTest extends OrmLiteAndroidTestCase {
 
         //Exercise & Verify
         //Team A wins
-        Set set1 = new Set(sut, 1);
+        Set set1 = new Set(sut);
         set1.setTeamAWon();
-        Set set2 = new Set(sut, 2);
+        Set set2 = new Set(sut);
         set2.setTeamAWon();
-        Set set3 = new Set(sut, 3);
+        Set set3 = new Set(sut);
         set3.setTeamBWon();
         setDao.create(set1);
         setDao.create(set2);
@@ -480,7 +480,7 @@ public class MatchTest extends OrmLiteAndroidTestCase {
 
         assertEquals(true, sut.isOnGoing());
 
-        Set set4 = new Set(sut, 4);
+        Set set4 = new Set(sut);
         set4.setTeamAWon();
         setDao.create(set4);
         sut.updateTeamWon();
@@ -492,9 +492,9 @@ public class MatchTest extends OrmLiteAndroidTestCase {
         assertEquals(false, sut.isOnGoing());
 
         //Team B wins
-        Set s1 = new Set(sut2, 1);
-        Set s2 = new Set(sut2, 2);
-        Set s3 = new Set(sut2, 3);
+        Set s1 = new Set(sut2);
+        Set s2 = new Set(sut2);
+        Set s3 = new Set(sut2);
         s1.setTeamBWon();
         s2.setTeamBWon();
         s3.setTeamBWon();
