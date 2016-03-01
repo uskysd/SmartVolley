@@ -1,5 +1,5 @@
 #
-# generated on 2016/03/01 12:36:30
+# generated on 2016/03/01 01:46:14
 #
 # --table-start--
 dataClass=uskysd.smartvolley.data.Match
@@ -49,7 +49,10 @@ fieldName=id
 generatedId=true
 # --field-end--
 # --field-start--
-fieldName=number
+fieldName=eventOrder
+# --field-end--
+# --field-start--
+fieldName=dateTime
 # --field-end--
 # --field-start--
 fieldName=rally

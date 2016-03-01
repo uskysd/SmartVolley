@@ -11,7 +11,11 @@ public abstract class Event implements Comparable<Event> {
 
     abstract public int getEventOrder();
 
+    abstract public void setEventOrder(int order);
+
     abstract public DateTime getTimeStamp();
+
+    abstract public void setTimeStamp(DateTime dateTime);
 
     @Override
     public int compareTo(Event another) {

@@ -118,8 +118,8 @@ public class RallyTest extends OrmLiteAndroidTestCase {
         rallyDao.create(sut);
 
         //Exercise
-        Play p1 = new Play(sut, player1, Play.PlayType.SERVICE, Play.PlayResult.GOOD);
-        Play p2 = new Play(sut, player2, Play.PlayType.RECEPTION, Play.PlayResult.BAD);
+        Play p1 = new Play(1, sut, player1, Play.PlayType.SERVICE, Play.PlayResult.GOOD);
+        Play p2 = new Play(2, sut, player2, Play.PlayType.RECEPTION, Play.PlayResult.BAD);
         playDao.create(p1);
         playDao.create(p2);
         rallyDao.update(sut);
@@ -164,6 +164,7 @@ public class RallyTest extends OrmLiteAndroidTestCase {
 
     }
 
+    /**
     public void testRenumberPlays() throws Exception {
         //Setup
         setUp();
@@ -171,38 +172,38 @@ public class RallyTest extends OrmLiteAndroidTestCase {
         rallyDao.create(sut);
 
         //Create plays
-        Play p1 = new Play(sut, player1, Play.PlayType.ATTACK, Play.PlayResult.GOOD);
-        Play p2 = new Play(sut, player1, Play.PlayType.RECEPTION, Play.PlayResult.GOOD);
-        Play p3 = new Play(sut, player2, Play.PlayType.TOSS, Play.PlayResult.BAD);
-        p1.setNumber(2);
-        p2.setNumber(5);
-        p3.setNumber(8);
+        Play p1 = new Play(1, sut, player1, Play.PlayType.ATTACK, Play.PlayResult.GOOD);
+        Play p2 = new Play(2, sut, player1, Play.PlayType.RECEPTION, Play.PlayResult.GOOD);
+        Play p3 = new Play(3, sut, player2, Play.PlayType.TOSS, Play.PlayResult.BAD);
+        p1.setEventOrder(2);
+        p2.setEventOrder(5);
+        p3.setEventOrder(8);
         playDao.create(p1);
         playDao.create(p2);
         playDao.create(p3);
         rallyDao.update(sut);
 
         //Exercise
-        sut.renumberPlay();
         playDao.update(p1);
         playDao.update(p2);
         playDao.update(p3);
 
         //Verify
-        assertEquals(1, p1.getNumber());
-        assertEquals(2, p2.getNumber());
-        assertEquals(3, p3.getNumber());
+        assertEquals(1, p1.getEventOrder());
+        assertEquals(2, p2.getEventOrder());
+        assertEquals(3, p3.getEventOrder());
 
         Rally queried = rallyDao.queryForAll().get(0);
         List<Play> plays = new ArrayList<Play>(queried.getPlays());
         Collections.sort(plays);
-        assertEquals(1, plays.get(0).getNumber());
-        assertEquals(2, plays.get(1).getNumber());
-        assertEquals(3, plays.get(2).getNumber());
+        assertEquals(1, plays.get(0).getEventOrder());
+        assertEquals(2, plays.get(1).getEventOrder());
+        assertEquals(3, plays.get(2).getEventOrder());
 
         //Tear Down
         tearDown();
     }
+     */
 
     public void testRemovePlay() throws Exception {
         //Setup
@@ -211,12 +212,12 @@ public class RallyTest extends OrmLiteAndroidTestCase {
         rallyDao.create(sut);
 
         //Create plays
-        Play p1 = new Play(sut, player1, Play.PlayType.ATTACK, Play.PlayResult.NORMAL);
-        Play p2 = new Play(sut, player1, Play.PlayType.RECEPTION, Play.PlayResult.NORMAL);
-        Play p3 = new Play(sut, player2, Play.PlayType.TOSS, Play.PlayResult.NORMAL);
-        p1.setNumber(2);
-        p2.setNumber(5);
-        p3.setNumber(8);
+        Play p1 = new Play(1, sut, player1, Play.PlayType.ATTACK, Play.PlayResult.NORMAL);
+        Play p2 = new Play(2, sut, player1, Play.PlayType.RECEPTION, Play.PlayResult.NORMAL);
+        Play p3 = new Play(3, sut, player2, Play.PlayType.TOSS, Play.PlayResult.NORMAL);
+        p1.setEventOrder(2);
+        p2.setEventOrder(5);
+        p3.setEventOrder(8);
         playDao.create(p1);
         playDao.create(p2);
         playDao.create(p3);
@@ -231,15 +232,15 @@ public class RallyTest extends OrmLiteAndroidTestCase {
 
         //Verify
         assertEquals(2, sut.getPlayCount());
-        assertEquals(1, p1.getNumber());
-        assertEquals(2, p3.getNumber());
+        assertEquals(2, p1.getEventOrder());
+        assertEquals(8, p3.getEventOrder());
         assertEquals(2, playDao.queryForAll().size());
         Rally queried = rallyDao.queryForAll().get(0);
         assertEquals(2, queried.getPlayCount());
         List<Play> plays = new ArrayList<Play>(queried.getPlays());
         Collections.sort(plays);
-        assertEquals(1, plays.get(0).getNumber());
-        assertEquals(2, plays.get(1).getNumber());
+        assertEquals(2, plays.get(0).getEventOrder());
+        assertEquals(8, plays.get(1).getEventOrder());
 
         //Tear Down
         tearDown();

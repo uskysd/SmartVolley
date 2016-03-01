@@ -100,17 +100,8 @@ public class Rally implements Serializable, Comparable<Rally> {
 
 	public void removePlay(Play play) {
 		this.plays.remove(play);
-		renumberPlay();
+		//renumberPlay();
 	}
-
-	public void renumberPlay() {
-		List<Play> playList = new ArrayList<Play>(this.plays);
-		Collections.sort(playList);
-		for (int i=0;i<playList.size();i++) {
-			playList.get(i).setNumber(i+1);
-		}
-	}
-
 
 
 	public boolean checkPlayerEntry(Player player) {

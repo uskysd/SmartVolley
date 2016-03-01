@@ -5,23 +5,54 @@ import java.io.Serializable;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
+import org.joda.time.DateTime;
+
 @DatabaseTable(tableName="plays")
-public class Play implements Serializable, Comparable<Play> {
+public class Play extends Event implements Serializable {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -7054422602195971927L;
 	
-	public enum PlayType {SERVICE, RECEPTION, RECEIVE, TOSS, ATTACK, BLOCK};
-	public enum PlayResult {POINT, GOOD, NORMAL, BAD, MISTAKE, NONE}
+	public enum PlayType {
+		SERVICE("Service"), RECEPTION("Reception"), RECEIVE("Receive"), TOSS("Toss"),
+		ATTACK("Attack"), BLOCK("Block");
+		private final String playTypeName;
+
+		private PlayType(String name) {
+			this.playTypeName = name;
+		}
+
+		public String toString() {
+			return this.playTypeName;
+		}
+
+	};
+
+	public enum PlayResult {
+        POINT("Point"), GOOD("Good"), NORMAL("Normal"), BAD("Bad"),
+        MISTAKE("Mistake"), NONE("None");
+        private final String str;
+        private PlayResult(String str) {
+            this.str = str;
+        }
+
+        public String toString() {
+            return this.str;
+        }
+
+    }
 	
 	
 	@DatabaseField(generatedId=true)
 	private Integer id;
 
 	@DatabaseField
-	private int number;
+	private int eventOrder;
+
+    @DatabaseField
+    private DateTime dateTime;
 	
 	@DatabaseField(foreign=true)
 	private Rally rally;
@@ -54,12 +85,13 @@ public class Play implements Serializable, Comparable<Play> {
 		//needed by ormlite
 	}
 	
-	public Play(Rally rally, Player player, PlayType playType, PlayResult result) {
+	public Play(int eventOrder, Rally rally, Player player, PlayType playType, PlayResult result) {
 		this.setRally(rally);
 		this.setPlayer(player);
 		this.playType = playType;
-		this.number = rally.getPlayCount();
+		this.eventOrder = eventOrder;
 		this.setResult(result);
+        this.dateTime = DateTime.now();
 
 	}
 	
@@ -67,13 +99,6 @@ public class Play implements Serializable, Comparable<Play> {
 		return id;
 	}
 
-	public int getNumber() {
-		return number;
-	}
-
-	public void setNumber(Integer number) {
-		this.number = number;
-	}
 
 	public Rally getRally() {
 		return rally;
@@ -192,16 +217,26 @@ public class Play implements Serializable, Comparable<Play> {
 		}
 	}
 
-	@Override
-	public int compareTo(Play another) {
-		return this.getNumber()-another.getNumber();
-
+	public String getEventTitle() {
+		return "Play."+this.playType.toString()+" by "+this.player.toString();
 	}
 
-	
-	
-	
-	
-	
-	
+	public DateTime getTimeStamp() {
+		return DateTime.now();
+	}
+
+    @Override
+    public void setTimeStamp(DateTime dateTime) {
+        this.dateTime = dateTime;
+    }
+
+    @Override
+	public int getEventOrder() {
+		return this.eventOrder;
+	}
+
+    @Override
+    public void setEventOrder(int eventOrder) {
+        this.eventOrder = eventOrder;
+    }
 }
