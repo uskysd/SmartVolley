@@ -23,7 +23,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
 	private Dao<Team, Integer> teamDao = null;
 	private Dao<Player, Integer> playerDao = null;
-	private Dao<Role, Integer> roleDao = null;
+	//private Dao<Role, Integer> roleDao = null;
 	private Dao<PlayerRole, Integer> playerRoleDao = null;
 	private Dao<Match, Integer> matchDao = null;
 	private Dao<PlayerEntry, Integer> playerEntryDao = null;
@@ -42,8 +42,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 		try {
 			TableUtils.createTable(connectionSource, Team.class);
 			TableUtils.createTable(connectionSource, Player.class);
-			TableUtils.createTable(connectionSource, Role.class);
-			TableUtils.createTable(connectionSource, PlayerRole.class);
+			//ableUtils.createTable(connectionSource, Role.class);
+			//TableUtils.createTable(connectionSource, PlayerRole.class);
 			TableUtils.createTable(connectionSource, Match.class);
 			TableUtils.createTable(connectionSource, Play.class);
 			TableUtils.createTable(connectionSource, PlayerEntry.class);
@@ -81,20 +81,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 		return playerDao;
 	}
 	
-	public Dao<Role, Integer> getRoleDao() throws SQLException {
-		if (roleDao == null) {
-			roleDao = getDao(Role.class);
-		}
-		return roleDao;
-	}
-	
-	public Dao<PlayerRole, Integer> getPlayerRoleDao() throws SQLException {
-		if (playerRoleDao == null) {
-			playerRoleDao = getDao(PlayerRole.class);
-		}
-		return playerRoleDao;
-	}
-	
+
 	public Dao<Match, Integer> getMatchDao() throws SQLException {
 		if (matchDao == null) {
 			matchDao = getDao(Match.class);
@@ -150,8 +137,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 		super.close();
 		teamDao = null;
 		playerDao = null;
-		roleDao = null;
-		playerRoleDao = null;
+		//roleDao = null;
+		//playerRoleDao = null;
 		matchDao = null;
 		playerEntryDao = null;
 		setDao = null;
@@ -165,8 +152,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 		// Drop tables
 		TableUtils.dropTable(getConnectionSource(), Team.class, true);
 		TableUtils.dropTable(getConnectionSource(), Player.class, true);
-		TableUtils.dropTable(getConnectionSource(), Role.class, true);
-		TableUtils.dropTable(getConnectionSource(), PlayerRole.class, true);
+		//TableUtils.dropTable(getConnectionSource(), Role.class, true);
+		//TableUtils.dropTable(getConnectionSource(), PlayerRole.class, true);
 		TableUtils.dropTable(getConnectionSource(), Match.class, true);
 		TableUtils.dropTable(getConnectionSource(), PlayerEntry.class, true);
 		TableUtils.dropTable(getConnectionSource(), Play.class, true);
@@ -178,8 +165,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 		// Recreate tables
 		TableUtils.createTable(connectionSource, Team.class);
 		TableUtils.createTable(connectionSource, Player.class);
-		TableUtils.createTable(connectionSource, Role.class);
-		TableUtils.createTable(connectionSource, PlayerRole.class);
+		//TableUtils.createTable(connectionSource, Role.class);
+		//TableUtils.createTable(connectionSource, PlayerRole.class);
 		TableUtils.createTable(connectionSource, Match.class);
 		TableUtils.createTable(connectionSource, Play.class);
 		TableUtils.createTable(connectionSource, PlayerEntry.class);

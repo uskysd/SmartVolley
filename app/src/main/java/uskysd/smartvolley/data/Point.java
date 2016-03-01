@@ -113,19 +113,33 @@ public class Point implements Serializable, Comparable<Point> {
 		return set;
 	}
 
+	public void addRally(Rally rally) {
+		this.renumberRally();
+		this.rallies.add(rally);
+	}
+
+	public void removeRally(Rally rally) {
+		this.rallies.remove(rally);
+		this.renumberRally();
+	}
+
 	public void renumberRally() {
-		List<Rally> rallyList = new ArrayList<Rally>();
+		List<Rally> rallyList = new ArrayList<Rally>(this.getRallies());
 		Collections.sort(rallyList);
 		for (int i=0; i<rallyList.size(); i++) {
 			Rally rally = rallyList.get(i);
 			rally.setNumber(i+1);
-			rally.renumberPlay();
 		}
 	}
 
 	public int getRallyCount() {
-		renumberRally();
+		//renumberRally();
 		return rallies.size();
+	}
+
+	public boolean checkPlayerEntry(Player player) {
+		// Returns true if the player is registered to the match
+		return this.getSet().checkPlayerEntry(player);
 	}
 
 	@Override

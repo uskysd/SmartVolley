@@ -272,8 +272,20 @@ public class Match implements Serializable, Comparable<Match> {
 		for (int i=0; i<sets.size(); i++) {
 			Set s = sets.get(i);
 			s.setSetNumber(i+1);
-			s.renumberPoints();
+		}
+	}
 
+	public void removeSet(Set set) {
+		this.sets.remove(set);
+		this.renumberSets();
+	}
+
+	public boolean checkPlayerEntry(Player player) {
+		// Returns true if the player is registered to the match
+		if ((this.teamA.getPlayers().contains(player))||(this.teamB.getPlayers().contains(player))) {
+			return true;
+		} else {
+			return false;
 		}
 	}
 

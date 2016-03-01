@@ -6,6 +6,7 @@ import org.joda.time.DateTime;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -357,6 +358,11 @@ public class MatchTest extends OrmLiteAndroidTestCase {
         assertEquals(false, sut.wonByTeamA());
         assertEquals(true, sut.wonByTeamB());
 
+        sut.resetTeamWon();
+        assertEquals(true, sut.isOnGoing());
+        assertEquals(false, sut.wonByTeamA());
+        assertEquals(false, sut.wonByTeamB());
+
         //TearDown
         tearDown();
 
@@ -513,10 +519,46 @@ public class MatchTest extends OrmLiteAndroidTestCase {
     }
 
 
-    public void testSortingSets() throws Exception {
-        //TODO
+    public void testRemoveSet() throws Exception {
+        //Setup
+        setUp();
+        Team teamA = new Team("Team A");
+        Team teamB = new Team("Team B");
+        teamDao.create(teamA);
+        teamDao.create(teamB);
+        Match sut = new Match("Test Match", teamA, teamB);
+        matchDao.create(sut);
+        Set s1 = new Set(sut);
+        Set s2 = new Set(sut);
+        Set s3 = new Set(sut);
+        setDao.create(s1);
+        setDao.create(s2);
+        setDao.create(s3);
 
+        //Exercise
+        sut.removeSet(s2);
+        setDao.delete(s2);
+        matchDao.update(sut);
+        setDao.update(s1);
+        setDao.update(s3);
 
+        //Verify
+        assertEquals(2, sut.getSetCount());
+        List<Set> sets = new ArrayList<Set>(sut.getSets());
+        Collections.sort(sets);
+        assertEquals(1, sets.get(0).getSetNumber());
+        assertEquals(2, sets.get(1).getSetNumber());
+
+        assertEquals(2, setDao.queryForAll().size());
+        Match queried = matchDao.queryForAll().get(0);
+        assertEquals(2, queried.getSets().size());
+        sets = new ArrayList<Set>(queried.getSets());
+        Collections.sort(sets);
+        assertEquals(1, sets.get(0).getSetNumber());
+        assertEquals(2, sets.get(1).getSetNumber());
+
+        //Tear Down
+        tearDown();
 
     }
 

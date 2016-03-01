@@ -3,6 +3,7 @@ package uskysd.smartvolley.data;
 import com.j256.ormlite.dao.Dao;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -154,6 +155,72 @@ public class PointTest extends OrmLiteAndroidTestCase {
         //TearDown
         tearDown();
 
+    }
+
+    public void testRenumberRally() throws Exception {
+        //Setup
+        setUp();
+        Point sut = new Point(set);
+        pointDao.create(sut);
+
+        //Add rallies
+        Rally r1 = new Rally(sut, Rally.TEAM_A);
+        Rally r2 = new Rally(sut, Rally.TEAM_B);
+        Rally r3 = new Rally(sut, Rally.TEAM_A);
+        r1.setNumber(3);
+        r2.setNumber(5);
+        r3.setNumber(8);
+
+        //Exercise
+        sut.renumberRally();
+
+        //Verify
+        assertEquals(1, r1.getNumber());
+        assertEquals(2, r2.getNumber());
+        assertEquals(3, r3.getNumber());
+
+        //Tear Down
+        tearDown();
+    }
+
+    public void testRemoveRally() throws Exception {
+        //Setup
+        setUp();
+        Point sut = new Point(set);
+        pointDao.create(sut);
+
+        //Add rally
+        Rally r1 = new Rally(sut, Rally.TEAM_A);
+        Rally r2 = new Rally(sut, Rally.TEAM_B);
+        Rally r3 = new Rally(sut, Rally.TEAM_A);
+        rallyDao.create(r1);
+        rallyDao.create(r2);
+        rallyDao.create(r3);
+
+        //Exercise
+        sut.removeRally(r2);
+        assertEquals(2, r3.getNumber());
+        rallyDao.delete(r2);
+        pointDao.update(sut);
+        rallyDao.update(r1);
+        rallyDao.update(r3);
+
+        //Verify
+        assertEquals(2, sut.getRallies().size());
+        List<Rally> rallies = new ArrayList<Rally>(sut.getRallies());
+        Collections.sort(rallies);
+        assertEquals(1, rallies.get(0).getNumber());
+        assertEquals(2, rallies.get(1).getNumber());
+
+        assertEquals(2, rallyDao.queryForAll().size());
+        Point queried = pointDao.queryForAll().get(0);
+        assertEquals(2, queried.getRallies().size());
+        rallies = new ArrayList<Rally>(queried.getRallies());
+        assertEquals(1, rallies.get(0).getNumber());
+        assertEquals(2, rallies.get(1).getNumber());
+
+        //Tear Down
+        tearDown();
     }
 
 

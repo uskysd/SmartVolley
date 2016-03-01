@@ -316,6 +316,57 @@ public class SetTest extends OrmLiteAndroidTestCase {
 
     }
 
+    public void testRemoveSet() throws Exception {
+        //Setup
+        setUp();
+
+        //Create team
+        Team team1 = new Team("Team 1");
+        Team team2 = new Team("Team 2");
+        teamDao.create(team1);
+        teamDao.create(team2);
+
+        //Create match
+        Match match = new Match("TestMatch", team1, team2);
+        matchDao.create(match);
+
+        //Create set
+        Set sut = new Set(match);
+        setDao.create(sut);
+
+        //Create points
+        Point p1 = new Point(sut);
+        Point p2 = new Point(sut);
+        Point p3 = new Point(sut);
+        pointDao.create(p1);
+        pointDao.create(p2);
+        pointDao.create(p3);
+
+        //Exercise
+        sut.removePoint(p2);
+        pointDao.delete(p2);
+        setDao.update(sut);
+        pointDao.update(p1);
+        pointDao.update(p3);
+
+        //Verify
+        assertEquals(2, sut.getPoints().size());
+        List<Point> points = new ArrayList<Point>(sut.getPoints());
+        Collections.sort(points);
+        assertEquals(1, points.get(0).getNumber());
+        assertEquals(2, points.get(1).getNumber());
+
+        assertEquals(2, pointDao.queryForAll().size());
+        Set queried = setDao.queryForAll().get(0);
+        assertEquals(2, queried.getPoints().size());
+        points = new ArrayList<Point>(queried.getPoints());
+        assertEquals(1, points.get(0).getNumber());
+        assertEquals(2, points.get(1).getNumber());
+
+        //Tear Down
+        tearDown();
+    }
+
 
 
 }

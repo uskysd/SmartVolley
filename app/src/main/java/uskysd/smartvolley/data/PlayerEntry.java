@@ -36,6 +36,9 @@ public class PlayerEntry implements Serializable {
     @DatabaseField(canBeNull=false, defaultValue="NONE", unknownEnumName="NONE")
     private Position startingPosition;
 
+	@DatabaseField(canBeNull=false, defaultValue="NONE", unknownEnumName="NONE")
+	private Role role;
+
     public PlayerEntry() {
         //for OrmLite
     }
@@ -48,6 +51,7 @@ public class PlayerEntry implements Serializable {
         this.number = number;
         this.teamFlag = teamFlag;
 		this.startingPosition = startingPosition;
+		this.role = Role.NONE;
     }
 	
 	public Integer getId() {
@@ -80,6 +84,14 @@ public class PlayerEntry implements Serializable {
 
 	public void setNumber(Integer number) {
 		this.number = number;
+	}
+
+	public void setRole(Role role) {
+		this.role = role;
+	}
+
+	public Role getRole() {
+		return role;
 	}
 
 	public void setForTeamA() {

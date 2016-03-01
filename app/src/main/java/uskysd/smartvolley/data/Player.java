@@ -24,10 +24,6 @@ public class Player implements Serializable, Comparable<Player> {
 	public static final String LASTNAME_FIELD_NAME = "last_name";
 	public static final String ID_FIELD_NAME = "id";
     public static final String ORDER_IN_TEAM = "order_in_team";
-	public enum StartingPosition {
-		BACK_LEFT, FRONT_LEFT, FRONT_CENTER, FRONT_RIGHT, BACK_RIGHT, BACK_CENTER, LIBERO,
-		SUB, NONE
-	}
 	
 	@DatabaseField(generatedId=true, columnName=ID_FIELD_NAME)
 	private Integer id;
@@ -66,7 +62,10 @@ public class Player implements Serializable, Comparable<Player> {
 	private byte[] imageBytes;
 	
 	@DatabaseField(canBeNull=false, defaultValue="NONE", unknownEnumName="NONE")
-	private StartingPosition startingPosition;
+	private Position startingPosition;
+
+	@DatabaseField(canBeNull=false, defaultValue="NONE", unknownEnumName="NONE")
+	private Role role;
 
 	
 	public Player() {
@@ -76,6 +75,7 @@ public class Player implements Serializable, Comparable<Player> {
 	public Player(String firstName, String lastName) {
 		this.firstName = firstName;
 		this.lastName = lastName;
+		this.role = Role.NONE;
 	}
 	
 	public Integer getId(){
@@ -214,12 +214,20 @@ public class Player implements Serializable, Comparable<Player> {
 		this.imageBytes = imageBytes;
 	}
 
-	public StartingPosition getStartingPosition() {
+	public Position getStartingPosition() {
 		return startingPosition;
 	}
 
-	public void setStartingPosition(StartingPosition startingPosition) {
+	public void setStartingPosition(Position startingPosition) {
 		this.startingPosition = startingPosition;
+	}
+
+	public void setRole(Role role) {
+		this.role = role;
+	}
+
+	public Role getRole() {
+		return role;
 	}
 
 	public Integer getUniformNumber() {

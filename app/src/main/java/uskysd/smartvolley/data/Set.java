@@ -108,6 +108,11 @@ public class Set implements Serializable, Comparable<Set> {
 		}
 
 	}
+
+	public void removePoint(Point point) {
+		this.points.remove(point);
+		this.renumberPoints();
+	}
 	
 	public Collection<Point> getPointsWonByTeamB() {
 		Collection<Point> result = new ArrayList<Point>();
@@ -193,6 +198,10 @@ public class Set implements Serializable, Comparable<Set> {
 			p.setNumber(i+1);
 			p.renumberRally();
 		}
+	}
+
+	public boolean checkPlayerEntry(Player player) {
+		return this.getMatch().checkPlayerEntry(player);
 	}
 
 	@Override
