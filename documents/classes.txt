@@ -1,0 +1,127 @@
+@startuml
+
+Team --> Match
+Team --> Player
+Player --> PlayerEntry
+Player --> Role
+PlayerEntry --> Role
+PlayerEntry --> Position
+Match --* PlayerEntry
+Match --* Set
+Set --* Point
+Point --* Rally
+Rally --* Play
+Play --> PlayType
+Play --> PlayResult
+PlayAttribute --> PlayType
+PlayAttribute --> Play
+
+
+Event <|-- MenberChangeEvent
+Event <|-- TimeOutEvent
+Event <|-- Play
+
+
+
+class Team {
+    Integer id
+    String name
+    String location
+    String description
+    Integer score
+}
+
+class Player {
+    Integer id
+    String firstName
+    String lastName
+    Integer order
+    Date birthday
+    Boolean isMale
+    float height
+    float weight
+    Integer uniformNumber
+    String description
+}
+
+class Match {
+    Integer id
+    String name
+    Date startDate
+    String location
+
+    getPlayerEntries()
+    getPlayerEntriesToTeamA()
+    getPlayerEntriesToTeamB()
+}
+
+class Set {
+    Integer id
+}
+
+class Point {
+    Integer id
+}
+
+class Rally {
+    Integer id
+
+    isForTeamA()
+    isForTeamB()
+}
+
+
+class Play {
+    Integer id
+    isForTeamA()
+    isForTeamB()
+}
+
+class PlayAttribute {
+    Integer id
+    String name
+}
+
+enum PlayType {
+   
+}
+
+enum PlayResult {
+    POINT
+    GOOD
+    NORMAL
+    BAD
+    MISTAKE
+}
+
+class PlayerEntry {
+    Integer id
+    Integer number
+    boolean teamFlag
+    boolean TEAM_A = true
+    boolean TEAM_B = false
+}
+
+enum Role {
+    SUPER_ACE
+    ACE
+    CENTER
+    SETTER
+    LIBERO
+    CAPTAIN 
+} 
+
+enum Position {
+    BACK_LEFT
+    FRONT_LEFT
+    FRONT_CENTER
+    FRONT_RIGHT
+    BACK_RIGHT
+    BACK_CENTER
+    LIBERO
+    SUB
+    NONE
+}
+
+
+@enduml
