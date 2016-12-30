@@ -17,10 +17,15 @@ PlayAttribute --> PlayType
 PlayAttribute --> Play
 
 
-Event <|-- MenberChangeEvent
-Event <|-- TimeOutEvent
+Event <|-- MemberChange 
+Event <|-- TimeOut
 Event <|-- Play
 
+interface Event {
+    DateTime getTimeStamp
+    String getTitle
+    String getDescription 
+}
 
 
 class Team {
@@ -123,5 +128,18 @@ enum Position {
     NONE
 }
 
+class MemberChange {
+    
+    Player playerIn
+    Player playerOut
+    isForTeamA()
+    isForTeamB()
+}
+
+
+class TimeOut {
+    isForTeamA()
+    isForTeamB()
+}
 
 @enduml

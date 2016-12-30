@@ -35,7 +35,7 @@ public class TeamTest extends OrmLiteAndroidTestCase {
         //Setup
         getDatabaseHelper(getContext()).clearTables();
 
-        //Excerise & Verify
+        //Exercise & Verify
         Dao<Team, Integer> dao = getDatabaseHelper(getContext()).getTeamDao();
 
         //Tear down

@@ -70,6 +70,10 @@ public class PlayAttribute implements Serializable {
 		return plays;
 	}
 
+	public void addPlay(Play play) {
+		this.plays.add(play);
+	}
+
 	
 	
 	

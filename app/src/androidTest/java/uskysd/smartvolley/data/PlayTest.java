@@ -52,8 +52,18 @@ public class PlayTest extends OrmLiteAndroidTestCase {
 
 
     public void testCreatingPlay() throws Exception {
-        //TODO
-        
+
+        // Setup
+        setUp();
+
+        // Exercise
+        Play sut1 = new Play(player1, Play.PlayType.ATTACK);
+        Play sut2 = new Play(player2, Play.PlayType.RECEIVE);
+
+        // Verify
+        assertEquals(player1, sut1.getPlayer());
+        assertEquals(player2, sut2.getPlayer());
+        assertEquals(Play.PlayType.ATTACK, sut1.getPlayType());
 
 
 

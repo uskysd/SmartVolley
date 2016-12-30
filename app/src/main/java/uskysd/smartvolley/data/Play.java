@@ -85,14 +85,10 @@ public class Play extends Event implements Serializable {
 		//needed by ormlite
 	}
 	
-	public Play(int eventOrder, Rally rally, Player player, PlayType playType, PlayResult result) {
-		this.setRally(rally);
+	public Play(Player player, PlayType playType) {
 		this.setPlayer(player);
 		this.playType = playType;
-		this.eventOrder = eventOrder;
-		this.setResult(result);
         this.dateTime = DateTime.now();
-
 	}
 	
 	public Integer getId() {
@@ -108,7 +104,6 @@ public class Play extends Event implements Serializable {
 		if (rally.getId()==null||rally.getId()==0) {
 			throw new IllegalArgumentException("Rally should be created on db before assigning play");
 		}
-
 		this.rally = rally;
 		rally.addPlay(this);
 
@@ -192,9 +187,7 @@ public class Play extends Event implements Serializable {
 				break;
 			default:
 				break;
-
 		}
-
 	}
 
 	public boolean checkPlayerEntry(Player player) {
