@@ -72,6 +72,9 @@ public class PlayAttribute implements Serializable {
 
 	public void addPlay(Play play) {
 		this.plays.add(play);
+		if (play.getAttribute()!=this) {
+			play.setAttribute(this);
+		}
 	}
 
 	

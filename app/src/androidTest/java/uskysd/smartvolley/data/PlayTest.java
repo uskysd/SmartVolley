@@ -21,6 +21,7 @@ public class PlayTest extends OrmLiteAndroidTestCase {
     Team teamB;
     Player player1;
     Player player2;
+    Player player3;
     Set set;
     Point point;
 
@@ -42,8 +43,13 @@ public class PlayTest extends OrmLiteAndroidTestCase {
         matchDao.create(match);
         player1 = new Player("Taro", "Volley");
         player2 = new Player("Jiro", "Ball");
+        player3 = new Player("Yusuke", "Yoshida");
+        player1.setTeam(teamA);
+        player2.setTeam(teamB);
+        player3.setTeam(teamB);
         playerDao.create(player1);
         playerDao.create(player2);
+        playerDao.create(player3);
         set = new Set(match);
         setDao.create(set);
         point = new Point(set);
@@ -59,13 +65,16 @@ public class PlayTest extends OrmLiteAndroidTestCase {
         // Exercise
         Play sut1 = new Play(player1, Play.PlayType.ATTACK);
         Play sut2 = new Play(player2, Play.PlayType.RECEIVE);
+        Play sut3 = new Play(player3, Play.PlayType.BLOCK);
 
         // Verify
         assertEquals(player1, sut1.getPlayer());
         assertEquals(player2, sut2.getPlayer());
         assertEquals(Play.PlayType.ATTACK, sut1.getPlayType());
+        assertEquals(Play.PlayType.RECEIVE, sut2.getPlayType());
 
-
+        // TearDown
+        tearDown();
 
     }
 

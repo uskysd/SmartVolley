@@ -30,11 +30,10 @@ public class Play extends Event implements Serializable {
 
 	};
 
-	public enum PlayResult {
-        POINT("Point"), GOOD("Good"), NORMAL("Normal"), BAD("Bad"),
-        MISTAKE("Mistake"), NONE("None");
+	public enum PlayEvaluation {
+        GOOD("Good"), NORMAL("Normal"), BAD("Bad"), NONE("None");
         private final String str;
-        private PlayResult(String str) {
+        private PlayEvaluation(String str) {
             this.str = str;
         }
 
@@ -79,7 +78,7 @@ public class Play extends Event implements Serializable {
 	private PlayAttribute attribute;
 
 	@DatabaseField
-	private PlayResult playResult;
+	private PlayEvaluation evaluation;
 	
 	public Play() {
 		//needed by ormlite
@@ -124,11 +123,11 @@ public class Play extends Event implements Serializable {
 		}
 	}
 
-	public PlayType getTypeFlag() {
+	public PlayType getPlayType() {
 		return playType;
 	}
 
-	public void setTypeFlag(PlayType playType) {
+	public void setPlayType(PlayType playType) {
 		this.playType = playType;
 	}
 
@@ -170,30 +169,24 @@ public class Play extends Event implements Serializable {
 
 	public void setAttribute(PlayAttribute attribute) {
 		this.attribute = attribute;
-	}
-
-	public PlayResult getResult() {
-		return playResult;
-	}
-
-	public void setResult(PlayResult result) {
-		this.playResult = result;
-		switch (result) {
-			case POINT:
-				this.getRally().onGetPoint();
-				break;
-			case MISTAKE:
-				this.getRally().onLoosePoint();
-				break;
-			default:
-				break;
+		if (!attribute.getPlays().contains(this)) {
+			attribute.addPlay(this);
 		}
+	}
+
+	public PlayEvaluation getEvaluation() {
+		return evaluation;
+	}
+
+	public void setEvaluation(PlayEvaluation evaluation) {
+		this.evaluation = evaluation;
 	}
 
 	public boolean checkPlayerEntry(Player player) {
 		//Return true if player is registered to the match
 		return this.getRally().checkPlayerEntry(player);
 	}
+
 
 	@Override
 	public boolean equals(Object o) {
@@ -215,7 +208,7 @@ public class Play extends Event implements Serializable {
 	}
 
 	public DateTime getTimeStamp() {
-		return DateTime.now();
+		return this.dateTime;
 	}
 
     @Override

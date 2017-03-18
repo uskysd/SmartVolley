@@ -11,7 +11,7 @@ import uskysd.smartvolley.data.Play.PlayType;
 
 public class PlayAttributeTest extends OrmLiteAndroidTestCase {
 
-    public void testConstractor() throws Exception {
+    public void testConstructor() throws Exception {
 
         // Setup & Exercise
         PlayAttribute sut = new PlayAttribute("Super Duper Quick", PlayType.ATTACK);
@@ -54,7 +54,35 @@ public class PlayAttributeTest extends OrmLiteAndroidTestCase {
     public void testAddingPlays() throws Exception {
         // Setup
         PlayAttribute sut = new PlayAttribute("Super Block", PlayType.BLOCK);
-        Play p1 = Play
+        Player player1 = new Player("Yusuke", "Yoshida");
+        Play p1 = new Play(player1, PlayType.BLOCK);
+
+        // Exercise
+        p1.setAttribute(sut);
+
+        // Verify
+        assertEquals(sut, p1.getAttribute());
+        assertTrue(sut.getPlays().contains(p1));
+
+        // Setup Database helper and Dao
+        DatabaseHelper helper = getDatabaseHelper(getContext());
+        helper.clearTables();
+        Dao<PlayAttribute, Integer> attrDao = helper.getPlayAttributeDao();
+        Dao<Player, Integer> playerDao = helper.getPlayerDao();
+        Dao<Play, Integer> playDao = helper.getPlayDao();
+
+        // Create on database
+        playerDao.create(player1);
+        playDao.create(p1);
+        attrDao.create(sut);
+
+        // Verify queried data
+        Play qp1 = playDao.queryForAll().get(1);
+        PlayAttribute qattr = attrDao.queryForAll().get(1);
+        assertEquals(qattr, sut);
+        assertEquals(qp1, p1);
+        assertEquals(qattr, qp1.getAttribute());
+        assertTrue(qattr.getPlays().contains(qp1));
 
     }
 

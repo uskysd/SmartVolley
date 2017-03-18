@@ -128,7 +128,7 @@ public class PlayerTest extends OrmLiteAndroidTestCase {
         Player sut1 = new Player("Taro", "Volley");
         Player sut2 = new Player("Jiro", "Ball");
 
-        // Excercise and Verify
+        // Exercise and Verify
         assertEquals(false, sut1==sut2);
         System.out.println(sut1.getId());
         assertEquals(true, sut1.getId()==null);

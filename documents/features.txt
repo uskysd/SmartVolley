@@ -1,0 +1,14 @@
+# Created on 12/05/2016 by Yusuke Yoshida
+
+### Feature list
+- Store data: teams, players, match, etc
+- Provide GUI to input/edit the data:
+    - Team
+    - Player
+    - Match 
+- Evaluate player's performance based on the data and calculate score
+- Evaluate team base on the data and calculate score
+- Find out pattern for how team get/loose points
+- Find out pattern of players
+- Sync database with cloud server enable to share the data with multiple users
+

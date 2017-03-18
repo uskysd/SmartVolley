@@ -9,10 +9,10 @@ PlayerEntry --> Position
 Match --* PlayerEntry
 Match --* Set
 Set --* Point
-Point --* Rally
-Rally --* Play
+Point --* Play
+Play --> Player
 Play --> PlayType
-Play --> PlayResult
+Play --> PlayEvaluation
 PlayAttribute --> PlayType
 PlayAttribute --> Play
 
@@ -68,18 +68,13 @@ class Point {
     Integer id
 }
 
-class Rally {
-    Integer id
-
-    isForTeamA()
-    isForTeamB()
-}
-
 
 class Play {
     Integer id
-    isForTeamA()
-    isForTeamB()
+    float 
+    Boolean gainedPoint()
+    Boolean lostPoint()
+
 }
 
 class PlayAttribute {
@@ -88,15 +83,20 @@ class PlayAttribute {
 }
 
 enum PlayType {
+    SERVICE
+    RECEPTION
+    RECIEVE
+    TOSS
+    ATTACK
+    BLOCK
+    
    
 }
 
-enum PlayResult {
-    POINT
+enum PlayEvaluation {
     GOOD
     NORMAL
     BAD
-    MISTAKE
 }
 
 class PlayerEntry {
