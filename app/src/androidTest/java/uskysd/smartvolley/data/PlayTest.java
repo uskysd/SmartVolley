@@ -14,7 +14,7 @@ public class PlayTest extends OrmLiteAndroidTestCase {
     Dao<Player, Integer> playerDao;
     Dao<Set, Integer> setDao;
     Dao<Point, Integer> pointDao;
-    Dao<Rally, Integer> rallyDao;
+    //Dao<Rally, Integer> rallyDao;
     Dao<Play, Integer> playDao;
     Match match;
     Team teamA;
@@ -33,7 +33,7 @@ public class PlayTest extends OrmLiteAndroidTestCase {
         playerDao = helper.getPlayerDao();
         setDao = helper.getSetDao();
         pointDao = helper.getPointDao();
-        rallyDao = helper.getRallyDao();
+        //rallyDao = helper.getRallyDao();
         playDao = helper.getPlayDao();
         teamA = new Team("Team A");
         teamB = new Team("Team B");

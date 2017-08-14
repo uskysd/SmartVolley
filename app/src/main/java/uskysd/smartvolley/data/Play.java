@@ -52,9 +52,9 @@ public class Play extends Event implements Serializable {
 
     @DatabaseField
     private DateTime dateTime;
-	
+
 	@DatabaseField(foreign=true)
-	private Rally rally;
+	private Point point;
 	
 	@DatabaseField(foreign=true)
 	private Player player;
@@ -94,18 +94,18 @@ public class Play extends Event implements Serializable {
 		return id;
 	}
 
+	public Point getPoint() { return point; }
 
-	public Rally getRally() {
-		return rally;
-	}
+	public void setPoint(Point point) {
+		if (point.getId()==null||point.getId()==null) {
+			throw new IllegalArgumentException("Point is not on db");
+		} else {
+			this.point = point;
+			if (!point.getPlays().contains(this)) {
+				point.addPlay(this);
+			}
 
-	public void setRally(Rally rally) {
-		if (rally.getId()==null||rally.getId()==0) {
-			throw new IllegalArgumentException("Rally should be created on db before assigning play");
 		}
-		this.rally = rally;
-		rally.addPlay(this);
-
 	}
 
 	public Player getPlayer() {
@@ -116,11 +116,7 @@ public class Play extends Event implements Serializable {
 		if ((player.getId()==null)||(player.getId()==0)) {
 			throw new IllegalArgumentException("Player must be created on db before registering play");
 		}
-		if (this.checkPlayerEntry(player)==true) {
-			this.player = player;
-		} else {
-			throw new IllegalArgumentException("Player is not registered to the match");
-		}
+		this.player = player;
 	}
 
 	public PlayType getPlayType() {
@@ -168,10 +164,21 @@ public class Play extends Event implements Serializable {
 	}
 
 	public void setAttribute(PlayAttribute attribute) {
+		if (attribute.getId()==0||attribute.getId()==null) {
+			throw new IllegalArgumentException("The PlayAttribute is not on database.");
+		}
+
+		if (this.attribute!=null && this.attribute!=attribute) {
+			this.attribute.removePlay(this);
+		}
 		this.attribute = attribute;
+		attribute.addPlay(this);
+
+		/*
 		if (!attribute.getPlays().contains(this)) {
 			attribute.addPlay(this);
 		}
+		*/
 	}
 
 	public PlayEvaluation getEvaluation() {
@@ -180,11 +187,6 @@ public class Play extends Event implements Serializable {
 
 	public void setEvaluation(PlayEvaluation evaluation) {
 		this.evaluation = evaluation;
-	}
-
-	public boolean checkPlayerEntry(Player player) {
-		//Return true if player is registered to the match
-		return this.getRally().checkPlayerEntry(player);
 	}
 
 

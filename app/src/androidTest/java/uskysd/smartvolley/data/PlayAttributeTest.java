@@ -11,6 +11,7 @@ import uskysd.smartvolley.data.Play.PlayType;
 
 public class PlayAttributeTest extends OrmLiteAndroidTestCase {
 
+
     public void testConstructor() throws Exception {
 
         // Setup & Exercise
@@ -53,9 +54,19 @@ public class PlayAttributeTest extends OrmLiteAndroidTestCase {
 
     public void testAddingPlays() throws Exception {
         // Setup
+
+        // Setup Database helper and Dao
+        DatabaseHelper helper = getDatabaseHelper(getContext());
+        helper.clearTables();
+        Dao<PlayAttribute, Integer> attrDao = helper.getPlayAttributeDao();
+        Dao<Play, Integer> playDao = helper.getPlayDao();
+        Dao<Player, Integer> playerDao = helper.getPlayerDao();
+
         PlayAttribute sut = new PlayAttribute("Super Block", PlayType.BLOCK);
         Player player1 = new Player("Yusuke", "Yoshida");
+        playerDao.create(player1);
         Play p1 = new Play(player1, PlayType.BLOCK);
+        attrDao.create(sut);
 
         // Exercise
         p1.setAttribute(sut);
@@ -64,21 +75,12 @@ public class PlayAttributeTest extends OrmLiteAndroidTestCase {
         assertEquals(sut, p1.getAttribute());
         assertTrue(sut.getPlays().contains(p1));
 
-        // Setup Database helper and Dao
-        DatabaseHelper helper = getDatabaseHelper(getContext());
-        helper.clearTables();
-        Dao<PlayAttribute, Integer> attrDao = helper.getPlayAttributeDao();
-        Dao<Player, Integer> playerDao = helper.getPlayerDao();
-        Dao<Play, Integer> playDao = helper.getPlayDao();
-
         // Create on database
-        playerDao.create(player1);
         playDao.create(p1);
-        attrDao.create(sut);
 
         // Verify queried data
-        Play qp1 = playDao.queryForAll().get(1);
-        PlayAttribute qattr = attrDao.queryForAll().get(1);
+        Play qp1 = playDao.queryForAll().get(0);
+        PlayAttribute qattr = attrDao.queryForAll().get(0);
         assertEquals(qattr, sut);
         assertEquals(qp1, p1);
         assertEquals(qattr, qp1.getAttribute());

@@ -1,6 +1,7 @@
 package uskysd.smartvolley.data;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 
 import com.j256.ormlite.field.DatabaseField;
@@ -40,6 +41,7 @@ public class PlayAttribute implements Serializable {
 	public PlayAttribute(String name, PlayType playTypeFlag) {
 		this.name = name;
 		this.playType = playTypeFlag;
+		this.plays = new ArrayList<Play>();
 	}
 
 	public Integer getId() {
@@ -71,9 +73,27 @@ public class PlayAttribute implements Serializable {
 	}
 
 	public void addPlay(Play play) {
-		this.plays.add(play);
-		if (play.getAttribute()!=this) {
-			play.setAttribute(this);
+		if (!this.plays.contains(play)) {
+			this.plays.add(play);
+		}
+	}
+
+	public void removePlay(Play play) {
+		this.plays.remove(play);
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o==this) return true;
+		if (o==null) return false;
+		if (!(o instanceof PlayAttribute)) return false;
+		PlayAttribute pa = (PlayAttribute) o;
+		if (pa.getId()==null||pa.getId()==0) {
+			return false;
+		} else if (pa.getId()==this.getId()) {
+			return true;
+		} else {
+			return false;
 		}
 	}
 

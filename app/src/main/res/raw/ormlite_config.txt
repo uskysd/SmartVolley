@@ -1,5 +1,5 @@
 #
-# generated on 2016/03/01 01:46:14
+# generated on 2017/09/04 10:46:23
 #
 # --table-start--
 dataClass=uskysd.smartvolley.data.Match
@@ -55,7 +55,7 @@ fieldName=eventOrder
 fieldName=dateTime
 # --field-end--
 # --field-start--
-fieldName=rally
+fieldName=point
 foreign=true
 # --field-end--
 # --field-start--
@@ -82,7 +82,7 @@ fieldName=attribute
 foreign=true
 # --field-end--
 # --field-start--
-fieldName=playResult
+fieldName=evaluation
 # --field-end--
 # --table-fields-end--
 # --table-end--
@@ -242,31 +242,6 @@ fieldName=number
 # --field-end--
 # --field-start--
 fieldName=set
-foreign=true
-# --field-end--
-# --field-start--
-fieldName=teamFlag
-# --field-end--
-# --field-start--
-fieldName=rallies
-foreignCollection=true
-# --field-end--
-# --table-fields-end--
-# --table-end--
-#################################
-# --table-start--
-dataClass=uskysd.smartvolley.data.Rally
-tableName=rallies
-# --table-fields-start--
-# --field-start--
-fieldName=id
-generatedId=true
-# --field-end--
-# --field-start--
-fieldName=number
-# --field-end--
-# --field-start--
-fieldName=point
 foreign=true
 # --field-end--
 # --field-start--

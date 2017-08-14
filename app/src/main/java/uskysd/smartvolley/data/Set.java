@@ -196,7 +196,7 @@ public class Set implements Serializable, Comparable<Set> {
 		for (int i=0; i<points.size(); i++) {
 			Point p = points.get(i);
 			p.setNumber(i+1);
-			p.renumberRally();
+			//p.renumberRally();
 		}
 	}
 

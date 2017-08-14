@@ -19,9 +19,12 @@ public class PointTest extends OrmLiteAndroidTestCase {
     Dao<Match, Integer> matchDao;
     Dao<Set, Integer> setDao;
     Dao<Point, Integer> pointDao;
-    Dao<Rally, Integer> rallyDao;
+    Dao<Play, Integer> playDao;
+    Dao<Player, Integer> playerDao;
     Team team1;
     Team team2;
+    Player player1;
+    Player player2;
     Match match;
     Set set;
 
@@ -31,11 +34,18 @@ public class PointTest extends OrmLiteAndroidTestCase {
         matchDao = helper.getMatchDao();
         setDao = helper.getSetDao();
         pointDao = helper.getPointDao();
-        rallyDao = helper.getRallyDao();
+        playDao = helper.getPlayDao();
+        playerDao = helper.getPlayerDao();
         team1 = new Team("Test team 1");
         team2 = new Team("Test team 2");
+        player1 = new Player("Yusuke", "Yoshida");
+        player2 = new Player("Taro", "Volley");
         teamDao.create(team1);
         teamDao.create(team2);
+        team1.addPlayer(player1);
+        team2.addPlayer(player2);
+        playerDao.create(player1);
+        playerDao.create(player2);
         match = new Match("Test match", team1, team2);
         matchDao.create(match);
         set = new Set(match);
@@ -157,72 +167,88 @@ public class PointTest extends OrmLiteAndroidTestCase {
 
     }
 
-    public void testRenumberRally() throws Exception {
+    public void testAddPlay() throws Exception {
         //Setup
         setUp();
         Point sut = new Point(set);
         pointDao.create(sut);
 
-        //Add rallies
-        Rally r1 = new Rally(sut, Rally.TEAM_A);
-        Rally r2 = new Rally(sut, Rally.TEAM_B);
-        Rally r3 = new Rally(sut, Rally.TEAM_A);
-        r1.setNumber(3);
-        r2.setNumber(5);
-        r3.setNumber(8);
+        Play p1 = new Play(player1, Play.PlayType.SERVICE);
+        Play p2 = new Play(player2, Play.PlayType.RECEPTION);
+        Play p3 = new Play(player1, Play.PlayType.TOSS);
+        // Create on database
+        playDao.create(p1);
+        playDao.create(p2);
+        playDao.create(p3);
 
-        //Exercise
-        sut.renumberRally();
-
-        //Verify
-        assertEquals(1, r1.getNumber());
-        assertEquals(2, r2.getNumber());
-        assertEquals(3, r3.getNumber());
-
-        //Tear Down
-        tearDown();
-    }
-
-    public void testRemoveRally() throws Exception {
-        //Setup
-        setUp();
-        Point sut = new Point(set);
-        pointDao.create(sut);
-
-        //Add rally
-        Rally r1 = new Rally(sut, Rally.TEAM_A);
-        Rally r2 = new Rally(sut, Rally.TEAM_B);
-        Rally r3 = new Rally(sut, Rally.TEAM_A);
-        rallyDao.create(r1);
-        rallyDao.create(r2);
-        rallyDao.create(r3);
-
-        //Exercise
-        sut.removeRally(r2);
-        assertEquals(2, r3.getNumber());
-        rallyDao.delete(r2);
+        // Exercise
+        sut.addPlay(p1);
+        sut.addPlay(p2);
+        sut.addPlay(p3);
         pointDao.update(sut);
-        rallyDao.update(r1);
-        rallyDao.update(r3);
+        playDao.update(p1);
+        playDao.update(p2);
+        playDao.update(p3);
 
-        //Verify
-        assertEquals(2, sut.getRallies().size());
-        List<Rally> rallies = new ArrayList<Rally>(sut.getRallies());
-        Collections.sort(rallies);
-        assertEquals(1, rallies.get(0).getNumber());
-        assertEquals(2, rallies.get(1).getNumber());
 
-        assertEquals(2, rallyDao.queryForAll().size());
+        // Verify
+        assertTrue(sut.plays.contains(p1));
+        assertTrue(sut.plays.contains(p2));
+        assertTrue(sut.plays.contains(p3));
+        assertEquals(sut, p1.getPoint());
+        assertEquals(sut, p2.getPoint());
+        assertEquals(sut, p3.getPoint());
+
         Point queried = pointDao.queryForAll().get(0);
-        assertEquals(2, queried.getRallies().size());
-        rallies = new ArrayList<Rally>(queried.getRallies());
-        assertEquals(1, rallies.get(0).getNumber());
-        assertEquals(2, rallies.get(1).getNumber());
+        assertEquals(sut, queried);
+        assertTrue(queried.plays.contains(p1));
+        assertTrue(queried.plays.contains(p2));
+        assertTrue(queried.plays.contains(p3));
+        for (Play p: playDao.queryForAll()) {
+            assertTrue(queried.plays.contains(p));
+        }
 
-        //Tear Down
+        // TearDown
         tearDown();
+
     }
 
+    public void testRemovePlay() throws Exception {
+        // Setup
+        setUp();
+        Point sut = new Point(set);
+        pointDao.create(sut);
 
+        // Add Plays
+        Play p1 = new Play(player1, Play.PlayType.SERVICE);
+        Play p2 = new Play(player2, Play.PlayType.RECEPTION);
+        Play p3 = new Play(player1, Play.PlayType.TOSS);
+        // Create on database
+        playDao.create(p1);
+        playDao.create(p2);
+        playDao.create(p3);
+
+        sut.addPlay(p1);
+        sut.addPlay(p2);
+        sut.addPlay(p3);
+        pointDao.update(sut);
+
+        // Exercise
+        sut.removePlay(p1);
+        sut.removePlay(p3);
+        pointDao.update(sut);
+
+        // Verify
+        assertFalse(sut.plays.contains(p1));
+        assertTrue(sut.plays.contains(p2));
+        assertFalse(sut.plays.contains(p3));
+        Point queried = pointDao.queryForAll().get(0);
+        assertFalse(sut.plays.contains(p1));
+        assertTrue(sut.plays.contains(p2));
+        assertFalse(sut.plays.contains(p3));
+
+        // Tear Down
+        tearDown();
+    }
 
 }

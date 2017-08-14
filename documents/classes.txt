@@ -8,6 +8,8 @@ PlayerEntry --> Role
 PlayerEntry --> Position
 Match --* PlayerEntry
 Match --* Set
+Match --* MemberChange
+Match --* TimeOut
 Set --* Point
 Point --* Play
 Play --> Player
@@ -15,6 +17,7 @@ Play --> PlayType
 Play --> PlayEvaluation
 PlayAttribute --> PlayType
 PlayAttribute --> Play
+MemberChange-->Player
 
 
 Event <|-- MemberChange 

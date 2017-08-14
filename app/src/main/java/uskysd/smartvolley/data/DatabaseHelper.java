@@ -29,7 +29,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 	private Dao<PlayerEntry, Integer> playerEntryDao = null;
 	private Dao<Set, Integer> setDao = null;
 	private Dao<Point, Integer> pointDao = null;
-	private Dao<Rally, Integer> rallyDao = null;
+	//private Dao<Rally, Integer> rallyDao = null;
 	private Dao<Play, Integer> playDao = null;
 	private Dao<PlayAttribute, Integer> playAttributeDao = null;
 
@@ -49,7 +49,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 			TableUtils.createTable(connectionSource, PlayerEntry.class);
 			TableUtils.createTable(connectionSource, PlayAttribute.class);
 			TableUtils.createTable(connectionSource, Point.class);
-			TableUtils.createTable(connectionSource, Rally.class);
+			//TableUtils.createTable(connectionSource, Rally.class);
 			TableUtils.createTable(connectionSource, Set.class);
 		} catch (SQLException e) {
 			Log.e(DatabaseHelper.class.getName(), "Unable to create datbases", e);
@@ -109,13 +109,15 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 		}
 		return pointDao;
 	}
-	
+
+	/*
 	public Dao<Rally, Integer> getRallyDao() throws SQLException {
 		if (rallyDao == null) {
 			rallyDao = getDao(Rally.class);
 		}
 		return rallyDao;
 	}
+	*/
 	
 	public Dao<Play, Integer> getPlayDao() throws SQLException {
 		if (playDao == null) {
@@ -143,7 +145,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 		playerEntryDao = null;
 		setDao = null;
 		pointDao = null;
-		rallyDao = null;
+		//rallyDao = null;
 		playDao = null;
 		playAttributeDao = null;
 	}
@@ -159,7 +161,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 		TableUtils.dropTable(getConnectionSource(), Play.class, true);
 		TableUtils.dropTable(getConnectionSource(), Set.class, true);
 		TableUtils.dropTable(getConnectionSource(), Point.class, true);
-		TableUtils.dropTable(getConnectionSource(), Rally.class, true);
+		//TableUtils.dropTable(getConnectionSource(), Rally.class, true);
 		TableUtils.dropTable(getConnectionSource(), PlayAttribute.class, true);
 
 		// Recreate tables
@@ -172,7 +174,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 		TableUtils.createTable(connectionSource, PlayerEntry.class);
 		TableUtils.createTable(connectionSource, PlayAttribute.class);
 		TableUtils.createTable(connectionSource, Point.class);
-		TableUtils.createTable(connectionSource, Rally.class);
+		//TableUtils.createTable(connectionSource, Rally.class);
 		TableUtils.createTable(connectionSource, Set.class);
 	}
 	

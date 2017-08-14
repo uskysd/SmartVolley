@@ -35,7 +35,7 @@ public class Point implements Serializable, Comparable<Point> {
 	private Boolean teamFlag;
 	
 	@ForeignCollectionField
-	Collection<Rally> rallies;
+	Collection<Play> plays;
 	
 	public Point() {
 		//needed by ormlite
@@ -51,15 +51,12 @@ public class Point implements Serializable, Comparable<Point> {
 		this.set = set;
 		set.addPoint(this);
 		this.number = set.getPointCount();
-		if (this.rallies==null) {
-			this.rallies = new ArrayList<Rally>();
+		if (this.plays==null) {
+			this.plays = new ArrayList<Play>();
 		}
 	}
 
-	public Collection<Rally> getRallies() {
-		return this.rallies;
-	}
-
+	public Collection<Play> getPlays() {return this.plays; }
 
 	public int getNumber() {
 		return number;
@@ -113,28 +110,17 @@ public class Point implements Serializable, Comparable<Point> {
 		return set;
 	}
 
-	public void addRally(Rally rally) {
-		this.renumberRally();
-		this.rallies.add(rally);
-	}
-
-	public void removeRally(Rally rally) {
-		this.rallies.remove(rally);
-		this.renumberRally();
-	}
-
-	public void renumberRally() {
-		List<Rally> rallyList = new ArrayList<Rally>(this.getRallies());
-		Collections.sort(rallyList);
-		for (int i=0; i<rallyList.size(); i++) {
-			Rally rally = rallyList.get(i);
-			rally.setNumber(i+1);
+	public void addPlay(Play play) {
+		if (!this.plays.contains(play)) {
+			this.plays.add(play);
+		}
+		if (play.getPoint()!=this) {
+			play.setPoint(this);
 		}
 	}
 
-	public int getRallyCount() {
-		//renumberRally();
-		return rallies.size();
+	public void removePlay(Play play) {
+		this.plays.remove(play);
 	}
 
 	public boolean checkPlayerEntry(Player player) {
