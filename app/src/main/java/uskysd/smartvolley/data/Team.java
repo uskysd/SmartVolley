@@ -27,13 +27,13 @@ public class Team implements Serializable, Comparable<Team> {
 	@DatabaseField(columnName = TEAM_ID_FIELD_NAME)
 	private String name;
 	
-	@DatabaseField
+	@DatabaseField(canBeNull = true)
 	private String location;
 	
-	@DatabaseField
+	@DatabaseField(canBeNull = true)
 	private String description;
 	
-	@DatabaseField
+	@DatabaseField(canBeNull = true)
 	private Integer score;
 	
 	@ForeignCollectionField
@@ -49,17 +49,19 @@ public class Team implements Serializable, Comparable<Team> {
 	
 	public Team(String name) {
 		this.name = name;
-		initCollections();
+		initialize();
 
 	}
 
-	private void initCollections() {
+	private void initialize() {
+
 		if (this.players==null) {
 			this.players = new ArrayList<Player>();
 		}
 		if (this.matches==null) {
 			this.matches = new ArrayList<Match>();
 		}
+
 	}
 
 	public void addPlayer(Player player) {

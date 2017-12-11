@@ -51,6 +51,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 			TableUtils.createTable(connectionSource, Point.class);
 			//TableUtils.createTable(connectionSource, Rally.class);
 			TableUtils.createTable(connectionSource, Set.class);
+			TableUtils.createTable(connectionSource, PlayerRole.class);
 		} catch (SQLException e) {
 			Log.e(DatabaseHelper.class.getName(), "Unable to create datbases", e);
 		}
@@ -66,6 +67,11 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 					+ newVer, e);
 		}
 	}
+
+
+
+
+
 
 	public Dao<Team, Integer> getTeamDao() throws SQLException {
 		if (teamDao == null) {
@@ -132,6 +138,13 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 		}
 		return playAttributeDao;
 	}
+
+	public Dao<PlayerRole, Integer> getPlayerRoleDao() throws SQLException {
+		if (playerRoleDao == null) {
+			playerRoleDao = getDao(PlayerRole.class);
+		}
+		return playerRoleDao;
+	}
 	
 	
 	@Override
@@ -148,9 +161,10 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 		//rallyDao = null;
 		playDao = null;
 		playAttributeDao = null;
+		playerRoleDao = null;
 	}
 
-	public void clearTables() throws SQLException {
+    public void clearTables() throws SQLException {
 		// Drop tables
 		TableUtils.dropTable(getConnectionSource(), Team.class, true);
 		TableUtils.dropTable(getConnectionSource(), Player.class, true);
@@ -163,6 +177,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 		TableUtils.dropTable(getConnectionSource(), Point.class, true);
 		//TableUtils.dropTable(getConnectionSource(), Rally.class, true);
 		TableUtils.dropTable(getConnectionSource(), PlayAttribute.class, true);
+		TableUtils.dropTable(getConnectionSource(), PlayerRole.class, true);
 
 		// Recreate tables
 		TableUtils.createTable(connectionSource, Team.class);
@@ -176,6 +191,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 		TableUtils.createTable(connectionSource, Point.class);
 		//TableUtils.createTable(connectionSource, Rally.class);
 		TableUtils.createTable(connectionSource, Set.class);
+		TableUtils.createTable(connectionSource, PlayerRole.class);
 	}
 	
 }

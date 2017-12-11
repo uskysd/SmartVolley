@@ -64,9 +64,6 @@ public class Player implements Serializable, Comparable<Player> {
 	@DatabaseField(canBeNull=false, defaultValue="NONE", unknownEnumName="NONE")
 	private Position startingPosition;
 
-	@DatabaseField(canBeNull=false, defaultValue="NONE", unknownEnumName="NONE")
-	private Role role;
-
 	
 	public Player() {
 		//needed by ormlite
@@ -75,7 +72,6 @@ public class Player implements Serializable, Comparable<Player> {
 	public Player(String firstName, String lastName) {
 		this.firstName = firstName;
 		this.lastName = lastName;
-		this.role = Role.NONE;
 	}
 	
 	public Integer getId(){
@@ -220,14 +216,6 @@ public class Player implements Serializable, Comparable<Player> {
 
 	public void setStartingPosition(Position startingPosition) {
 		this.startingPosition = startingPosition;
-	}
-
-	public void setRole(Role role) {
-		this.role = role;
-	}
-
-	public Role getRole() {
-		return role;
 	}
 
 	public Integer getUniformNumber() {
