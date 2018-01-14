@@ -3,6 +3,7 @@ package uskysd.smartvolley.data;
 import com.j256.ormlite.dao.Dao;
 
 import uskysd.smartvolley.OrmLiteAndroidTestCase;
+import uskysd.smartvolley.Position;
 
 /**
  * Created by 112886 on 12/24/2015.

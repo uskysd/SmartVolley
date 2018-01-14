@@ -9,8 +9,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-
 import uskysd.smartvolley.OrmLiteAndroidTestCase;
+import uskysd.smartvolley.Position;
 
 /**
  * Created by 112886 on 12/14/2015.

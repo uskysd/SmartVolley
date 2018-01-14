@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import uskysd.smartvolley.OrmLiteAndroidTestCase;
+import uskysd.smartvolley.Role;
 
 /**
  * Created by usky04da on 12/10/17.

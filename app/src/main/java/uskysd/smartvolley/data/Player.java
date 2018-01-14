@@ -8,9 +8,9 @@ import org.joda.time.DateTime;
 import org.joda.time.Years;
 
 import java.io.Serializable;
-import java.sql.SQLException;
 import java.util.Date;
-import java.util.IllegalFormatCodePointException;
+
+import uskysd.smartvolley.Position;
 
 @DatabaseTable(tableName="players")
 public class Player implements Serializable, Comparable<Player> {

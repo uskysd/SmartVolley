@@ -1,4 +1,4 @@
-package uskysd.smartvolley.data;
+package uskysd.smartvolley;
 
 /**
  * Created by uskysd on 10/6/2015.

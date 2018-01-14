@@ -160,7 +160,7 @@ dataPersister=BYTE_ARRAY
 fieldName=startingPosition
 defaultValue=NONE
 canBeNull=false
-unknownEnumValue=uskysd.smartvolley.data.Position#NONE
+unknownEnumValue=uskysd.smartvolley.Position#NONE
 # --field-end--
 # --table-fields-end--
 # --table-end--
@@ -191,13 +191,13 @@ fieldName=teamFlag
 fieldName=startingPosition
 defaultValue=NONE
 canBeNull=false
-unknownEnumValue=uskysd.smartvolley.data.Position#NONE
+unknownEnumValue=uskysd.smartvolley.Position#NONE
 # --field-end--
 # --field-start--
 fieldName=role
 defaultValue=NONE
 canBeNull=false
-unknownEnumValue=uskysd.smartvolley.data.Role#NONE
+unknownEnumValue=uskysd.smartvolley.Role#NONE
 # --field-end--
 # --table-fields-end--
 # --table-end--
@@ -220,7 +220,7 @@ fieldName=role
 columnName=role_id
 defaultValue=NONE
 canBeNull=false
-unknownEnumValue=uskysd.smartvolley.data.Role#NONE
+unknownEnumValue=uskysd.smartvolley.Role#NONE
 # --field-end--
 # --table-fields-end--
 # --table-end--

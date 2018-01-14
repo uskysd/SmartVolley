@@ -5,6 +5,9 @@ import com.j256.ormlite.table.DatabaseTable;
 
 import java.io.Serializable;
 
+import uskysd.smartvolley.Position;
+import uskysd.smartvolley.Role;
+
 //import uskysd.smartvolley.Core;
 
 @DatabaseTable(tableName="playerEntries")

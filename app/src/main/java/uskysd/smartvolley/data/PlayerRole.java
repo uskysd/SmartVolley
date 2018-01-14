@@ -1,8 +1,10 @@
 package uskysd.smartvolley.data;
 
+import com.j256.ormlite.field.DatabaseField;
+
 import java.io.Serializable;
 
-import com.j256.ormlite.field.DatabaseField;
+import uskysd.smartvolley.Role;
 
 public class PlayerRole implements Serializable {
 
