@@ -78,5 +78,28 @@ public class PlayTest extends OrmLiteAndroidTestCase {
 
     }
 
+    public void testAddingToDabase() throws Exception {
+
+        // Setup
+        setUp();
+
+        // Exercise
+        Play sut1 = new Play(player1, Play.PlayType.SERVICE);
+        playDao.create(sut1);
+        playerDao.update(player1);
+
+        // Verify
+        Play queried = playDao.queryForAll().get(0);
+
+        assertEquals(sut1, queried);
+        assertEquals(player1, queried.getPlayer());
+        assertEquals(Play.PlayType.SERVICE, queried.getPlayType());
+        assertEquals("Taro Volley", player1.getFullName());
+
+        // By default, foreign object only have id
+        //assertEquals("Taro Volley", queried.getPlayer().getFullName());
+
+    }
+
 
 }

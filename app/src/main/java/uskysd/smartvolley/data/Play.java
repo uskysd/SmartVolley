@@ -1,11 +1,11 @@
 package uskysd.smartvolley.data;
 
-import java.io.Serializable;
-
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
 import org.joda.time.DateTime;
+
+import java.io.Serializable;
 
 @DatabaseTable(tableName="plays")
 public class Play extends Event implements Serializable {
@@ -109,7 +109,7 @@ public class Play extends Event implements Serializable {
 	}
 
 	public Player getPlayer() {
-		return player;
+		return this.player;
 	}
 
 	public void setPlayer(Player player) {
@@ -117,6 +117,9 @@ public class Play extends Event implements Serializable {
 			throw new IllegalArgumentException("Player must be created on db before registering play");
 		}
 		this.player = player;
+		if (!player.getPlays().contains(this)) {
+			player.addPlay(this);
+		}
 	}
 
 	public PlayType getPlayType() {
@@ -206,7 +209,7 @@ public class Play extends Event implements Serializable {
 	}
 
 	public String getEventTitle() {
-		return "Play."+this.playType.toString()+" by "+this.player.toString();
+		return this.playType.toString()+" by "+this.player.toString();
 	}
 
 	public DateTime getTimeStamp() {

@@ -137,7 +137,7 @@ public class MatchThread extends Thread {
 			statusIntervalTimer = System.currentTimeMillis();
 			lastStatusStore = statusIntervalTimer;
 			
-			Log.d(TAG, "Avarage FPS: " + df.format(averageFps));
+			//Log.d(TAG, "Avarage FPS: " + df.format(averageFps));
 			matchView.setAvgFps(averageFps);
 			
 		}

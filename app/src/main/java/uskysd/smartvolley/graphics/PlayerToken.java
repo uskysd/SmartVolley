@@ -5,16 +5,19 @@ import android.graphics.Color;
 import android.graphics.Paint;
 
 import uskysd.smartvolley.Position;
-import uskysd.smartvolley.R;
 
 
 public class PlayerToken extends Token {
 	
     private int playerId = -1;
 	private int number;
-	private int bodyColor = Color.parseColor(String.valueOf(R.color.player_token_normal));
-	private int numberColor = Color.parseColor(String.valueOf(R.color.player_token_text));
-    private int markerColor = Color.parseColor(String.valueOf(R.color.player_marker));
+
+	//private int bodyColor = Color.parseColor(String.valueOf(R.color.player_token_normal));
+	private int bodyColor = Color.GREEN;
+	//private int numberColor = Color.parseColor(String.valueOf(R.color.player_token_text));
+	private int numberColor = Color.BLACK;
+    //private int markerColor = Color.parseColor(String.valueOf(R.color.player_marker));
+	private int markerColor = Color.CYAN;
 	private static int radius = 20;
 	private static int textSize = 20;
 	private Position position;

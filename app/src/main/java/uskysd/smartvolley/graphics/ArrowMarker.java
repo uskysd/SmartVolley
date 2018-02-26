@@ -5,8 +5,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 
-import uskysd.smartvolley.R;
-
 import static java.lang.Math.sqrt;
 
 
@@ -19,7 +17,8 @@ public class ArrowMarker extends Token {
     private int y;
     private int stopX;
     private int stopY;
-    private int color = Color.parseColor(String.valueOf(R.color.arrow_marker));
+    //private int color = Color.parseColor(String.valueOf(R.color.arrow_marker));
+    private int color = Color.RED;
     private static int lineWidth = 2;
     private static float headHeight = 10;
     private static float headWidth = 8;

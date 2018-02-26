@@ -2,12 +2,15 @@ package uskysd.smartvolley.data;
 
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
 
 import org.joda.time.DateTime;
 import org.joda.time.Years;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 
 import uskysd.smartvolley.Position;
@@ -64,6 +67,9 @@ public class Player implements Serializable, Comparable<Player> {
 	@DatabaseField(canBeNull=false, defaultValue="NONE", unknownEnumName="NONE")
 	private Position startingPosition;
 
+	@ForeignCollectionField
+    private Collection<Play> plays;
+
 	
 	public Player() {
 		//needed by ormlite
@@ -72,8 +78,18 @@ public class Player implements Serializable, Comparable<Player> {
 	public Player(String firstName, String lastName) {
 		this.firstName = firstName;
 		this.lastName = lastName;
+		//Initialize plays
+		this.plays = new ArrayList<Play>();
 	}
-	
+
+	public Player(String firstName, String lastName, Position startingPosition) {
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.startingPosition = startingPosition;
+		// Initialize plays
+		this.plays = new ArrayList<Play>();
+	}
+
 	public Integer getId(){
 		return id;
 	}
@@ -226,6 +242,19 @@ public class Player implements Serializable, Comparable<Player> {
 		this.uniformNumber = uniformNumber;
 	}
 
+	public void addPlay(Play play) {
+		if (this.getId()==null||this.getId()==0) {
+			throw new IllegalArgumentException("Player must be created on database before adding a play");
+		}
+		if (play.getPlayer()!=this) {
+			play.setPlayer(this);
+		}
+	}
+
+	public Collection<Play> getPlays() {
+		return this.plays;
+	}
+
 	@Override
 	public int compareTo(Player another) {
 		return this.getFullName().compareTo(another.getFullName());
@@ -252,9 +281,10 @@ public class Player implements Serializable, Comparable<Player> {
 
 	}
 
-
-	
-
+	@Override
+	public String toString() {
+		return this.getFullName();
+	}
 }
 
 	

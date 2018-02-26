@@ -1,5 +1,5 @@
 #
-# generated on 2017/12/10 10:52:07
+# generated on 2018/02/24 10:51:17
 #
 # --table-start--
 dataClass=uskysd.smartvolley.data.Match
@@ -161,6 +161,10 @@ fieldName=startingPosition
 defaultValue=NONE
 canBeNull=false
 unknownEnumValue=uskysd.smartvolley.Position#NONE
+# --field-end--
+# --field-start--
+fieldName=plays
+foreignCollection=true
 # --field-end--
 # --table-fields-end--
 # --table-end--

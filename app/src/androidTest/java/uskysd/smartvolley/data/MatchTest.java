@@ -387,6 +387,9 @@ public class MatchTest extends OrmLiteAndroidTestCase {
         setDao.create(set2);
 
         //Verify
+        assertTrue(sut.getSets().contains(set1));
+        assertTrue(sut.getSets().contains(set2));
+
         Match queried = matchDao.queryForAll().get(0);
         assertEquals(false, queried.getSets()==null);
         assertEquals(true, queried.getSets().contains(set1));

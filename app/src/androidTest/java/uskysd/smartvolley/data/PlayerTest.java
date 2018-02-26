@@ -9,6 +9,21 @@ import uskysd.smartvolley.OrmLiteAndroidTestCase;
  */
 public class PlayerTest extends OrmLiteAndroidTestCase {
 
+    DatabaseHelper helper;
+    Dao<Player, Integer> playerDao;
+    Dao<Team, Integer> teamDao;
+    Team team1;
+
+
+
+    public void setUp() throws Exception {
+        helper = getDatabaseHelper(getContext());
+        playerDao = helper.getPlayerDao();
+        teamDao = helper.getTeamDao();
+        team1 = new Team("Team A");
+        teamDao.create(team1);
+    }
+
     public void testGettingFullname() {
         //Setup
         Player sut = new Player("Firstname", "Lastname");
@@ -115,6 +130,7 @@ public class PlayerTest extends OrmLiteAndroidTestCase {
         assertEquals(queried.getId(), sut.getId());
         assertEquals("Firstname", queried.getFirstName());
         assertEquals("Lastname", queried.getLastName());
+        assertEquals("Firstname Lastname", queried.getFullName());
 
         //Tear Down
         tearDown();
@@ -144,6 +160,29 @@ public class PlayerTest extends OrmLiteAndroidTestCase {
 
         //TearDown
         tearDown();
+
+    }
+
+    public void testSettingTeam() throws Exception {
+        // Setup
+        setUp();
+        Player sut = new Player("Yusuke", "Yoshida");
+
+        // Exercise
+        sut.setTeam(team1);
+        playerDao.create(sut);
+
+        // Verify
+        assertEquals(team1, sut.getTeam());
+        assertEquals(team1.getName(), sut.getTeam().getName());
+        Player queried = playerDao.queryForAll().get(0);
+        assertEquals(sut, queried);
+        assertEquals(team1, queried.getTeam());
+
+        // By default, foreign object only have id
+        //assertEquals(team1.getName(), queried.getTeam().getName());
+
+
 
     }
 

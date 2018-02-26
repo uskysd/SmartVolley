@@ -3,6 +3,7 @@ package uskysd.smartvolley;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Point;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
@@ -18,9 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import uskysd.smartvolley.data.Match;
-import uskysd.smartvolley.data.Player;
 import uskysd.smartvolley.data.PlayerEntry;
-import uskysd.smartvolley.Position;
 import uskysd.smartvolley.graphics.ArrowMarker;
 import uskysd.smartvolley.graphics.Court;
 import uskysd.smartvolley.graphics.CrossMarker;
@@ -60,18 +59,49 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
 
 	public MatchView(Context context) {
 		super(context);
-		getHolder().addCallback(this);
-		initView(context);
+		initialize(context, null, 0);
+		
+	}
+
+	public MatchView(Context context, AttributeSet attrs) {
+	    // This constructor is for creating view through XML
+	    super(context, attrs, 0);
+	    initialize(context, attrs, 0);
+    }
+
+    public MatchView(Context context, AttributeSet attrs, int defStyle) {
+	    // This constructor is for creating view through XML
+        super(context, attrs, defStyle);
+        initialize(context, attrs, 0);
+    }
+
+    private void initialize(Context context, AttributeSet attrs, int defStyle) {
+        getHolder().addCallback(this);
+        initView(context);
 
         //Set input listener
         setInputListener(new InputListener());
-		
-		
-		//create thread
-		thread = new MatchThread(getHolder(), this); 
-		setFocusable(true);
-		
-	}
+
+
+        //create thread
+        thread = new MatchThread(getHolder(), this);
+        setFocusable(true);
+
+    }
+
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+
+        //court.initLayout(widthMeasureSpec, heightMeasureSpec);
+
+        //PlayerToken.setRadius((int) (0.05*heightMeasureSpec));
+        //PlayerToken.setTextSize((int) (0.05*heightMeasureSpec));
+
+        //initPlayerTokenLocation();
+    }
+
 
     public void loadMatchInfo(Match match) {
         //Load match info
@@ -243,6 +273,7 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
         if (x < court.getCenterX()) {
             for (PlayerToken pt: leftSidePlayers) {
                 if (pt.checkTouched(x, y)==true) {
+                    touchedToken = pt;
                 }
             }
         } else {
@@ -319,7 +350,7 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
 		if (android.os.Build.VERSION.SDK_INT >= 13) {
 			Point size = new Point();
 			display.getSize(size); //Only for API LEVEL >= 13
-			width = size.x;
+			width = (int) (size.x * 0.75);
 			height = size.y;
 		} else {
 			width = display.getWidth(); //deprecated
@@ -378,7 +409,7 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
 	}
 	
 	public void render(Canvas canvas) {
-		canvas.drawColor(BACKGROUND_COLOR);
+		//canvas.drawColor(BACKGROUND_COLOR);
 		
 //		graphic.draw(canvas);
 
