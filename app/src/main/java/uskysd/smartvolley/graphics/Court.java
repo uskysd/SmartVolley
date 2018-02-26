@@ -6,7 +6,6 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.util.Log;
 
-import uskysd.smartvolley.R;
 import uskysd.smartvolley.Position;
 
 public class Court extends AdjustableDrawable {
@@ -24,8 +23,10 @@ public class Court extends AdjustableDrawable {
 	private static int rightEndX = 0;
 	private static int nearSideY = 0;
 	private static int farSideY = 0;
-    private static int COURT_COLOR = Color.parseColor(String.valueOf(R.color.court));
-	private static int LINE_COLOR = Color.parseColor(String.valueOf(R.color.court_line));
+    //private static int COURT_COLOR = Color.parseColor(String.valueOf(R.color.court));
+	//private static int LINE_COLOR = Color.parseColor(String.valueOf(R.color.court_line));
+	private static int COURT_COLOR = Color.RED;
+	private static int LINE_COLOR = Color.BLUE;
 
 	private static int LINE_WIDTH = 5;
 

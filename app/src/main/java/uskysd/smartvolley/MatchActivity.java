@@ -2,19 +2,34 @@ package uskysd.smartvolley;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.PixelFormat;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Display;
+import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.SurfaceHolder;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
 
 import com.j256.ormlite.android.apptools.OrmLiteBaseActivity;
 import com.j256.ormlite.dao.Dao;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import uskysd.smartvolley.data.DatabaseHelper;
+import uskysd.smartvolley.data.Event;
 import uskysd.smartvolley.data.Match;
+import uskysd.smartvolley.data.Play;
+import uskysd.smartvolley.data.Player;
 
 public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
 	
@@ -22,6 +37,7 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
     private static final String MATCH_ID = "match_id";
     private static final String INSTANCE_STATE_KEY = "MATCH";
     MatchView matchView;
+    ListView eventListView;
     private Match match;
     private MatchDataManager manager;
 
@@ -34,13 +50,31 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
 		// Making it full screen
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        matchView = new MatchView(this);
+		//matchView = new MatchView(this);
+
+		//setContentView(matchView);
+        setContentView(R.layout.activity_match);
+        matchView = (MatchView) findViewById(R.id.match_view);
+        eventListView = (ListView) findViewById(R.id.event_list_view);
         reInit(savedInstanceState);
-		setContentView(matchView);
-		Log.d(TAG, "View added");
+        Log.d(TAG, "View added");
+
+
+
 	}
 
-	@Override
+    @Override
+    protected void onResume() {
+        super.onResume();
+        try {
+            fillList();
+        } catch (SQLException e) {
+            Log.d(TAG, e.getLocalizedMessage());
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.match, menu);
@@ -71,6 +105,11 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
         try {
             Dao<Match, Integer> dao = getHelper().getMatchDao();
 
+            // Make MatchView transparent
+            matchView.setZOrderOnTop(true);
+            SurfaceHolder holder = matchView.getHolder();
+            holder.setFormat(PixelFormat.TRANSPARENT);
+
             if (savedInstanceState != null) {
                 //Restore match from saved instance state
                 this.match = (Match) savedInstanceState.get(INSTANCE_STATE_KEY);
@@ -83,7 +122,14 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
                         loadMatchInfo();
                     }
                 } else {
-                    throw new RuntimeException("Match data not found");
+                    //throw new RuntimeException("Match data not found");
+                    // Generate dummy data set for testing
+                    TestDataGenerator dgen = new TestDataGenerator(getBaseContext());
+                    dgen.createTestDataCase001();
+                    DatabaseHelper helper = getHelper();
+                    Dao<Match, Integer> matchDao = helper.getMatchDao();
+                    match = matchDao.queryForAll().get(0);
+                    loadMatchInfo();
                 }
 
             }
@@ -95,7 +141,27 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
 
     public void loadMatchInfo() {
         //TODO load match info to the match view
+
         matchView.loadMatchInfo(match);
+
+        //Define view size requirements
+
+        int width = 0;
+        int height = 0;
+        WindowManager wm = (WindowManager) this.getSystemService(Context.WINDOW_SERVICE);
+        Display display = wm.getDefaultDisplay();
+        if (android.os.Build.VERSION.SDK_INT >= 13) {
+            Point size = new Point();
+            display.getSize(size); //Only for API LEVEL >= 13
+            width = (int) (size.x * 0.75);
+            height = size.y;
+        } else {
+            width = (int) (display.getWidth()*0.75); //deprecated
+            height = (int) (display.getHeight()*0.75); //deprecated
+        }
+        matchView.measure(width, height);
+
+
     }
 
 
@@ -130,6 +196,22 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
 
     }
 
+    public void fillList() throws SQLException {
+	    Log.i(TAG, "Show event list");
+	    Dao<Play, Integer> playDao = getHelper().getPlayDao();
+	    Dao<Player, Integer> playerDao = getHelper().getPlayerDao();
+	    Log.d(TAG, "Play DAO is called");
+	    List<Event> list = new ArrayList<Event>();
+        for (Play p: playDao.queryForAll()) {
+            // Restore player data. Foreign object only has id by default.
+            p.setPlayer(playerDao.queryForId(p.getPlayer().getId()));
+            list.add(p);
+        }
+        ArrayAdapter<Event> arrayAdapter = new EventAdapter(this, R.layout.event_row, list);
+        eventListView.setAdapter(arrayAdapter);
+
+    }
+
     public static class NormalModeInputListener extends MatchView.InputListener {
 
         public NormalModeInputListener() {
@@ -158,6 +240,30 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
         }
 
 //        onPlayerSwiped
+    }
+
+    private class EventAdapter extends ArrayAdapter<Event> {
+
+	    public EventAdapter(Context context, int textViewResourceId, List<Event> items) {
+	        super(context, textViewResourceId, items);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+	        View v = convertView;
+	        if (v==null) {
+	            LayoutInflater vi = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                v = vi.inflate(R.layout.event_row, null);
+	        }
+	        Event event = getItem(position);
+	        fillText(v, R.id.event_row_title, event.getEventTitle());
+	        return v;
+        }
+
+        public void fillText(View v, int id, String text) {
+	        TextView textView = (TextView) v.findViewById(id);
+	        textView.setText(text==null ? "": text);
+        }
     }
 
 

@@ -4,8 +4,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 
-import uskysd.smartvolley.R;
-
 
 /**
  * Created by yusukeyohishida on 2014/07/20.
@@ -14,8 +12,8 @@ public class CrossMarker extends Token {
 
     private static int size = 10;
     private static int lineWidth = 1;
-    private static int color = Color.parseColor(String.valueOf(R.color.cross_marker));
-
+    //private static int color = Color.parseColor(String.valueOf(R.color.cross_marker));
+    private static int color = Color.DKGRAY;
 
 
     public CrossMarker(int x, int y) {
