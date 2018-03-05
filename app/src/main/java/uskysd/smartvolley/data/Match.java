@@ -1,18 +1,16 @@
 package uskysd.smartvolley.data;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-
-
-import org.joda.time.DateTime;
-
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
+
+import org.joda.time.DateTime;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 
 @DatabaseTable(tableName="matches")
@@ -278,6 +276,17 @@ public class Match implements Serializable, Comparable<Match> {
 	public void removeSet(Set set) {
 		this.sets.remove(set);
 		this.renumberSets();
+	}
+
+	public Set getOnGoingSet() {
+		ArrayList<Set> setList = new ArrayList<Set>(this.sets);
+		Collections.sort(setList);
+		Set last = setList.get(setList.size()-1);
+		if (last.isOnGoing()) {
+			return last;
+		} else {
+			return null;
+		}
 	}
 
 	public boolean checkPlayerEntry(Player player) {

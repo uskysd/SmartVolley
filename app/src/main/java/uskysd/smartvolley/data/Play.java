@@ -89,6 +89,13 @@ public class Play extends Event implements Serializable {
 		this.playType = playType;
         this.dateTime = DateTime.now();
 	}
+
+	public Play(Point point, Player player, PlayType playType) {
+		this.setPoint(point);
+		this.setPlayer(player);
+		this.playType = playType;
+		this.dateTime = DateTime.now();
+	}
 	
 	public Integer getId() {
 		return id;
@@ -226,7 +233,11 @@ public class Play extends Event implements Serializable {
 		return this.eventOrder;
 	}
 
-    @Override
+	@Override
+	public Match getMatch() {
+		return this.point.getSet().getMatch();
+	}
+	@Override
     public void setEventOrder(int eventOrder) {
         this.eventOrder = eventOrder;
     }

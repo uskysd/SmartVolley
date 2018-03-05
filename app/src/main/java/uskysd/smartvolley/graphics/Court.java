@@ -25,7 +25,7 @@ public class Court extends AdjustableDrawable {
 	private static int farSideY = 0;
     //private static int COURT_COLOR = Color.parseColor(String.valueOf(R.color.court));
 	//private static int LINE_COLOR = Color.parseColor(String.valueOf(R.color.court_line));
-	private static int COURT_COLOR = Color.RED;
+	private static int COURT_COLOR = Color.YELLOW;
 	private static int LINE_COLOR = Color.BLUE;
 
 	private static int LINE_WIDTH = 5;

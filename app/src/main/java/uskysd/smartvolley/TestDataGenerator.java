@@ -131,9 +131,16 @@ public class TestDataGenerator extends OrmLiteObject {
         }
         matchDao.update(match);
 
+
         // Add some plays
-        Play play01 = new Play(nobunaga, Play.PlayType.SERVICE);
-        Play play02 = new Play(ieyasu, Play.PlayType.RECEPTION);
+        Set set1 = new Set(match);
+        setDao.create(set1);
+
+        Point point1 = new Point(set1);
+        pointDao.create(point1);
+
+        Play play01 = new Play(point1, nobunaga, Play.PlayType.SERVICE);
+        Play play02 = new Play(point1, ieyasu, Play.PlayType.RECEPTION);
 
         playDao.create(play01);
         playDao.create(play02);

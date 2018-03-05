@@ -1,15 +1,14 @@
 package uskysd.smartvolley.data;
 
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.field.ForeignCollectionField;
+import com.j256.ormlite.table.DatabaseTable;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-
-import com.j256.ormlite.field.DatabaseField;
-import com.j256.ormlite.field.ForeignCollectionField;
-import com.j256.ormlite.field.types.BooleanType;
-import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable(tableName="sets")
 public class Set implements Serializable, Comparable<Set> {
@@ -112,6 +111,17 @@ public class Set implements Serializable, Comparable<Set> {
 	public void removePoint(Point point) {
 		this.points.remove(point);
 		this.renumberPoints();
+	}
+
+	public Point getOnGoingPoint() {
+		ArrayList<Point> pointList = new ArrayList<Point>(this.points);
+		Collections.sort(pointList);
+		Point last = pointList.get(pointList.size()-1);
+		if (last.isOnGoing()) {
+			return last;
+		} else {
+			return null;
+		}
 	}
 	
 	public Collection<Point> getPointsWonByTeamB() {

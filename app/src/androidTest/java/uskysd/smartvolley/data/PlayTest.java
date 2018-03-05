@@ -63,11 +63,15 @@ public class PlayTest extends OrmLiteAndroidTestCase {
         setUp();
 
         // Exercise
-        Play sut1 = new Play(player1, Play.PlayType.ATTACK);
-        Play sut2 = new Play(player2, Play.PlayType.RECEIVE);
-        Play sut3 = new Play(player3, Play.PlayType.BLOCK);
+        Play sut1 = new Play(point, player1, Play.PlayType.ATTACK);
+        Play sut2 = new Play(point, player2, Play.PlayType.RECEIVE);
+        Play sut3 = new Play(point, player3, Play.PlayType.BLOCK);
 
         // Verify
+        assertEquals(point, sut1.getPoint());
+        assertEquals(point, sut2.getPoint());
+        assertEquals(match, sut1.getMatch());
+        assertEquals(match, sut2.getMatch());
         assertEquals(player1, sut1.getPlayer());
         assertEquals(player2, sut2.getPlayer());
         assertEquals(Play.PlayType.ATTACK, sut1.getPlayType());
@@ -84,7 +88,7 @@ public class PlayTest extends OrmLiteAndroidTestCase {
         setUp();
 
         // Exercise
-        Play sut1 = new Play(player1, Play.PlayType.SERVICE);
+        Play sut1 = new Play(point, player1, Play.PlayType.SERVICE);
         playDao.create(sut1);
         playerDao.update(player1);
 
@@ -92,12 +96,17 @@ public class PlayTest extends OrmLiteAndroidTestCase {
         Play queried = playDao.queryForAll().get(0);
 
         assertEquals(sut1, queried);
+        assertEquals(point, queried.getPoint());
         assertEquals(player1, queried.getPlayer());
         assertEquals(Play.PlayType.SERVICE, queried.getPlayType());
         assertEquals("Taro Volley", player1.getFullName());
 
+
         // By default, foreign object only have id
         //assertEquals("Taro Volley", queried.getPlayer().getFullName());
+
+        //Tear Down
+        tearDown();
 
     }
 

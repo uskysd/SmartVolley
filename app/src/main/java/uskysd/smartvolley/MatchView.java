@@ -27,7 +27,7 @@ import uskysd.smartvolley.graphics.PlayerToken;
 import uskysd.smartvolley.graphics.Token;
 
 public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
-	
+
 	private static final String TAG = MatchView.class.getSimpleName();
 	private int COURT_COLOR = getResources().getColor(R.color.orange);
 	private int BACKGROUND_COLOR = getResources().getColor(R.color.powder_blue);
@@ -60,7 +60,7 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
 	public MatchView(Context context) {
 		super(context);
 		initialize(context, null, 0);
-		
+
 	}
 
 	public MatchView(Context context, AttributeSet attrs) {
@@ -152,21 +152,21 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
     }
     */
 
-	
+
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
         Log.d(TAG, "surface created");
 		thread.setRunning(true);
 		thread.start();
 	}
-	
+
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,
 			int height) {
 		// TODO Auto-generated method stub
-		
+
 	}
-	
+
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
 		boolean retry = true;
@@ -186,7 +186,7 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
 	public boolean onTouchEvent(MotionEvent event) {
-		
+
 		switch (event.getAction()) {
 		case MotionEvent.ACTION_DOWN:
 //			graphic.handleActionDown((int) event.getX(), (int) event.getY());
@@ -246,7 +246,7 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
 
             }
         } else {
-
+            // Do nothing
         }
 
     }
@@ -316,8 +316,8 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
 		return true;
 	}
 	*/
-	
-	
+
+
 	public void initView(Context context) {
 		Log.d(TAG, "Initializeing view");
 
@@ -340,12 +340,12 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
 
 
 //        graphic.setInputListener(listener);
-		
+
 		//Get screen size
-		  
+
 		int width = 0;
 		int height = 0;
-		WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE); 
+		WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
 		Display display = wm.getDefaultDisplay();
 		if (android.os.Build.VERSION.SDK_INT >= 13) {
 			Point size = new Point();
@@ -365,8 +365,8 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
         initPlayerTokenLocation();
 //		graphic.initLayout(width, height);
 
-		
-		
+
+
 	}
 
     public void initPlayerTokenLocation() {
@@ -383,7 +383,7 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
 
-	
+
 	public void update() {
 		// update graphics information
 
@@ -407,10 +407,11 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
 
 
 	}
-	
+
 	public void render(Canvas canvas) {
-		//canvas.drawColor(BACKGROUND_COLOR);
-		
+
+		canvas.drawColor(BACKGROUND_COLOR);
+
 //		graphic.draw(canvas);
 
         //Draw court
@@ -486,12 +487,12 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
         return swiping;
     }
 
-    public static class InputListener {
+    public class InputListener2 {
 
-        public InputListener() {
+        public InputListener2() {
 
-        }
 
+    }
         public void onPlayerSwiped(int playerId, int startX, int startY, int endX, int endY) {
 
         }
@@ -515,6 +516,7 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
         public void onPlayerLongTouched(int playerId, int x, int y) {
 
         }
+
 
         public void onLeftCourtInsideTouched(int x, int y) {
 

@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -23,6 +24,7 @@ import com.j256.ormlite.dao.Dao;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import uskysd.smartvolley.data.DatabaseHelper;
@@ -30,16 +32,19 @@ import uskysd.smartvolley.data.Event;
 import uskysd.smartvolley.data.Match;
 import uskysd.smartvolley.data.Play;
 import uskysd.smartvolley.data.Player;
+import uskysd.smartvolley.data.Set;
 
 public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
 	
 	private static final String TAG = MatchActivity.class.getSimpleName();
     private static final String MATCH_ID = "match_id";
     private static final String INSTANCE_STATE_KEY = "MATCH";
-    MatchView matchView;
-    ListView eventListView;
+    private static MatchView matchView;
+    private ListView mListView;
     private Match match;
     private MatchDataManager manager;
+    private InputListener mInputListener;
+
 
 
 	@Override
@@ -55,7 +60,9 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
 		//setContentView(matchView);
         setContentView(R.layout.activity_match);
         matchView = (MatchView) findViewById(R.id.match_view);
-        eventListView = (ListView) findViewById(R.id.event_list_view);
+        mListView = (ListView) findViewById(R.id.event_list_view);
+        mInputListener = new NormalModeInputListener();
+        matchView.setInputListener(mInputListener);
         reInit(savedInstanceState);
         Log.d(TAG, "View added");
 
@@ -66,12 +73,14 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
     @Override
     protected void onResume() {
         super.onResume();
+
         try {
-            fillList();
+            listEvents();
         } catch (SQLException e) {
             Log.d(TAG, e.getLocalizedMessage());
             throw new RuntimeException(e);
         }
+
     }
 
     @Override
@@ -196,7 +205,7 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
 
     }
 
-    public void fillList() throws SQLException {
+    public void listEvents() throws SQLException {
 	    Log.i(TAG, "Show event list");
 	    Dao<Play, Integer> playDao = getHelper().getPlayDao();
 	    Dao<Player, Integer> playerDao = getHelper().getPlayerDao();
@@ -208,14 +217,66 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
             list.add(p);
         }
         ArrayAdapter<Event> arrayAdapter = new EventAdapter(this, R.layout.event_row, list);
-        eventListView.setAdapter(arrayAdapter);
+        mListView.setAdapter(arrayAdapter);
 
     }
 
-    public static class NormalModeInputListener extends MatchView.InputListener {
+    public void listPlayTypes() {
+	    Log.i(TAG, "Show play types in the list");
+
+	    //List<Play.PlayType> playTypes = new ArrayList<Play.PlayType>();
+        List<String> playTypes = Arrays.asList("Service", "Reception", "Toss", "Attack", "Block", "Receive");
+	    ArrayAdapter<String> adapter =
+                new ArrayAdapter<String>(this,
+                                                android.R.layout.simple_list_item_1,
+                                                playTypes);
+	    mListView.setAdapter(adapter);
+
+	    // Set listener for the play type list
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                String value = (String) adapterView.getItemAtPosition(i);
+                switch(value) {
+                    case "Service":
+                        // Service
+                    }
+                }
+            });
+
+    }
+
+    private class MatchDataInputManager {
+
+	    private Match match;
+	    private Set set;
+	    private Point point;
+	    private Player player;
+	    private Play.PlayType playType;
+	    private Play.PlayEvaluation playEvaluation;
+
+	    public MatchDataInputManager(Match match) {
+	        this.match = match;
+
+
+        }
+
+
+    }
+
+    public class NormalModeInputListener extends InputListener {
 
         public NormalModeInputListener() {
             super();
+        }
+
+        @Override
+        public void onPlayerTouched(int playerId, int x, int y) {
+            Log.d(TAG, "onPlayerTouched called");
+            super.onPlayerTouched(playerId, x, y);
+            listPlayTypes();
+
         }
 
         @Override
@@ -233,7 +294,7 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
         }
     }
 
-    public static class PlayTargetInputListenener extends MatchView.InputListener {
+    public class PlayTargetInputListenener extends InputListener {
 
         public PlayTargetInputListenener() {
             super();
@@ -241,6 +302,7 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
 
 //        onPlayerSwiped
     }
+
 
     private class EventAdapter extends ArrayAdapter<Event> {
 
@@ -265,6 +327,7 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
 	        textView.setText(text==null ? "": text);
         }
     }
+
 
 
 

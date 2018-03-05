@@ -11,6 +11,8 @@ public abstract class Event implements Comparable<Event> {
 
     abstract public int getEventOrder();
 
+    abstract public Match getMatch();
+
     abstract public void setEventOrder(int order);
 
     abstract public DateTime getTimeStamp();

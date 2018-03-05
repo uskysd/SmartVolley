@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import uskysd.smartvolley.MatchView;
+import uskysd.smartvolley.InputListener;
 import uskysd.smartvolley.R.color;
 
 public class GraphicSet extends AdjustableDrawable {
@@ -58,7 +58,7 @@ public class GraphicSet extends AdjustableDrawable {
 
 
     //Input Listener
-    private MatchView.InputListener inputListener;
+    private InputListener inputListener;
 	
 	public GraphicSet() {
 
@@ -67,7 +67,7 @@ public class GraphicSet extends AdjustableDrawable {
 		Log.d(TAG, "Instantiated");
 	}
 
-    public void setInputListener(MatchView.InputListener listener) {
+    public void setInputListener(InputListener listener) {
         this.inputListener = listener;
     }
 	
