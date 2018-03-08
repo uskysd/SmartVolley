@@ -111,6 +111,7 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
             PlayerToken pt = getPlayerToken(Court.Side.LEFT_COURT, entry.getStartingPosition());
             if (pt!=null && entry.getNumber()!=null) {
                 pt.setNumber(entry.getNumber());
+                pt.setPlayerId(entry.getPlayer().getId());
 
             }
         }
@@ -121,6 +122,7 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
 
             if (pt!=null && entry.getNumber()!=null) {
                 pt.setNumber(entry.getNumber());
+                pt.setPlayerId(entry.getPlayer().getId());
             }
         }
     }

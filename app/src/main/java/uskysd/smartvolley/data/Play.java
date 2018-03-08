@@ -104,7 +104,7 @@ public class Play extends Event implements Serializable {
 	public Point getPoint() { return point; }
 
 	public void setPoint(Point point) {
-		if (point.getId()==null||point.getId()==null) {
+		if (point.getId()==0||point.getId()==null) {
 			throw new IllegalArgumentException("Point is not on db");
 		} else {
 			this.point = point;

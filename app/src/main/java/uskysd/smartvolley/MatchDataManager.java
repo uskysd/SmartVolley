@@ -1,6 +1,7 @@
 package uskysd.smartvolley;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.j256.ormlite.dao.Dao;
 
@@ -49,19 +50,29 @@ public class MatchDataManager extends OrmLiteObject {
 
     }
 
+    public void setMatch(Match match) {
+        this.match = match;
+        try {
+            initialize();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public void initialize() throws SQLException {
+        Log.d(TAG, "initializing");
         Dao<Set, Integer> setDao = getDatabaseHelper(this.context).getSetDao();
         Dao<Point, Integer> pointDao = getDatabaseHelper(this.context).getPointDao();
 
-        Set set = this.match.getOnGoingSet();
+        set = this.match.getOnGoingSet();
         if (set==null) {
             set = new Set(this.match);
             setDao.create(set);
         }
-        Point point = set.getOnGoingPoint();
+        point = set.getOnGoingPoint();
         if (point==null) {
             point = new Point(set);
-            pointDao.create(point);
+            pointDao.create(this.point);
         }
 
         if (set.getSetNumber()==SET_COUNT) {
@@ -137,14 +148,14 @@ public class MatchDataManager extends OrmLiteObject {
     }
 
     public void setSetWinner(boolean teamflag) throws SQLException {
-        if (teamflag==TEAM_A) {
+        if (teamflag == TEAM_A) {
             this.set.setTeamAWon();
         } else {
             this.set.setTeamBWon();
         }
 
 
-        if (this.match.getSetsWonByTeamA().size()>=SET_COUNT) {
+        if (this.match.getSetsWonByTeamA().size() >= SET_COUNT) {
             this.match.setTeamAWon();
             this.match = null;
             // TODO Should notify the Match is over
@@ -156,13 +167,34 @@ public class MatchDataManager extends OrmLiteObject {
             this.set = new Set(this.match);
             setDao.create(this.set);
 
+            if (set.getSetNumber() == SET_COUNT) {
+                this.pointCount = FINAL_SET_POINT_COUNT;
+            } else {
+                this.pointCount = POINT_COUNT;
+            }
+
             // Create new Point
             this.point = new Point(this.set);
             pointDao.create(this.point);
 
+        }
 
+    }
+
+    public Integer getPointCount(boolean teamflag) {
+        if (teamflag==TEAM_A) {
+            return this.set.getPointsWonByTeamA().size();
+        } else {
+            return this.set.getPointsWonByTeamB().size();
         }
     }
 
+    public Integer getSetCount(boolean teamflag) {
+        if (teamflag==TEAM_A) {
+            return this.match.getSetsWonByTeamA().size();
+        } else {
+            return this.match.getSetsWonByTeamB().size();
+        }
+    }
 
 }

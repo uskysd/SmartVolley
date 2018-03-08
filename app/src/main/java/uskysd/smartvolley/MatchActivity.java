@@ -32,7 +32,6 @@ import uskysd.smartvolley.data.Event;
 import uskysd.smartvolley.data.Match;
 import uskysd.smartvolley.data.Play;
 import uskysd.smartvolley.data.Player;
-import uskysd.smartvolley.data.Set;
 
 public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
 	
@@ -42,8 +41,8 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
     private static MatchView matchView;
     private ListView mListView;
     private Match match;
-    private MatchDataManager manager;
     private InputListener mInputListener;
+    private MatchDataManager dataManager;
 
 
 
@@ -128,6 +127,7 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
                 if (matchId > 0) {
                     this.match = dao.queryForId(matchId);
                     if (this.match!=null) {
+
                         loadMatchInfo();
                     }
                 } else {
@@ -151,6 +151,7 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
     public void loadMatchInfo() {
         //TODO load match info to the match view
 
+        this.dataManager = new MatchDataManager(getBaseContext(), this.match);
         matchView.loadMatchInfo(match);
 
         //Define view size requirements
@@ -187,24 +188,6 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
 		super.onStop();
 	}
 
-    public static class MatchDataManager {
-
-        public static enum Mode {TEAM_A_SERVICE, TEAM_B_SERVICE, TEAM_A_RALLY, TEAM_B_RALLY}
-        private static Mode mode;
-        private Match match;
-
-        public MatchDataManager(Match match) {
-            this.match = match;
-            this.mode = Mode.TEAM_A_RALLY;
-        }
-
-
-
-
-
-
-    }
-
     public void listEvents() throws SQLException {
 	    Log.i(TAG, "Show event list");
 	    Dao<Play, Integer> playDao = getHelper().getPlayDao();
@@ -238,32 +221,39 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 String value = (String) adapterView.getItemAtPosition(i);
+                dataManager.setPlayType(Play.PlayType.SERVICE); // default
                 switch(value) {
                     case "Service":
                         // Service
-                    }
+                        dataManager.setPlayType(Play.PlayType.SERVICE);
+                    case "Reception":
+                        // Reception
+                        dataManager.setPlayType(Play.PlayType.RECEPTION);
+                    case "Receive":
+                        // Receive
+                        dataManager.setPlayType(Play.PlayType.RECEIVE);
+                    case "Attack":
+                        //Attack
+                        dataManager.setPlayType(Play.PlayType.ATTACK);
+                    case "Block":
+                        //Block
+                        dataManager.setPlayType(Play.PlayType.BLOCK);
+                    case "Toss":
+                        //Toss
+                        dataManager.setPlayType(Play.PlayType.TOSS);
+                }
+                try {
+                    dataManager.createPlay();
+                    listEvents();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+
                 }
             });
 
     }
 
-    private class MatchDataInputManager {
-
-	    private Match match;
-	    private Set set;
-	    private Point point;
-	    private Player player;
-	    private Play.PlayType playType;
-	    private Play.PlayEvaluation playEvaluation;
-
-	    public MatchDataInputManager(Match match) {
-	        this.match = match;
-
-
-        }
-
-
-    }
 
     public class NormalModeInputListener extends InputListener {
 
@@ -273,9 +263,23 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
 
         @Override
         public void onPlayerTouched(int playerId, int x, int y) {
-            Log.d(TAG, "onPlayerTouched called");
+            Log.d(TAG, "onPlayerTouched called, player id: "+ Integer.toString(playerId));
             super.onPlayerTouched(playerId, x, y);
-            listPlayTypes();
+            if (playerId>0) {
+                try {
+
+                    Player player = getHelper().getPlayerDao().queryForId(playerId);
+                    Log.d(TAG, "Player selected: "+player.toString());
+                    dataManager.setPlayer(player);
+                } catch (SQLException e) {
+                    Log.d(TAG, "Failed to set player for data input");
+                    throw new RuntimeException(e);
+                }
+                listPlayTypes();
+            } else {
+                Log.d(TAG, "Invalid player ID");
+            }
+
 
         }
 
