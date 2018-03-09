@@ -280,6 +280,9 @@ public class Match implements Serializable, Comparable<Match> {
 
 	public Set getOnGoingSet() {
 		ArrayList<Set> setList = new ArrayList<Set>(this.sets);
+		if (setList.size()==0) {
+			return null;
+		}
 		Collections.sort(setList);
 		Set last = setList.get(setList.size()-1);
 		if (last.isOnGoing()) {

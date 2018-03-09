@@ -115,6 +115,9 @@ public class Set implements Serializable, Comparable<Set> {
 
 	public Point getOnGoingPoint() {
 		ArrayList<Point> pointList = new ArrayList<Point>(this.points);
+		if (pointList.size()==0) {
+		    return null;
+        }
 		Collections.sort(pointList);
 		Point last = pointList.get(pointList.size()-1);
 		if (last.isOnGoing()) {
