@@ -24,6 +24,7 @@ import uskysd.smartvolley.graphics.ArrowMarker;
 import uskysd.smartvolley.graphics.Court;
 import uskysd.smartvolley.graphics.CrossMarker;
 import uskysd.smartvolley.graphics.PlayerToken;
+import uskysd.smartvolley.graphics.Scoreboard;
 import uskysd.smartvolley.graphics.Token;
 
 public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
@@ -39,6 +40,7 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
     //Tokens
 //	private GraphicSet graphic;
 	private Court court;
+	private Scoreboard scoreboard;
     private PlayerToken[] leftSidePlayers;
     private PlayerToken[] rightSidePlayers;
     private ArrayList<PlayerToken> playerMakers = new ArrayList<PlayerToken>();
@@ -326,6 +328,7 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
 		//Init tokens
 //		graphic = new GraphicSet();
         court = new Court();
+        scoreboard = new Scoreboard();
         leftSidePlayers = new PlayerToken[6];
         rightSidePlayers = new PlayerToken[6];
         List<Position> positions = Arrays.asList(Position.values());
@@ -360,12 +363,15 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
 		}
 
         court.initLayout(width, height);
+		scoreboard.adjustLayout(width, height);
 
         PlayerToken.setRadius((int) (0.05*height));
         PlayerToken.setTextSize((int) (0.05*height));
 
         initPlayerTokenLocation();
 //		graphic.initLayout(width, height);
+
+
 
 
 
@@ -418,6 +424,9 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
 
         //Draw court
         court.draw(canvas);
+
+        // Draw scoreboard
+        scoreboard.draw(canvas);
 
         //Draw player marker
         for (PlayerToken pm: playerMakers) {

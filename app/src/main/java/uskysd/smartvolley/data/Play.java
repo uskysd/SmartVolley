@@ -14,7 +14,8 @@ public class Play extends Event implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = -7054422602195971927L;
-	
+
+
 	public enum PlayType {
 		SERVICE("Service"), RECEPTION("Reception"), RECEIVE("Receive"), TOSS("Toss"),
 		ATTACK("Attack"), BLOCK("Block");
@@ -215,8 +216,17 @@ public class Play extends Event implements Serializable {
 		}
 	}
 
+	public String toString() {
+	    if ((player!=null)&&(playType!=null)) {
+            return this.playType.toString() + " by " + this.player.toString();
+        } else {
+	        return "Play: play type or player not defined";
+        }
+    }
+
 	public String getEventTitle() {
-		return this.playType.toString()+" by "+this.player.toString();
+		return Integer.toString(this.getId()) + ":" + this.toString();
+	    //return this.playType.toString()+" by "+this.player.toString();
 	}
 
 	public DateTime getTimeStamp() {
@@ -237,8 +247,11 @@ public class Play extends Event implements Serializable {
 	public Match getMatch() {
 		return this.point.getSet().getMatch();
 	}
+
 	@Override
     public void setEventOrder(int eventOrder) {
         this.eventOrder = eventOrder;
     }
+
+
 }

@@ -3,8 +3,10 @@ package uskysd.smartvolley;
 import com.j256.ormlite.dao.Dao;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import uskysd.smartvolley.data.DatabaseHelper;
+import uskysd.smartvolley.data.Event;
 import uskysd.smartvolley.data.Match;
 import uskysd.smartvolley.data.Play;
 import uskysd.smartvolley.data.Player;
@@ -100,6 +102,36 @@ public class MatchDataManagerTest extends OrmLiteAndroidTestCase {
         // Teardown
         tearDown();
 
+    }
+
+    public void testGetEvents() throws Exception {
+        //Setup
+        setUp();
+
+        dataManager.setPlayer(player1);
+        dataManager.setPlayType(Play.PlayType.ATTACK);
+        dataManager.createPlay();
+        dataManager.setPlayer(player2);
+        dataManager.setPlayType(Play.PlayType.BLOCK);
+        dataManager.setPlayEvaluation(Play.PlayEvaluation.GOOD);
+        dataManager.createPlay();
+
+        // Exercise
+        List<Event> events = dataManager.getEvents();
+
+        // Verify
+        assertEquals(2, events.size());
+        Play play1 = (Play) events.get(0);
+        Play play2 = (Play) events.get(1);
+        assertEquals(player1, play1.getPlayer());
+        assertEquals(Play.PlayType.ATTACK, play1.getPlayType());
+        assertEquals(null, play1.getEvaluation());
+        assertEquals(player2, play2.getPlayer());
+        assertEquals(Play.PlayType.BLOCK, play2.getPlayType());
+        assertEquals(Play.PlayEvaluation.GOOD, play2.getEvaluation());
+
+        // Tear down
+        tearDown();
     }
 
 

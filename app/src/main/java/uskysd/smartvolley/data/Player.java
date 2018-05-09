@@ -285,6 +285,8 @@ public class Player implements Serializable, Comparable<Player> {
 	public String toString() {
 		return this.getFullName();
 	}
+
+
 }
 
 	

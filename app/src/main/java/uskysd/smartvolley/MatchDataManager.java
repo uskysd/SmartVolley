@@ -6,7 +6,11 @@ import android.util.Log;
 import com.j256.ormlite.dao.Dao;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
+import uskysd.smartvolley.data.Event;
 import uskysd.smartvolley.data.Match;
 import uskysd.smartvolley.data.Play;
 import uskysd.smartvolley.data.Player;
@@ -106,12 +110,14 @@ public class MatchDataManager extends OrmLiteObject {
 
         //Dao<Match, Integer> matchDao = getDatabaseHelper(this.context).getMatchDao();
         Dao<Play, Integer> playDao = getDatabaseHelper(this.context).getPlayDao();
+        //Dao<Player, Integer> playerDao = getDatabaseHelper(this.context).getPlayerDao();
 
         Play play = new Play(point, player, playType);
         if (playEvaluation!=null) {
             play.setEvaluation(playEvaluation);
         }
         playDao.create(play);
+        Log.d(TAG, "Created new play: "+play.toString());
 
     }
 
@@ -195,6 +201,21 @@ public class MatchDataManager extends OrmLiteObject {
         } else {
             return this.match.getSetsWonByTeamB().size();
         }
+    }
+
+    public List<Event> getEvents() throws SQLException {
+        Dao<Play, Integer> playDao = getDatabaseHelper(this.context).getPlayDao();
+        Dao<Player, Integer> playerDao = getDatabaseHelper(this.context).getPlayerDao();
+        List<Event> events = new ArrayList<Event>();
+        for (Play p: playDao.queryForAll()) {
+            // Restore player info since foreign objects have only id.
+
+            //p.setPlayer(playerDao.queryForId(p.getPlayer().getId()));
+            events.add(p);
+        }
+        //TODO add other events such as player change and timeout.
+        Collections.sort(events);
+        return events;
     }
 
 }

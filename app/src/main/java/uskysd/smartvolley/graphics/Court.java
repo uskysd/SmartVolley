@@ -145,7 +145,7 @@ public class Court extends AdjustableDrawable {
 		leftEndX = (int) (0.1*width);
 		rightEndX = (int) (0.9*width);
 		nearSideY = (int) (0.9*height);
-		farSideY = (int) (0.1*height);
+		farSideY = (int) (0.2*height);
 		
 		//Adjust center line
 		centerX = (int) (0.5*width);

@@ -19,6 +19,10 @@ public class GraphicSet extends AdjustableDrawable {
 
 	private RectangleArea leftArea;
 	private RectangleArea rightArea;
+	private RectangleArea leftPointCount;
+	private RectangleArea leftSetCount;
+	private RectangleArea rightPointCount;
+	private RectangleArea rightSetCount;
 	private static int courtWidth = 0;
 	private static int courtHeight = 0;
 	private static int centerX = 0;
@@ -29,6 +33,7 @@ public class GraphicSet extends AdjustableDrawable {
 	private static int nearSideY = 0;
 	private static int farSideY = 0;
     private int COURT_COLOR = Color.parseColor(String.valueOf(color.court));
+    private int SCOREBOARD_COLOR = Color.parseColor(String.valueOf(color.court));
 	private int LINE_COLOR = Color.parseColor(String.valueOf(color.court_line));
 	private int LINE_WIDTH = 5;
 
@@ -77,6 +82,12 @@ public class GraphicSet extends AdjustableDrawable {
 		//Init area
 		leftArea = new RectangleArea(0, 0, 0, 0, COURT_COLOR);
 		rightArea = new RectangleArea(0, 0, 0, 0, COURT_COLOR);
+
+		// Init scoreboard
+		leftPointCount = new RectangleArea(0,0,0, 0, SCOREBOARD_COLOR);
+		leftSetCount = new RectangleArea(0,0,0,0, SCOREBOARD_COLOR);
+		rightPointCount = new RectangleArea(0,0,0,0, SCOREBOARD_COLOR);
+		rightSetCount = new RectangleArea(0,0,0,0, SCOREBOARD_COLOR);
 		
 		//Init player tokens
 		leftSidePlayers = new PlayerToken[6];
@@ -246,6 +257,7 @@ public class GraphicSet extends AdjustableDrawable {
 			}
 		}
 	}
+
 	
 	public PlayerToken getPlayerToken(Side side, Position position) {
 		/*
@@ -283,7 +295,7 @@ public class GraphicSet extends AdjustableDrawable {
 		leftEndX = (int) (0.1*width);
 		rightEndX = (int) (0.9*width);
 		nearSideY = (int) (0.9*height);
-		farSideY = (int) (0.1*height);
+		farSideY = (int) (0.2*height);
 		
 		//Adjust center line
 		centerX = (int) (0.5*width);
@@ -318,7 +330,26 @@ public class GraphicSet extends AdjustableDrawable {
         ArrowMarker.setHeadHeight((float) 0.01*courtHeight);
         ArrowMarker.setHeadWidth((float) 0.008*courtHeight);
 
-
+        // Adjust scoreboard
+		int margin = (int) 0.01 * width;
+		int pointsize = (int) 0.08 * height;
+		int setsize = (int) 0.06 * height;
+		leftPointCount.setX(centerX-pointsize-setsize-2*margin);
+		leftPointCount.setY(2*margin);
+		leftPointCount.setHeight(pointsize);
+		leftPointCount.setWidth(pointsize);
+		leftSetCount.setX(centerX-setsize-margin);
+		leftSetCount.setY(2*margin+pointsize-setsize);
+		leftSetCount.setHeight(setsize);
+		leftSetCount.setWidth(setsize);
+		rightPointCount.setX(centerX+setsize+2*margin);
+		rightPointCount.setY(2*margin);
+		rightPointCount.setHeight(pointsize);
+		rightPointCount.setWidth(pointsize);
+		rightSetCount.setX(centerX+margin);
+		rightSetCount.setY(2*margin+pointsize-setsize);
+		rightSetCount.setHeight(setsize);
+		rightSetCount.setWidth(setsize);
 		
 		
 	}

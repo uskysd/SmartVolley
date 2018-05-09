@@ -24,6 +24,13 @@ public class OrmLiteAndroidTestCase extends AndroidTestCase {
     }
 
     @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        // clear database
+        tearDown();
+    }
+
+    @Override
     protected void tearDown() throws Exception {
         super.tearDown();
         //Clear tables
