@@ -1,14 +1,13 @@
 package uskysd.smartvolley.data;
 
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.field.ForeignCollectionField;
+import com.j256.ormlite.table.DatabaseTable;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
-
-import com.j256.ormlite.field.DatabaseField;
-import com.j256.ormlite.field.ForeignCollectionField;
-import com.j256.ormlite.table.DatabaseTable;
 
 
 @DatabaseTable(tableName="points")
@@ -57,6 +56,16 @@ public class Point implements Serializable, Comparable<Point> {
 	}
 
 	public Collection<Play> getPlays() {return this.plays; }
+
+	public Play getLastPlay() {
+		ArrayList<Play> plays = new ArrayList<Play>(this.plays);
+		if (plays.size()==0) {
+			return null;
+		}
+		Collections.sort(plays);
+		return plays.get(plays.size()-1);
+
+	}
 
 	public int getNumber() {
 		return number;

@@ -18,7 +18,7 @@ public class Play extends Event implements Serializable {
 
 	public enum PlayType {
 		SERVICE("Service"), RECEPTION("Reception"), RECEIVE("Receive"), TOSS("Toss"),
-		ATTACK("Attack"), BLOCK("Block");
+		ATTACK("Attack"), BLOCK("Block"), PASS("Pass");
 		private final String playTypeName;
 
 		private PlayType(String name) {
@@ -43,6 +43,15 @@ public class Play extends Event implements Serializable {
         }
 
     }
+
+    public enum PlayResult {
+	    POINT("Point"), FAILURE("Failure"), CONTINUE("Continue"), CHALLENGED("Challenged"),
+        NONE("None");
+	    private final String str;
+	    private PlayResult(String str) {this.str = str;}
+
+	    public String toString() {return this.str;}
+    }
 	
 	
 	@DatabaseField(generatedId=true)
@@ -62,7 +71,10 @@ public class Play extends Event implements Serializable {
 	
 	@DatabaseField
 	private PlayType playType;
-	
+
+	@DatabaseField
+    private PlayResult playResult;
+
 	@DatabaseField(canBeNull=true)
 	private Float positionX;
 	
@@ -138,7 +150,15 @@ public class Play extends Event implements Serializable {
 		this.playType = playType;
 	}
 
-	public Float getPositionX() {
+	public void setPlayResult(PlayResult result) {
+	    this.playResult = result;
+    }
+
+    public PlayResult getPlayResult() {
+        return playResult;
+    }
+
+    public Float getPositionX() {
 		return positionX;
 	}
 

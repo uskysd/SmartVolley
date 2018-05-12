@@ -3,6 +3,7 @@ package uskysd.smartvolley.graphics;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 
 import uskysd.smartvolley.Position;
 
@@ -96,8 +97,16 @@ public class PlayerToken extends Token {
 		paint.setColor(this.numberColor);
 		paint.setTextSize(getTextSize());
 		paint.setTextAlign(Paint.Align.CENTER);
+		String strnumber = String.valueOf(this.number);
 		
-		canvas.drawText(String.valueOf(this.number), this.getX(), this.getY(), paint);
+		//canvas.drawText(String.valueOf(this.number), this.getX(), this.getY(), paint);
+
+		// To get text height
+		Rect r = new Rect();
+		paint.getTextBounds(strnumber, 0, strnumber.length(), r);
+
+		// Draw text
+		canvas.drawText(strnumber, getX(), getY()+(int)(0.5*r.height()), paint);
 
 	}
 	

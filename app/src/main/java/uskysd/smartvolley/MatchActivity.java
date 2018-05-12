@@ -130,7 +130,7 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
                 if (matchId > 0) {
                     this.match = dao.queryForId(matchId);
                     if (this.match!=null) {
-
+                        this.dataManager = new MatchDataManager(this, this.match);
                         loadMatchInfo();
                     }
                 } else {
@@ -143,7 +143,8 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
                     createNewMatch();
                     DatabaseHelper helper = getHelper();
                     Dao<Match, Integer> matchDao = helper.getMatchDao();
-                    match = matchDao.queryForAll().get(0);
+                    this.match = matchDao.queryForAll().get(0);
+                    this.dataManager = new MatchDataManager(this, this.match);
                     loadMatchInfo();
 
                 }
@@ -240,11 +241,19 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
 
     }
 
-    public void loadMatchInfo() {
+    public void loadMatchInfo() throws SQLException {
         //TODO load match info to the match view
+        Log.d(TAG, "Loading match info");
 
-        this.dataManager = new MatchDataManager(this, this.match);
-        matchView.loadMatchInfo(match);
+        //TODO need to be changed to load current positions
+        matchView.loadStartingPositions(match);
+
+
+        // Update Scoreboard
+        updateScore();
+
+        // load events
+        listEvents();
 
         //Define view size requirements
 
@@ -282,7 +291,7 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
 
     public void listEvents() throws SQLException {
 	    Log.i(TAG, "Show event list");
-
+        /*
 	    Dao<Play, Integer> playDao = getHelper().getPlayDao();
 	    Dao<Player, Integer> playerDao = getHelper().getPlayerDao();
 	    Log.d(TAG, "Play DAO is called");
@@ -299,8 +308,9 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
             }
 
         }
+        */
 
-	    //List<Event> list = dataManager.getEvents();
+	    List<Event> list = dataManager.getEvents();
         ArrayAdapter<Event> arrayAdapter = new EventAdapter(this, R.layout.event_row, list);
         mListView.setAdapter(arrayAdapter);
     }
@@ -395,6 +405,37 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
         */
     }
 
+    public void updateScore() {
+
+        matchView.setLeftSetCount(dataManager.getSetCount(MatchDataManager.TEAM_A));
+        matchView.setLeftPointCount(dataManager.getPointCount(MatchDataManager.TEAM_A));
+        matchView.setRightSetCount(dataManager.getSetCount(MatchDataManager.TEAM_B));
+        matchView.setRightPointCount(dataManager.getPointCount(MatchDataManager.TEAM_B));
+
+
+    }
+
+    public void addPointToTeamA() throws SQLException {
+	    // Add point to Team A (Left)
+
+        //TODO let user input how the team won the point
+
+        dataManager.setPointWinner(MatchDataManager.TEAM_A);
+        updateScore();
+
+    }
+
+    public void addPointToTeamB() throws SQLException {
+	    // Add pint to Team B (Right)
+
+        //TODO let user input how the team won the point
+
+        dataManager.setPointWinner(MatchDataManager.TEAM_B);
+        updateScore();
+    }
+
+
+
     public void createPlayer() throws SQLException {
         // Just for debugging
 	    Player player = new Player("Yusuke", "Yoshida");
@@ -436,6 +477,32 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
             }
 
 
+        }
+
+        @Override
+        public void onScoreBoardLeftTougched(int x, int y) {
+            Log.d(TAG, "Detected scoreboard left touched");
+            super.onScoreBoardLeftTougched(x, y);
+
+            try {
+                addPointToTeamA();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+
+
+        }
+
+
+        @Override
+        public void onScoreBoardRightTouched(int x, int y) {
+            Log.d(TAG, "Detected scoreboard right touched");
+            super.onScoreBoardRightTouched(x, y);
+            try {
+                addPointToTeamB();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         @Override

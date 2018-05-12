@@ -8,10 +8,18 @@ public class InputListener {
 
     public InputListener() {}
     public void onPlayerTouched(int playerId, int x, int y) {
-        //
+        // Add play data
     }
     public void onPlayerLongTouched(int playerId, int x, int y) {
 
+    }
+
+    public void onScoreBoardRightTouched(int x, int y) {
+        //Add point to the team on the right court
+    }
+
+    public void onScoreBoardLeftTougched(int x, int y) {
+        // Add point to the team on the left court
     }
 
     public void onPlayerSwiped(int playerId, int startX, int startY, int endX, int endY) {

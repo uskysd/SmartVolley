@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import uskysd.smartvolley.data.Match;
+import uskysd.smartvolley.data.Player;
 import uskysd.smartvolley.data.PlayerEntry;
 import uskysd.smartvolley.graphics.ArrowMarker;
 import uskysd.smartvolley.graphics.Court;
@@ -105,8 +106,9 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
 
-    public void loadMatchInfo(Match match) {
+    public void loadStartingPositions(Match match) {
         //Load match info
+
 
         //Load player entries to team A
         for (PlayerEntry entry: match.getPlayerEntriesToTeamA()) {
@@ -127,6 +129,34 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
                 pt.setPlayerId(entry.getPlayer().getId());
             }
         }
+
+
+    }
+
+    public void loadPlayer(Court.Side side, Position position, Player player) {
+	    PlayerToken pt = getPlayerToken(side, position);
+	    if (pt!=null) {
+	        pt.setNumber(player.getUniformNumber());
+	        pt.setPlayerId(player.getId());
+        } else {
+	        throw new RuntimeException("Player token not found for the position: "+position.toString());
+        }
+    }
+
+    public void setLeftPointCount(int value) {
+	    scoreboard.setLeftPointCount(value);
+    }
+
+    public void setRightPointCount(int value) {
+	    scoreboard.setRightPointCount(value);
+    }
+
+    public void setLeftSetCount(int value) {
+	    scoreboard.setLeftSetCount(value);
+    }
+
+    public void setRightSetCount(int value) {
+	    scoreboard.setRightSetCount(value);
     }
 
     /* Now using common enum for Position
@@ -215,6 +245,8 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
         Log.d(TAG, "Touch event: action down");
         touchStartTime = DateTime.now();
         touchStartPoint = new Point(x, y);
+
+        // Check player token touched
         Token touched = checkTouchedToken(x, y);
         if (touched!=null) {
             try {
@@ -224,6 +256,14 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
                 Log.d(TAG, "Touched token is not player token");
             }
 
+        }
+
+        // Check scoreboard touched
+        if (scoreboard.checkLeftBoardTouched(x, y)) {
+            inputListener.onScoreBoardLeftTougched(x, y);
+        }
+        if (scoreboard.checkRightBoardTouched(x, y)) {
+            inputListener.onScoreBoardRightTouched(x, y);
         }
 
     }

@@ -26,8 +26,8 @@ public class MatchDataManager extends OrmLiteObject {
     private static final String TAG = MatchDataManager.class.getSimpleName();
 
     // Team flags
-    private static final boolean TEAM_A = true;
-    private static final boolean TEAM_B = false;
+    public static final boolean TEAM_A = true;
+    public static final boolean TEAM_B = false;
 
     private Context context;
     private Match match;
@@ -53,6 +53,7 @@ public class MatchDataManager extends OrmLiteObject {
         }
 
     }
+
 
     public void setMatch(Match match) {
         this.match = match;
@@ -122,19 +123,22 @@ public class MatchDataManager extends OrmLiteObject {
     }
 
     public void setPointWinner(boolean teamflag) throws SQLException {
+
+        Dao<Point, Integer> pointDao = getDatabaseHelper(this.context).getPointDao();
         Integer winnerPoints = null;
         Integer otherPoints = null;
         if (teamflag==TEAM_A) {
+            Log.d(TAG, "TEAM A won a point");
             this.point.setTeamAWon();
             winnerPoints = this.set.getPointsWonByTeamA().size();
             otherPoints = this.set.getPointsWonByTeamB().size();
         } else {
+            Log.d(TAG, "TEAM B won a point");
             this.point.setTeamBWon();
             winnerPoints = this.set.getPointsWonByTeamB().size();
             otherPoints = this.set.getPointsWonByTeamA().size();
         }
-
-        Dao<Point, Integer> playDao = getDatabaseHelper(this.context).getPointDao();
+        pointDao.update(this.point);
         Integer countA = this.set.getPointsWonByTeamA().size();
         Integer countB = this.set.getPointsWonByTeamB().size();
         if (winnerPoints>=this.pointCount) {
@@ -143,22 +147,28 @@ public class MatchDataManager extends OrmLiteObject {
                 this.setSetWinner(teamflag);
             } else {
                 // Advantage point winner team
+                Log.d(TAG, "Set point");
                 this.point = new Point(this.set);
-                playDao.create(this.point);
+                pointDao.create(this.point);
 
             }
         } else {
             this.point = new Point(this.set);
-            playDao.create(this.point);
+            pointDao.create(this.point);
         }
     }
 
     public void setSetWinner(boolean teamflag) throws SQLException {
+
+        Dao<Set, Integer> setDao = getDatabaseHelper(this.context).getSetDao();
         if (teamflag == TEAM_A) {
+            Log.d(TAG, "TEAM A won a set");
             this.set.setTeamAWon();
         } else {
+            Log.d(TAG, "TEAM B won a set");
             this.set.setTeamBWon();
         }
+        setDao.update(this.set);
 
 
         if (this.match.getSetsWonByTeamA().size() >= SET_COUNT) {
@@ -166,7 +176,6 @@ public class MatchDataManager extends OrmLiteObject {
             this.match = null;
             // TODO Should notify the Match is over
         } else {
-            Dao<Set, Integer> setDao = getDatabaseHelper(this.context).getSetDao();
             Dao<Point, Integer> pointDao = getDatabaseHelper(this.context).getPointDao();
 
             // Create new Set
@@ -204,18 +213,25 @@ public class MatchDataManager extends OrmLiteObject {
     }
 
     public List<Event> getEvents() throws SQLException {
-        Dao<Play, Integer> playDao = getDatabaseHelper(this.context).getPlayDao();
+
         Dao<Player, Integer> playerDao = getDatabaseHelper(this.context).getPlayerDao();
         List<Event> events = new ArrayList<Event>();
-        for (Play p: playDao.queryForAll()) {
+        for (Play p: match.getPlays()) {
             // Restore player info since foreign objects have only id.
+            if (p.getPlayer()!=null) {
+                p.setPlayer(playerDao.queryForId(p.getPlayer().getId()));
+                events.add(p);
+            } else {
+                Log.d(TAG, "No player assigned to the play: "+ p.toString());
+            }
 
-            //p.setPlayer(playerDao.queryForId(p.getPlayer().getId()));
-            events.add(p);
         }
         //TODO add other events such as player change and timeout.
         Collections.sort(events);
         return events;
     }
 
+    public Play getLastPlay() {
+        return this.point.getLastPlay();
+    }
 }

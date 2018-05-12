@@ -105,6 +105,16 @@ public class Match implements Serializable, Comparable<Match> {
 		}
 		return result;
 	}
+
+	public List<Play> getPlays() {
+		ArrayList<Play> plays = new ArrayList<Play>();
+		for (Set set: getSets()) {
+			for (Point point: set.getPoints()) {
+				plays.addAll(point.getPlays());
+			}
+		}
+		return plays;
+	}
 	
 	public Collection<Set> getSets() {
 		return sets;

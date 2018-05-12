@@ -54,7 +54,6 @@ public class Scoreboard extends AdjustableDrawable {
 
     @Override
     public void draw(Canvas canvas) {
-        Log.d(TAG, "Drawing scoreboard");
 
         leftSetBoard.draw(canvas);
         leftPointBoard.draw(canvas);
@@ -111,6 +110,14 @@ public class Scoreboard extends AdjustableDrawable {
         rightSetBoard.setWidth(setsize);
 
 
+    }
+
+    public boolean checkRightBoardTouched(int x, int y) {
+        return rightPointBoard.checkTouched(x, y);
+    }
+
+    public boolean checkLeftBoardTouched(int x, int y) {
+        return leftPointBoard.checkTouched(x, y);
     }
 
     public void setSetTextSize(int size) {

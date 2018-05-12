@@ -82,6 +82,22 @@ public class PlayTest extends OrmLiteAndroidTestCase {
 
     }
 
+    public void testSettingPlayResult() throws Exception {
+        // Setup
+        setUp();
+        Play sut = new Play(point, player1, Play.PlayType.SERVICE);
+
+        // Exercise
+        sut.setPlayResult(Play.PlayResult.POINT);
+
+        // Verify
+        assertEquals(Play.PlayResult.POINT, sut.getPlayResult());
+
+        // Tear Down
+        tearDown();
+
+    }
+
     public void testAddingToDabase() throws Exception {
 
         // Setup
@@ -89,6 +105,7 @@ public class PlayTest extends OrmLiteAndroidTestCase {
 
         // Exercise
         Play sut1 = new Play(point, player1, Play.PlayType.SERVICE);
+        sut1.setPlayResult(Play.PlayResult.FAILURE);
         playDao.create(sut1);
         playerDao.update(player1);
 
@@ -100,6 +117,7 @@ public class PlayTest extends OrmLiteAndroidTestCase {
         assertEquals(player1, queried.getPlayer());
         assertEquals(Play.PlayType.SERVICE, queried.getPlayType());
         assertEquals("Taro Volley", player1.getFullName());
+        assertEquals(Play.PlayResult.FAILURE, queried.getPlayResult());
 
 
         // By default, foreign object only have id
