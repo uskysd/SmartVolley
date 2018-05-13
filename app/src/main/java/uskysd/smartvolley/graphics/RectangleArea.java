@@ -75,6 +75,13 @@ public class RectangleArea extends Token {
 		// TODO Auto-generated method stub
 		
 	}
+
+	public void updateCoordinate(int x, int y, int width, int height) {
+		setX(x);
+		setY(y);
+		setWidth(width);
+		setHeight(height);
+	}
 	
 
 	public int getWidth() {

@@ -5,24 +5,42 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 
+import java.util.Arrays;
+import java.util.List;
+
 import uskysd.smartvolley.Position;
 
 
 public class PlayerToken extends Token {
+
+	private static final String TAG = PlayerToken.class.getSimpleName();
 	
     private int playerId = -1;
 	private int number;
 
 	//private int bodyColor = Color.parseColor(String.valueOf(R.color.player_token_normal));
-	private int bodyColor = Color.GREEN;
+	private int bodyColor = Color.GRAY;
 	//private int numberColor = Color.parseColor(String.valueOf(R.color.player_token_text));
 	private int numberColor = Color.BLACK;
     //private int markerColor = Color.parseColor(String.valueOf(R.color.player_marker));
-	private int markerColor = Color.CYAN;
+	private int markerColor = Color.YELLOW;
 	private static int radius = 20;
 	private static int textSize = 20;
 	private Position position;
+	private Position initialPosition;
 	private Court.Side side;
+
+
+	private static List<Position> positions = Arrays.asList(
+			Position.BACK_RIGHT, Position.BACK_CENTER, Position.BACK_LEFT,
+			Position.FRONT_LEFT, Position.FRONT_CENTER, Position.FRONT_RIGHT);
+
+	public void setRotation(int rotation) {
+		// Update position based on initial position and rotation number
+		//Log.d(TAG, "setting rotation. Rot1: "+this.initialPosition.toString()+" ->Rot"+Integer.toString(rotation));
+		int rot1 = positions.indexOf(this.initialPosition);
+		setPosition(positions.get((rot1+rotation-1)%6));
+	}
 
 	
 	public PlayerToken(int x, int y) {
@@ -40,6 +58,8 @@ public class PlayerToken extends Token {
 		super(0, 0);
 		this.setSide(side);
 		this.setPosition(position);
+		this.setInitialPosition(position);
+
 	}
 	@Override
 	public void setX(int x) {
@@ -190,6 +210,14 @@ public class PlayerToken extends Token {
 
 	public void setPosition(Position position) {
 		this.position = position;
+	}
+
+	public void setInitialPosition(Position initialPosition) {
+		this.initialPosition = initialPosition;
+	}
+
+	public Position getInitialPosition() {
+		return initialPosition;
 	}
 
 	public Court.Side getSide() {

@@ -8,6 +8,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 
 @DatabaseTable(tableName="points")
@@ -56,6 +57,14 @@ public class Point implements Serializable, Comparable<Point> {
 	}
 
 	public Collection<Play> getPlays() {return this.plays; }
+
+
+	public List<Play> getPlayList() {
+		// Return sorted list of plays
+		List<Play> plays = new ArrayList<Play>(this.plays);
+		Collections.sort(plays);
+		return plays;
+	}
 
 	public Play getLastPlay() {
 		ArrayList<Play> plays = new ArrayList<Play>(this.plays);

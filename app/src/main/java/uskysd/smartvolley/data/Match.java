@@ -106,6 +106,27 @@ public class Match implements Serializable, Comparable<Match> {
 		return result;
 	}
 
+	public List<Player> getPlayersFromTeamA() {
+		List<Player> players = new ArrayList<Player>();
+		for (PlayerEntry entry: playerEntries) {
+			if (entry.isForTeamA()) {
+				players.add(entry.getPlayer());
+			}
+		}
+		return players;
+	}
+
+	public List<Player> getPlayersFromTeamB() {
+		List<Player> players = new ArrayList<Player>();
+		for (PlayerEntry entry: playerEntries) {
+			if (entry.isForTeamB()) {
+				players.add(entry.getPlayer());
+			}
+		}
+		return players;
+	}
+
+
 	public List<Play> getPlays() {
 		ArrayList<Play> plays = new ArrayList<Play>();
 		for (Set set: getSets()) {

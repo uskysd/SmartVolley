@@ -7,6 +7,7 @@ import com.j256.ormlite.dao.Dao;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -41,6 +42,27 @@ public class MatchDataManager extends OrmLiteObject {
     public static final Integer POINT_COUNT = 25;
     public static final Integer FINAL_SET_POINT_COUNT = 15;
     public static final Integer SET_COUNT = 3;
+
+    public enum PointScenario {
+
+        SERVICE_POINT("Service Point"),
+        SERVICE_FAILURE("Service Failure"),
+        RECEPTION_FAILURE("Reception Failure"),
+        ATTACK_POINT("Attack Point"),
+        ATTACK_FAILURE("Attack Failure"),
+        BLOCK_POINT("Block Point"),
+        RECEIVE_FAILURE("Receive Failure"),
+        PASS_POINT("Pass Point"),
+        PASS_FAILURE("Pass Failure"),
+        VIOLATION("Violation");
+
+        private final String str;
+        private PointScenario(String str) {
+            this.str = str;
+        }
+        public String toString() {return this.str;}
+    }
+
 
     public MatchDataManager(Context context, Match match) {
         this.context = context;
@@ -119,6 +141,9 @@ public class MatchDataManager extends OrmLiteObject {
         }
         playDao.create(play);
         Log.d(TAG, "Created new play: "+play.toString());
+        Log.d(TAG, "Play count in the current point: "+Integer.toString(point.getPlays().size()));
+
+        clearEmptyPlays();
 
     }
 
@@ -130,21 +155,24 @@ public class MatchDataManager extends OrmLiteObject {
         if (teamflag==TEAM_A) {
             Log.d(TAG, "TEAM A won a point");
             this.point.setTeamAWon();
+            pointDao.update(this.point);
             winnerPoints = this.set.getPointsWonByTeamA().size();
             otherPoints = this.set.getPointsWonByTeamB().size();
         } else {
             Log.d(TAG, "TEAM B won a point");
             this.point.setTeamBWon();
+            pointDao.update(this.point);
             winnerPoints = this.set.getPointsWonByTeamB().size();
             otherPoints = this.set.getPointsWonByTeamA().size();
         }
-        pointDao.update(this.point);
+
         Integer countA = this.set.getPointsWonByTeamA().size();
         Integer countB = this.set.getPointsWonByTeamB().size();
         if (winnerPoints>=this.pointCount) {
             if (winnerPoints-otherPoints>=2) {
                 // Current Set won by the point winner
                 this.setSetWinner(teamflag);
+
             } else {
                 // Advantage point winner team
                 Log.d(TAG, "Set point");
@@ -230,8 +258,176 @@ public class MatchDataManager extends OrmLiteObject {
         Collections.sort(events);
         return events;
     }
+    public void clearEmptyPlays() throws SQLException {
+        Dao<Play, Integer> playDao = getDatabaseHelper(this.context).getPlayDao();
+        for (Play p: this.match.getPlays()) {
+            if ((p.getPlayer()==null)||(p.getPlayType()==null)) {
+                playDao.delete(p);
+
+            }
+        }
+    }
 
     public Play getLastPlay() {
         return this.point.getLastPlay();
     }
+
+    public List<PointScenario> getPointScenarioCandidates(boolean winner_teamflag) {
+        Play lastPlay = point.getLastPlay();
+        if (lastPlay==null) {
+            return Arrays.asList(PointScenario.VIOLATION);
+        }
+        if (playOf(lastPlay)==winner_teamflag) {
+            // Last play is by the point winner
+            switch (lastPlay.getPlayType()) {
+                case ATTACK:
+                    return Arrays.asList(PointScenario.ATTACK_POINT, PointScenario.VIOLATION);
+                case BLOCK:
+                    return Arrays.asList(PointScenario.BLOCK_POINT, PointScenario.VIOLATION);
+                case SERVICE:
+                    return Arrays.asList(PointScenario.SERVICE_POINT, PointScenario.VIOLATION);
+                case PASS:
+                    return Arrays.asList(PointScenario.PASS_POINT, PointScenario.VIOLATION);
+                default:
+                    return Arrays.asList(PointScenario.VIOLATION);
+
+            }
+        } else {
+            // Last play is by the point loser
+            switch (lastPlay.getPlayType()) {
+                case SERVICE:
+                    return Arrays.asList(PointScenario.SERVICE_FAILURE, PointScenario.VIOLATION);
+                case ATTACK:
+                    return Arrays.asList(PointScenario.ATTACK_FAILURE, PointScenario.VIOLATION);
+                case BLOCK:
+                    return Arrays.asList(PointScenario.ATTACK_POINT, PointScenario.VIOLATION);
+                case RECEPTION:
+                    return Arrays.asList(PointScenario.RECEPTION_FAILURE, PointScenario.VIOLATION);
+                case RECEIVE:
+                    return Arrays.asList(PointScenario.RECEIVE_FAILURE,
+                            PointScenario.ATTACK_POINT, PointScenario.VIOLATION);
+                case PASS:
+                    return Arrays.asList(PointScenario.PASS_FAILURE, PointScenario.VIOLATION);
+                default:
+                    return Arrays.asList(PointScenario.VIOLATION);
+            }
+
+        }
+    }
+
+    public void setPlayResultsFromScenario(boolean teamflag, PointScenario scenario) {
+        // Set play results based on the point scenario
+        Play lastPlay = point.getLastPlay();
+        //Log.d(TAG, "Last play: "+lastPlay.toString());
+        if (lastPlay==null) {
+            // Do nothing
+        } else if (playOf(lastPlay)==teamflag) {
+            // Last play is by the point winner
+            switch (scenario) {
+                case SERVICE_POINT:
+                    if (lastPlay.getPlayType()== Play.PlayType.SERVICE) {
+                        lastPlay.setPlayResult(Play.PlayResult.POINT);
+                    } else {
+                        throw new RuntimeException("Unexpected Play Type");
+                    }
+                    break;
+                case ATTACK_POINT:
+                    if (lastPlay.getPlayType()== Play.PlayType.ATTACK) {
+                        lastPlay.setPlayResult(Play.PlayResult.POINT);
+                    } else {
+                        throw new RuntimeException("Unexpected Play Type");
+                    }
+                    break;
+                case BLOCK_POINT:
+                    if (lastPlay.getPlayType()== Play.PlayType.BLOCK) {
+                        lastPlay.setPlayResult(Play.PlayResult.POINT);
+                    } else {
+                        throw new RuntimeException("Unexpected Play Type");
+                    }
+                    break;
+                case PASS_POINT:
+                    if (lastPlay.getPlayType()== Play.PlayType.PASS) {
+                        lastPlay.setPlayResult(Play.PlayResult.POINT);
+                    } else {
+                        throw new RuntimeException("Unexpected Play Type");
+                    }
+                    break;
+                case VIOLATION:
+                    break;
+                default:
+                    //
+
+            }
+        } else {
+            // Last play is by the point loser
+            List<Play> plays = point.getPlayList();
+            Play previousPlay = plays.get(plays.size()-2);
+            switch (scenario) {
+                case SERVICE_FAILURE:
+                    if (lastPlay.getPlayType()== Play.PlayType.SERVICE) {
+                        lastPlay.setPlayResult(Play.PlayResult.FAILURE);
+                    } else {
+                        throw new RuntimeException("Unexpected play type");
+                    }
+                    break;
+                case ATTACK_FAILURE:
+                    if (lastPlay.getPlayType()== Play.PlayType.ATTACK) {
+                        lastPlay.setPlayResult(Play.PlayResult.FAILURE);
+                    } else {
+                        throw new RuntimeException("Unexpected play type");
+                    }
+                    break;
+                case ATTACK_POINT:
+                    // Receive challenged
+                    if ((lastPlay.getPlayType()== Play.PlayType.RECEIVE) &&
+                            (previousPlay.getPlayType()== Play.PlayType.ATTACK)) {
+                        lastPlay.setPlayResult(Play.PlayResult.CHALLENGED);
+                        previousPlay.setPlayResult(Play.PlayResult.POINT);
+                    } else {
+                        throw new RuntimeException("Unexpected play type");
+                    }
+                    break;
+                case RECEPTION_FAILURE:
+                    if (lastPlay.getPlayType()== Play.PlayType.RECEPTION) {
+                        lastPlay.setPlayResult(Play.PlayResult.FAILURE);
+                    } else {
+                        throw new RuntimeException("Unexpected play type");
+                    }
+                    break;
+                case RECEIVE_FAILURE:
+                    if (lastPlay.getPlayType()== Play.PlayType.RECEIVE) {
+                        lastPlay.setPlayResult(Play.PlayResult.FAILURE);
+                    } else {
+                        throw new RuntimeException("Unexpected play type");
+                    }
+                    break;
+                case PASS_FAILURE:
+                    if (lastPlay.getPlayType()== Play.PlayType.PASS) {
+                        lastPlay.setPlayResult(Play.PlayResult.FAILURE);
+                    } else {
+                        throw new RuntimeException("Unexpected play type");
+                    }
+                    break;
+                case VIOLATION:
+                    break;
+                default:
+                    // Do nothing
+
+            }
+
+        }
+
+    }
+
+    private Boolean playOf(Play play) {
+        if (match.getPlayersFromTeamA().contains(play.getPlayer())) {
+            return TEAM_A;
+        } else if (match.getPlayersFromTeamB().contains(play.getPlayer())) {
+            return TEAM_B;
+        } else {
+            return null;
+        }
+    }
+
+
 }

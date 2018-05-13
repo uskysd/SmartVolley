@@ -2,14 +2,12 @@ package uskysd.smartvolley;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -113,13 +111,18 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
     }
 
     public void reInit(Bundle savedInstanceState) {
-        try {
+
+        // Make MatchView transparent
+        /*
+        matchView.setZOrderOnTop(true);
+        SurfaceHolder holder = matchView.getHolder();
+        holder.setFormat(PixelFormat.TRANSPARENT);
+        */
+
+	    try {
             Dao<Match, Integer> dao = getHelper().getMatchDao();
 
-            // Make MatchView transparent
-            matchView.setZOrderOnTop(true);
-            SurfaceHolder holder = matchView.getHolder();
-            holder.setFormat(PixelFormat.TRANSPARENT);
+
 
             if (savedInstanceState != null) {
                 //Restore match from saved instance state
@@ -313,6 +316,8 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
 	    List<Event> list = dataManager.getEvents();
         ArrayAdapter<Event> arrayAdapter = new EventAdapter(this, R.layout.event_row, list);
         mListView.setAdapter(arrayAdapter);
+        // Scroll to the bottom
+        mListView.setSelection(arrayAdapter.getCount()-1);
     }
 
     public void listPlayTypes() {
@@ -363,6 +368,13 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
                         dataManager.setPlayType(Play.PlayType.SERVICE);
                 }
                 try {
+                    // Set previous play result "Continue"
+                    Play lastPlay = dataManager.getLastPlay();
+                    if (lastPlay!=null) {
+                        lastPlay.setPlayResult(Play.PlayResult.CONTINUE);
+                    }
+
+                    // Create new play
                     dataManager.createPlay();
 
                 } catch (SQLException e) {
@@ -379,31 +391,43 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
 
     }
 
-    public void createPlay(Player player) throws SQLException {
-        Log.d(TAG, "createPlay called");
-	    dataManager.setPlayer(player);
-	    dataManager.createPlay();
-
-
-        /* Just for debugging
-        Dao<Play, Integer> playDao = getHelper().getPlayDao();
-
-        Log.d(TAG, "Showing all Plays in the database: before creating new play");
-        for (Play p: playDao.queryForAll()) {
-            Log.d(TAG, p.toString());
+    public void listPointScenarios(final boolean teamflag) {
+	    // Show list of point scenarios for the current point
+        final boolean winner = teamflag;
+        final List<MatchDataManager.PointScenario> scenarios =
+                dataManager.getPointScenarioCandidates(teamflag);
+        List<String> strScenarios = new ArrayList<String>();
+        for (MatchDataManager.PointScenario s: scenarios) {
+            strScenarios.add(s.toString());
         }
 
-        Play newplay = new Play(match.getOnGoingSet().getOnGoingPoint(), player, Play.PlayType.ATTACK);
+        ArrayAdapter<String> adapter =
+                new ArrayAdapter<String>(this,
+                        android.R.layout.simple_list_item_1,
+                        strScenarios);
+        mListView.setAdapter(adapter);
 
-	    playDao.create(newplay);
+        // Set listener for the point scenarios
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                MatchDataManager.PointScenario selected = scenarios.get(i);
+                dataManager.setPlayResultsFromScenario(winner, selected);
 
-	    Log.d(TAG, "Showing all Plays in the database after creating new play");
-	    for (Play p: playDao.queryForAll()) {
-	        Log.d(TAG, p.toString());
-        }
-        */
+                try {
+                    dataManager.setPointWinner(winner);
+                    updateScore();
+                    listEvents();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+
+            }
+        });
     }
+
+
 
     public void updateScore() {
 
@@ -418,20 +442,30 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
     public void addPointToTeamA() throws SQLException {
 	    // Add point to Team A (Left)
 
-        //TODO let user input how the team won the point
+        //let user input how the team won the point
 
-        dataManager.setPointWinner(MatchDataManager.TEAM_A);
-        updateScore();
+        listPointScenarios(MatchDataManager.TEAM_A);
+        //dataManager.setPointWinner(MatchDataManager.TEAM_A);
+        //updateScore();
 
     }
 
     public void addPointToTeamB() throws SQLException {
 	    // Add pint to Team B (Right)
 
-        //TODO let user input how the team won the point
+        //let user input how the team won the point
+        listPointScenarios(MatchDataManager.TEAM_B);
+        //dataManager.setPointWinner(MatchDataManager.TEAM_B);
+        //updateScore();
+    }
 
-        dataManager.setPointWinner(MatchDataManager.TEAM_B);
-        updateScore();
+    public void rotateTeamA() {
+        matchView.rotateLeft();
+
+    }
+
+    public void rotateTeamB() {
+	    matchView.rotateRight();
     }
 
 
@@ -480,9 +514,9 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
         }
 
         @Override
-        public void onScoreBoardLeftTougched(int x, int y) {
+        public void onScoreBoardLeftTouched(int x, int y) {
             Log.d(TAG, "Detected scoreboard left touched");
-            super.onScoreBoardLeftTougched(x, y);
+            super.onScoreBoardLeftTouched(x, y);
 
             try {
                 addPointToTeamA();
@@ -503,6 +537,20 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
+        }
+
+        @Override
+        public void onRotationBoardLeftTouched(int x, int y) {
+            super.onRotationBoardLeftTouched(x, y);
+            // Rotate team A
+            rotateTeamA();
+        }
+
+        @Override
+        public void onRotationBoardRightTouched(int x, int y) {
+            super.onRotationBoardRightTouched(x, y);
+            // Rotate team B
+            rotateTeamB();
         }
 
         @Override

@@ -18,8 +18,16 @@ public class InputListener {
         //Add point to the team on the right court
     }
 
-    public void onScoreBoardLeftTougched(int x, int y) {
+    public void onScoreBoardLeftTouched(int x, int y) {
         // Add point to the team on the left court
+    }
+
+    public void onRotationBoardLeftTouched(int x, int y) {
+        // Rotation left team
+    }
+
+    public void onRotationBoardRightTouched(int x, int y) {
+        // Rotation right team
     }
 
     public void onPlayerSwiped(int playerId, int startX, int startY, int endX, int endY) {

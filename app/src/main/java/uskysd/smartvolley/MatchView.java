@@ -25,6 +25,7 @@ import uskysd.smartvolley.graphics.ArrowMarker;
 import uskysd.smartvolley.graphics.Court;
 import uskysd.smartvolley.graphics.CrossMarker;
 import uskysd.smartvolley.graphics.PlayerToken;
+import uskysd.smartvolley.graphics.RotationBoard;
 import uskysd.smartvolley.graphics.Scoreboard;
 import uskysd.smartvolley.graphics.Token;
 
@@ -32,7 +33,8 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
 
 	private static final String TAG = MatchView.class.getSimpleName();
 	private int COURT_COLOR = getResources().getColor(R.color.orange);
-	private int BACKGROUND_COLOR = getResources().getColor(R.color.powder_blue);
+	private int BACKGROUND_COLOR = getResources().getColor(R.color.green_apple);
+	private int ROTATION_COLOR = getResources().getColor(R.color.light_cyan);
 	private static int LONG_TOUCH_TIME = 1000; //msec
 	private MatchThread thread;
 
@@ -42,11 +44,13 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
 //	private GraphicSet graphic;
 	private Court court;
 	private Scoreboard scoreboard;
-    private PlayerToken[] leftSidePlayers;
-    private PlayerToken[] rightSidePlayers;
-    private ArrayList<PlayerToken> playerMakers = new ArrayList<PlayerToken>();
+    private PlayerToken[] leftPlayerTokens;
+    private PlayerToken[] rightPlayerTokens;
+    //private ArrayList<PlayerToken> playerMakers = new ArrayList<PlayerToken>();
     private ArrayList<CrossMarker> crossMarkers = new ArrayList<CrossMarker>();
     private ArrayList<ArrowMarker> arrowMarkers = new ArrayList<ArrowMarker>();
+    private RotationBoard leftRotation;
+    private RotationBoard rightRotation;
 
     //Cash touched token
     private Token touchedToken;
@@ -102,7 +106,7 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
         //PlayerToken.setRadius((int) (0.05*heightMeasureSpec));
         //PlayerToken.setTextSize((int) (0.05*heightMeasureSpec));
 
-        //initPlayerTokenLocation();
+        //updatePlayerTokenLocation();
     }
 
 
@@ -157,6 +161,41 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
 
     public void setRightSetCount(int value) {
 	    scoreboard.setRightSetCount(value);
+    }
+
+    public void setLeftRotation(int rotation) {
+	    leftRotation.setRotation(rotation);
+
+	    // Rotate players
+        for (PlayerToken pt: leftPlayerTokens) {
+            pt.setRotation(rotation);
+        }
+    }
+
+    public void setRightRotation(int rotation) {
+	    rightRotation.setRotation(rotation);
+
+        // Rotate players
+        for (PlayerToken pt: rightPlayerTokens) {
+            pt.setRotation(rotation);
+        }
+    }
+    
+    public void rotateLeft() {
+	    int current = leftRotation.getRotation();
+	    setLeftRotation(current==6 ? 1:current+1);
+    }
+    public void rotateRight() {
+        int current = rightRotation.getRotation();
+        setRightRotation(current==6 ? 1:current+1);
+    }
+
+    public int getLeftRotation() {
+	    return leftRotation.getRotation();
+    }
+
+    public int getRightRotation() {
+	    return rightRotation.getRotation();
     }
 
     /* Now using common enum for Position
@@ -260,10 +299,18 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
 
         // Check scoreboard touched
         if (scoreboard.checkLeftBoardTouched(x, y)) {
-            inputListener.onScoreBoardLeftTougched(x, y);
+            inputListener.onScoreBoardLeftTouched(x, y);
         }
         if (scoreboard.checkRightBoardTouched(x, y)) {
             inputListener.onScoreBoardRightTouched(x, y);
+        }
+
+        // Check rotation boards
+        if (leftRotation.checkTouched(x, y)) {
+            inputListener.onRotationBoardLeftTouched(x, y);
+        }
+        if (rightRotation.checkTouched(x, y)) {
+            inputListener.onRotationBoardRightTouched(x, y);
         }
 
     }
@@ -315,13 +362,13 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
     public Token checkTouchedToken(int x, int y) {
         //Check Player Token
         if (x < court.getCenterX()) {
-            for (PlayerToken pt: leftSidePlayers) {
+            for (PlayerToken pt: leftPlayerTokens) {
                 if (pt.checkTouched(x, y)==true) {
                     touchedToken = pt;
                 }
             }
         } else {
-            for (PlayerToken pt: rightSidePlayers) {
+            for (PlayerToken pt: rightPlayerTokens) {
                 if (pt.checkTouched(x, y)==true) {
                     touchedToken = pt;
                 }
@@ -369,14 +416,21 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
 //		graphic = new GraphicSet();
         court = new Court();
         scoreboard = new Scoreboard();
-        leftSidePlayers = new PlayerToken[6];
-        rightSidePlayers = new PlayerToken[6];
-        List<Position> positions = Arrays.asList(Position.values());
+        leftPlayerTokens = new PlayerToken[6];
+        rightPlayerTokens = new PlayerToken[6];
+
+        leftRotation = new RotationBoard(0, 0, 0, 0, ROTATION_COLOR);
+        rightRotation = new RotationBoard(0, 0,0, 0, ROTATION_COLOR);
+
+        //List<Position> positions = Arrays.asList(Position.values());
+        List<Position> positions = Arrays.asList(
+                Position.FRONT_LEFT, Position.FRONT_CENTER, Position.FRONT_RIGHT,
+                Position.BACK_LEFT, Position.BACK_CENTER, Position.BACK_RIGHT);
         for (int i=0; i<6; i++) {
-            leftSidePlayers[i] = new PlayerToken(Court.Side.LEFT_COURT, positions.get(i));
-            rightSidePlayers[i] = new PlayerToken(Court.Side.RIGHT_COURT, positions.get(i));
-            leftSidePlayers[i].setNumber(i);
-            rightSidePlayers[i].setNumber(i);
+            leftPlayerTokens[i] = new PlayerToken(Court.Side.LEFT_COURT, positions.get(i));
+            rightPlayerTokens[i] = new PlayerToken(Court.Side.RIGHT_COURT, positions.get(i));
+            leftPlayerTokens[i].setNumber(i);
+            rightPlayerTokens[i].setNumber(i);
             //Set location
 
         }
@@ -405,10 +459,20 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
         court.initLayout(width, height);
 		scoreboard.adjustLayout(width, height);
 
+		// Adjust rotation boards
+        int rotsize = (int) (0.1*height);
+        int rotmargin = (int) (0.01*height);
+        int rottextsize = (int) (0.8*rotsize);
+        leftRotation.updateCoordinate(rotmargin, rotmargin, rotsize, rotsize);
+        rightRotation.updateCoordinate(width-rotmargin-rotsize, rotmargin, rotsize, rotsize);
+        leftRotation.setTextSize(rottextsize);
+        rightRotation.setTextSize(rottextsize);
+
+
         PlayerToken.setRadius((int) (0.05*height));
         PlayerToken.setTextSize((int) (0.05*height));
 
-        initPlayerTokenLocation();
+        updatePlayerTokenLocation();
 //		graphic.initLayout(width, height);
 
 
@@ -417,14 +481,14 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
 
 	}
 
-    public void initPlayerTokenLocation() {
+    public void updatePlayerTokenLocation() {
         //Init player token location
-        for (PlayerToken pt: leftSidePlayers) {
+        for (PlayerToken pt: leftPlayerTokens) {
             Point location = court.positionToLocation(pt.getSide(), pt.getPosition());
             pt.setLocation(location.x, location.y);
 
         }
-        for (PlayerToken pt: rightSidePlayers) {
+        for (PlayerToken pt: rightPlayerTokens) {
             Point location = court.positionToLocation(pt.getSide(), pt.getPosition());
             pt.setLocation(location.x, location.y);
         }
@@ -437,10 +501,10 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
 
         court.update();
 
-        for (PlayerToken pt: leftSidePlayers) {
+        for (PlayerToken pt: leftPlayerTokens) {
             pt.update();
         }
-        for (PlayerToken pt: rightSidePlayers) {
+        for (PlayerToken pt: rightPlayerTokens) {
             pt.update();
         }
 
@@ -452,6 +516,8 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
             cm.update();
         }
 
+        //update token location
+        updatePlayerTokenLocation();
 
 
 	}
@@ -468,10 +534,16 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
         // Draw scoreboard
         scoreboard.draw(canvas);
 
+        // Draw rotation boards
+        leftRotation.draw(canvas);
+        rightRotation.draw(canvas);
+
         //Draw player marker
+        /*
         for (PlayerToken pm: playerMakers) {
             pm.draw(canvas);
         }
+        */
 
         //Draw cross markers
         for (CrossMarker cm: crossMarkers) {
@@ -483,10 +555,10 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
         }
 
         //Draw players
-        for (PlayerToken pt: leftSidePlayers) {
+        for (PlayerToken pt: leftPlayerTokens) {
             pt.draw(canvas);
         }
-        for (PlayerToken pt: rightSidePlayers) {
+        for (PlayerToken pt: rightPlayerTokens) {
             pt.draw(canvas);
         }
 
@@ -495,14 +567,14 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
     public PlayerToken getPlayerToken(Court.Side side, Position position) {
         switch (side) {
             case LEFT_COURT:
-                for (PlayerToken pt: leftSidePlayers) {
+                for (PlayerToken pt: leftPlayerTokens) {
                     if (pt.getPosition()==position) {
                         return pt;
                     }
                 }
                 break;
             case RIGHT_COURT:
-                for (PlayerToken pt: rightSidePlayers) {
+                for (PlayerToken pt: rightPlayerTokens) {
                     if (pt.getPosition()==position) {
                         return pt;
                     }
