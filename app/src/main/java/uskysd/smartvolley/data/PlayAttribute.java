@@ -1,12 +1,13 @@
 package uskysd.smartvolley.data;
 
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.field.ForeignCollectionField;
+import com.j256.ormlite.table.DatabaseTable;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import com.j256.ormlite.field.DatabaseField;
-import com.j256.ormlite.field.ForeignCollectionField;
-import com.j256.ormlite.table.DatabaseTable;
 import uskysd.smartvolley.data.Play.PlayType;
 
 /**
@@ -21,14 +22,18 @@ import uskysd.smartvolley.data.Play.PlayType;
 public class PlayAttribute implements Serializable {
 
 	private static final long serialVersionUID = -3163568683842983603L;
+
+	public static final String NAME_FIELD_NAME = "name";
+	public static final String PLAY_TYPE_FIELD_NAME = "play type";
+
 	
 	@DatabaseField(generatedId=true)
 	private Integer id;
 	
-	@DatabaseField
+	@DatabaseField(columnName = PLAY_TYPE_FIELD_NAME)
 	private PlayType playType;
 	
-	@DatabaseField
+	@DatabaseField(columnName = NAME_FIELD_NAME)
 	private String name;
 	
 	@ForeignCollectionField

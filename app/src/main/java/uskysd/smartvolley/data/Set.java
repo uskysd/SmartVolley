@@ -37,6 +37,9 @@ public class Set implements Serializable, Comparable<Set> {
 	
 	@ForeignCollectionField
 	Collection<Point> points;
+
+	@ForeignCollectionField
+	Collection<MemberChange> memberChanges;
 	
 	public Set() {
 		//needed by ormlite
@@ -48,6 +51,9 @@ public class Set implements Serializable, Comparable<Set> {
 		if (this.points==null) {
 			this.points = new ArrayList<Point>();
 		}
+		if (this.memberChanges==null) {
+		    this.memberChanges = new ArrayList<MemberChange>();
+        }
 	}
 
 	public Integer getId() {
@@ -84,8 +90,11 @@ public class Set implements Serializable, Comparable<Set> {
 		this.setSetNumber(match.getSetCount());
 	}
 
-	public Collection<Point> getPoints() {
-		return points;
+	public List<Point> getPoints() {
+		// Returns sorted list of points
+		List<Point> pointlist = new ArrayList<Point>(this.points);
+		Collections.sort(pointlist);
+		return pointlist;
 	}
 	
 	public Collection<Point> getPointsWonByTeamA() {
@@ -104,6 +113,7 @@ public class Set implements Serializable, Comparable<Set> {
 		}
 		if (!(this.points.contains(point))) {
 			this.points.add(point);
+
 		}
 
 	}
@@ -213,9 +223,42 @@ public class Set implements Serializable, Comparable<Set> {
 		}
 	}
 
+	public List<Event> getAllEvents() {
+        List<Event> events = new ArrayList<Event>();
+        events.addAll(this.getMemberChanges());
+        for (Point p : this.getPoints()) {
+            // Add play events from each point
+            events.addAll(p.getPlays());
+        }
+        // Sort events by event order
+        Collections.sort(events);
+        return events;
+    }
+
+	public int getNextEventOrder() {
+	    return this.match.getNextEventOrder();
+    }
+
 	public boolean checkPlayerEntry(Player player) {
 		return this.getMatch().checkPlayerEntry(player);
 	}
+
+	public List<MemberChange> getMemberChanges() {
+		return new ArrayList<MemberChange>(this.memberChanges);
+	}
+
+	public void addMemberChange(MemberChange memberChange) {
+	    if (!this.memberChanges.contains(memberChange)) {
+            // Set event order
+            memberChange.setEventOrder(this.getNextEventOrder());
+
+            //Then add to the list
+            this.memberChanges.add(memberChange);
+
+        }
+
+	}
+
 
 	@Override
 	public boolean equals(Object o) {

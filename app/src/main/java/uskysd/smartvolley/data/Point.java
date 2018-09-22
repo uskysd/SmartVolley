@@ -56,15 +56,20 @@ public class Point implements Serializable, Comparable<Point> {
 		}
 	}
 
-	public Collection<Play> getPlays() {return this.plays; }
+	public List<Play> getPlays() {
+		List<Play> playlist = new ArrayList<Play>(this.plays);
+		Collections.sort(playlist);
+		return playlist;
+	}
 
-
+    /*
 	public List<Play> getPlayList() {
 		// Return sorted list of plays
 		List<Play> plays = new ArrayList<Play>(this.plays);
 		Collections.sort(plays);
 		return plays;
 	}
+	*/
 
 	public Play getLastPlay() {
 		ArrayList<Play> plays = new ArrayList<Play>(this.plays);
@@ -75,6 +80,8 @@ public class Point implements Serializable, Comparable<Point> {
 		return plays.get(plays.size()-1);
 
 	}
+
+
 
 	public int getNumber() {
 		return number;
@@ -128,8 +135,16 @@ public class Point implements Serializable, Comparable<Point> {
 		return set;
 	}
 
+	public int getNextEventOrder() {
+		return this.set.getNextEventOrder();
+	}
+
 	public void addPlay(Play play) {
 		if (!this.plays.contains(play)) {
+			// Set event order
+			play.setEventOrder(this.getNextEventOrder());
+
+			// Then add to the list
 			this.plays.add(play);
 		}
 		if (play.getPoint()!=this) {

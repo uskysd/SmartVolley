@@ -367,6 +367,8 @@ public class SetTest extends OrmLiteAndroidTestCase {
         tearDown();
     }
 
+    // TODO Add member change testing
+
 
 
 }

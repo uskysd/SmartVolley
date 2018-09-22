@@ -29,7 +29,15 @@ public class Play extends Event implements Serializable {
 			return this.playTypeName;
 		}
 
-	};
+		public static PlayType fromString(String str) {
+			for (PlayType playType: PlayType.values()) {
+				if (playType.playTypeName.equalsIgnoreCase(str)) {
+					return playType;
+				}
+			}
+			return null;
+		}
+	}
 
 	public enum PlayEvaluation {
         GOOD("Good"), NORMAL("Normal"), BAD("Bad"), NONE("None");
@@ -52,8 +60,7 @@ public class Play extends Event implements Serializable {
 
 	    public String toString() {return this.str;}
     }
-	
-	
+
 	@DatabaseField(generatedId=true)
 	private Integer id;
 
@@ -96,18 +103,21 @@ public class Play extends Event implements Serializable {
 	public Play() {
 		//needed by ormlite
 	}
-	
+
 	public Play(Player player, PlayType playType) {
 		this.setPlayer(player);
 		this.playType = playType;
         this.dateTime = DateTime.now();
 	}
 
+
 	public Play(Point point, Player player, PlayType playType) {
 		this.setPoint(point);
 		this.setPlayer(player);
 		this.playType = playType;
 		this.dateTime = DateTime.now();
+
+
 	}
 	
 	public Integer getId() {

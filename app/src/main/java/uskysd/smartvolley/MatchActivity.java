@@ -140,9 +140,11 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
                     //throw new RuntimeException("Match data not found");
                     // Generate dummy data set for testing
 
-
-                    //TestDataGenerator dgen = new TestDataGenerator(this);
+                    Log.d(TAG, "Loading dummy data");
+                    TestDataGenerator dgen = new TestDataGenerator(this);
                     //dgen.createTestDataCase001();
+                    //dgen.loadTestDataFromCsv();
+
                     createNewMatch();
                     DatabaseHelper helper = getHelper();
                     Dao<Match, Integer> matchDao = helper.getMatchDao();
@@ -418,6 +420,7 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
                 try {
                     dataManager.setPointWinner(winner);
                     updateScore();
+                    updateRotation();
                     listEvents();
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
@@ -457,6 +460,14 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
         listPointScenarios(MatchDataManager.TEAM_B);
         //dataManager.setPointWinner(MatchDataManager.TEAM_B);
         //updateScore();
+
+    }
+
+    public void updateRotation() throws SQLException {
+	    Log.d(TAG, "Updating rotation");
+	    int[] rotations = dataManager.getRotaions();
+	    matchView.setLeftRotation(rotations[0]);
+	    matchView.setRightRotation(rotations[1]);
     }
 
     public void rotateTeamA() {

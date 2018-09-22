@@ -1,8 +1,5 @@
 package uskysd.smartvolley.data;
 
-import java.sql.SQLException;
-
-import android.app.ActionBar;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
@@ -11,6 +8,9 @@ import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
+
+import java.sql.SQLException;
+
 import uskysd.smartvolley.R;
 
 /**
@@ -32,6 +32,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 	//private Dao<Rally, Integer> rallyDao = null;
 	private Dao<Play, Integer> playDao = null;
 	private Dao<PlayAttribute, Integer> playAttributeDao = null;
+	private Dao<MemberChange, Integer> memberChangeDao = null;
 
 	public DatabaseHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION, R.raw.ormlite_config);
@@ -52,8 +53,10 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 			//TableUtils.createTable(connectionSource, Rally.class);
 			TableUtils.createTable(connectionSource, Set.class);
 			TableUtils.createTable(connectionSource, PlayerRole.class);
+			TableUtils.createTable(connectionSource, MemberChange.class);
+
 		} catch (SQLException e) {
-			Log.e(DatabaseHelper.class.getName(), "Unable to create datbases", e);
+			Log.e(DatabaseHelper.class.getName(), "Unable to create databases", e);
 		}
 	}
 
@@ -145,6 +148,13 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 		}
 		return playerRoleDao;
 	}
+
+	public Dao<MemberChange, Integer> getMemberChangeDao() throws SQLException {
+		if (memberChangeDao == null) {
+			memberChangeDao = getDao(MemberChange.class);
+		}
+		return memberChangeDao;
+	}
 	
 	
 	@Override
@@ -162,6 +172,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 		playDao = null;
 		playAttributeDao = null;
 		playerRoleDao = null;
+		memberChangeDao = null;
 	}
 
     public void clearTables() throws SQLException {
@@ -178,6 +189,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 		//TableUtils.dropTable(getConnectionSource(), Rally.class, true);
 		TableUtils.dropTable(getConnectionSource(), PlayAttribute.class, true);
 		TableUtils.dropTable(getConnectionSource(), PlayerRole.class, true);
+		TableUtils.dropTable(getConnectionSource(), MemberChange.class, true);
+
 
 		// Recreate tables
 		TableUtils.createTable(connectionSource, Team.class);
@@ -192,6 +205,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 		//TableUtils.createTable(connectionSource, Rally.class);
 		TableUtils.createTable(connectionSource, Set.class);
 		TableUtils.createTable(connectionSource, PlayerRole.class);
+		TableUtils.createTable(connectionSource, MemberChange.class);
 	}
 	
 }

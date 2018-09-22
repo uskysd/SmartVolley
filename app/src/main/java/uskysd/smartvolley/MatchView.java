@@ -184,10 +184,12 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
     public void rotateLeft() {
 	    int current = leftRotation.getRotation();
 	    setLeftRotation(current==6 ? 1:current+1);
+	    updatePlayerTokenLocation();
     }
     public void rotateRight() {
         int current = rightRotation.getRotation();
         setRightRotation(current==6 ? 1:current+1);
+        updatePlayerTokenLocation();
     }
 
     public int getLeftRotation() {
@@ -517,7 +519,7 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
         }
 
         //update token location
-        updatePlayerTokenLocation();
+        //updatePlayerTokenLocation();
 
 
 	}

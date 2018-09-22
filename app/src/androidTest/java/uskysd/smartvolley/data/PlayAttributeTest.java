@@ -11,6 +11,31 @@ import uskysd.smartvolley.data.Play.PlayType;
 
 public class PlayAttributeTest extends OrmLiteAndroidTestCase {
 
+    public void setUp() throws Exception {
+        Dao<Match, Integer> matchDao;
+        Dao<Set, Integer> setDao;
+        Dao<Point, Integer> pointDao;
+        Dao<Play, Integer> playDao;
+        Dao<PlayAttribute, Integer> playAttributeDao;
+
+        DatabaseHelper helper = getDatabaseHelper(getContext());
+        matchDao = helper.getMatchDao();
+        setDao = helper.getSetDao();
+        pointDao = helper.getPointDao();
+        playDao = helper.getPlayDao();
+        playAttributeDao = helper.getPlayAttributeDao();
+
+        Match match = new Match("Test Match");
+        matchDao.create(match);
+        Set set = new Set(match);
+        setDao.create(set);
+        Point point = new Point(set);
+        pointDao.create(point);
+
+
+
+    }
+
 
     public void testConstructor() throws Exception {
 
@@ -50,6 +75,9 @@ public class PlayAttributeTest extends OrmLiteAndroidTestCase {
         assertEquals(sut.getId(), queried.getId());
         assertEquals("Back Attack", queried.getName());
         assertEquals(PlayType.ATTACK, queried.getPlayType());
+
+        // Tear Down
+        tearDown();
     }
 
     public void testAddingPlays() throws Exception {
@@ -85,6 +113,9 @@ public class PlayAttributeTest extends OrmLiteAndroidTestCase {
         assertEquals(qp1, p1);
         assertEquals(qattr, qp1.getAttribute());
         assertTrue(qattr.getPlays().contains(qp1));
+
+        // Tear Down
+        tearDown();
 
     }
 

@@ -360,7 +360,7 @@ public class MatchDataManager extends OrmLiteObject {
             }
         } else {
             // Last play is by the point loser
-            List<Play> plays = point.getPlayList();
+            List<Play> plays = point.getPlays();
             Play previousPlay = plays.get(plays.size()-2);
             switch (scenario) {
                 case SERVICE_FAILURE:
@@ -427,6 +427,69 @@ public class MatchDataManager extends OrmLiteObject {
         } else {
             return null;
         }
+    }
+
+    public int[] getRotaions() throws SQLException {
+        // Returns current rotation numbers for both teams
+        // The first item is for Team A and the sencond is for Team B
+        Log.d(TAG, "Calculating rotations");
+        int[] rotations = {1, 1};
+        List<Point> points = this.set.getPoints();
+
+        Dao<Point, Integer> pointDao = getDatabaseHelper(this.context).getPointDao();
+        Play firstPlay;
+        Boolean service;
+
+        int count=0;
+        for (Point p: points) {
+            count+=1;
+            Log.d(TAG, "Analyzing point #"+Integer.toString(count));
+            // Restore point data
+            p = pointDao.queryForId(p.getId());
+            if (p.isOnGoing()) {
+                Log.d(TAG, "The point is ongoing. Current rotations: "
+                        +Integer.toString(rotations[0])+"-"+Integer.toString(rotations[1]));
+                return rotations;
+            }
+            firstPlay = point.getPlays().get(0);
+            if (firstPlay.getPlayType()!= Play.PlayType.SERVICE) {
+                // Illegal state
+            }
+            service = playOf(firstPlay);
+            String serviceTeam = service?"Team A":"Team B";
+            Log.d(TAG, "Service by" + serviceTeam);
+            if (service==null) {
+                throw new RuntimeException("Player is not set to the play: "+ player.toString());
+            }
+            if (p.wonByTeamA()==service) {
+                // Point won by service team-> No rotation
+                Log.d(TAG, "Point won by service team. No rotation");
+            } else if (service==TEAM_A) {
+                // Rotate team B
+                //rotations[1] = (rotations[1]==6)?1:rotations[1]+1;
+                if (rotations[1]==6) {
+                    rotations[1] = 1;
+                } else {
+                    rotations[1] += 1;
+                }
+                Log.d(TAG, "Team B rotation: "+Integer.toString(rotations[1]));
+
+            } else {
+                // Rotate team A
+                //rotations[0] = (rotations[0]==6)?1:rotations[0]+1;
+                if (rotations[0]==6) {
+                    rotations[0] = 1;
+                } else {
+                    rotations[0] += 1;
+                }
+                Log.d(TAG, "Team A rotation: "+Integer.toString(rotations[0]));
+            }
+
+
+
+        }
+        return rotations;
+
     }
 
 
