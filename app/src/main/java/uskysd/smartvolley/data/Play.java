@@ -50,6 +50,15 @@ public class Play extends Event implements Serializable {
             return this.str;
         }
 
+        public static PlayEvaluation fromString(String str) {
+        	for (PlayEvaluation eval: PlayEvaluation.values()) {
+        		if (eval.str.equalsIgnoreCase(str)) {
+        			return eval;
+				}
+			}
+			return null;
+		}
+
     }
 
     public enum PlayResult {
@@ -59,6 +68,15 @@ public class Play extends Event implements Serializable {
 	    private PlayResult(String str) {this.str = str;}
 
 	    public String toString() {return this.str;}
+
+	    public static PlayResult fromString(String str) {
+	    	for (PlayResult result: PlayResult.values()) {
+	    		if (result.str.equalsIgnoreCase(str)) {
+	    			return result;
+				}
+			}
+			return null;
+		}
     }
 
 	@DatabaseField(generatedId=true)
@@ -112,10 +130,11 @@ public class Play extends Event implements Serializable {
 
 
 	public Play(Point point, Player player, PlayType playType) {
-		this.setPoint(point);
-		this.setPlayer(player);
+		this.point = point;
+		this.player = player;
 		this.playType = playType;
 		this.dateTime = DateTime.now();
+		this.eventOrder = point.getNextEventOrder();
 
 
 	}
@@ -131,9 +150,11 @@ public class Play extends Event implements Serializable {
 			throw new IllegalArgumentException("Point is not on db");
 		} else {
 			this.point = point;
+			/*
 			if (!point.getPlays().contains(this)) {
 				point.addPlay(this);
 			}
+			*/
 
 		}
 	}
@@ -147,9 +168,11 @@ public class Play extends Event implements Serializable {
 			throw new IllegalArgumentException("Player must be created on db before registering play");
 		}
 		this.player = player;
+		/*
 		if (!player.getPlays().contains(this)) {
 			player.addPlay(this);
 		}
+		*/
 	}
 
 	public PlayType getPlayType() {
@@ -208,12 +231,14 @@ public class Play extends Event implements Serializable {
 		if (attribute.getId()==0||attribute.getId()==null) {
 			throw new IllegalArgumentException("The PlayAttribute is not on database.");
 		}
-
+		/*
 		if (this.attribute!=null && this.attribute!=attribute) {
 			this.attribute.removePlay(this);
 		}
+		*/
 		this.attribute = attribute;
-		attribute.addPlay(this);
+
+		//attribute.addPlay(this);
 
 		/*
 		if (!attribute.getPlays().contains(this)) {

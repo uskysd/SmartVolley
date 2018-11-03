@@ -35,25 +35,29 @@ public class Set implements Serializable, Comparable<Set> {
 	@DatabaseField(foreign=true)
 	private Match match;
 	
-	@ForeignCollectionField
+	@ForeignCollectionField(eager = true)
 	Collection<Point> points;
 
-	@ForeignCollectionField
+	@ForeignCollectionField(eager = true)
 	Collection<MemberChange> memberChanges;
 	
 	public Set() {
 		//needed by ormlite
 	}
 	
-	public Set(Match match) {
-		this.setMatch(match);
+	public Set(Match match, Integer setNumber) {
+		//this.setMatch(match);
+        this.match = match;
+        this.setNumber = setNumber;
 
+        /*
 		if (this.points==null) {
 			this.points = new ArrayList<Point>();
 		}
 		if (this.memberChanges==null) {
 		    this.memberChanges = new ArrayList<MemberChange>();
         }
+        */
 	}
 
 	public Integer getId() {
@@ -76,6 +80,7 @@ public class Set implements Serializable, Comparable<Set> {
 		return match;
 	}
 
+	/*
 	public void setMatch(Match match) {
 		if (match.getId()==0||match.getId()==null) {
 			throw new IllegalArgumentException("Match should be created on db before adding sets");
@@ -84,13 +89,17 @@ public class Set implements Serializable, Comparable<Set> {
 			throw new IllegalArgumentException("Cannot add set to match already ended.");
 		}
 		this.match = match;
-		match.addSet(this);
+		//match.addSet(this);
 		
 		//Setting set number
 		this.setSetNumber(match.getSetCount());
 	}
+	*/
+    public Collection<Point> getPoints() {
+        return points;
+    }
 
-	public List<Point> getPoints() {
+	public List<Point> getSortedPoints() {
 		// Returns sorted list of points
 		List<Point> pointlist = new ArrayList<Point>(this.points);
 		Collections.sort(pointlist);
@@ -111,10 +120,7 @@ public class Set implements Serializable, Comparable<Set> {
 		if (!(point.getSet()==this)) {
 			throw new IllegalArgumentException("Point should have reference to the set.");
 		}
-		if (!(this.points.contains(point))) {
-			this.points.add(point);
 
-		}
 
 	}
 
@@ -236,6 +242,7 @@ public class Set implements Serializable, Comparable<Set> {
     }
 
 	public int getNextEventOrder() {
+
 	    return this.match.getNextEventOrder();
     }
 
@@ -243,10 +250,11 @@ public class Set implements Serializable, Comparable<Set> {
 		return this.getMatch().checkPlayerEntry(player);
 	}
 
-	public List<MemberChange> getMemberChanges() {
-		return new ArrayList<MemberChange>(this.memberChanges);
+	public Collection<MemberChange> getMemberChanges() {
+	    return memberChanges;
 	}
 
+	/*
 	public void addMemberChange(MemberChange memberChange) {
 	    if (!this.memberChanges.contains(memberChange)) {
             // Set event order
@@ -258,6 +266,7 @@ public class Set implements Serializable, Comparable<Set> {
         }
 
 	}
+	*/
 
 
 	@Override
@@ -280,5 +289,16 @@ public class Set implements Serializable, Comparable<Set> {
 		return this.getSetNumber()-another.getSetNumber();
 	}
 
-
+    @Override
+    public String toString() {
+	    String strmatch = "null";
+	    String strnum = "null";
+	    if (this.match!=null) {
+	        strmatch = match.toString();
+        }
+        if (this.setNumber!=null) {
+	        strnum = Integer.toString(this.setNumber);
+        }
+        return "Set "+strnum+" of "+strmatch;
+    }
 }

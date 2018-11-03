@@ -1,5 +1,7 @@
 package uskysd.smartvolley.data;
 
+import android.util.Log;
+
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
@@ -48,7 +50,7 @@ public class Match implements Serializable, Comparable<Match> {
     @ForeignCollectionField
     Collection<PlayerEntry> playerEntries;
 
-    @ForeignCollectionField
+    @ForeignCollectionField(eager = true)
     Collection<Set> sets;
 
 
@@ -59,7 +61,7 @@ public class Match implements Serializable, Comparable<Match> {
     public Match(String name) {
         this.name = name;
         this.startDateTime = DateTime.now();
-        initCollections();
+        //initCollections();
     }
 
     public Match(String name, Team teamA, Team teamB) {
@@ -67,7 +69,7 @@ public class Match implements Serializable, Comparable<Match> {
         this.setTeamA(teamA);
         this.setTeamB(teamB);
         this.startDateTime = DateTime.now();
-        initCollections();
+        //initCollections();
     }
 
     public Match(String name, Team teamA, Team teamB, DateTime dateTime) {
@@ -75,7 +77,7 @@ public class Match implements Serializable, Comparable<Match> {
         this.setTeamA(teamA);
         this.setTeamB(teamB);
         this.startDateTime = dateTime;
-        initCollections();
+        //initCollections();
     }
 
     private void initCollections() {
@@ -194,6 +196,7 @@ public class Match implements Serializable, Comparable<Match> {
         this.name = name;
     }
 
+
     public DateTime getStartDateTime() {
         return startDateTime;
     }
@@ -222,9 +225,11 @@ public class Match implements Serializable, Comparable<Match> {
             throw new IllegalArgumentException("Team A & B cannot be the same.");
         }
         this.teamA = team;
+        /*
         if (!(team.getMatches().contains(this))) {
             team.addMatch(this);
         }
+        */
     }
 
     public Team getTeamB() {
@@ -239,9 +244,11 @@ public class Match implements Serializable, Comparable<Match> {
             throw new IllegalArgumentException("Team A & B cannot be the same.");
         }
         this.teamB = team;
+        /*
         if (!(team.getMatches().contains(this))) {
             team.addMatch(this);
         }
+        */
     }
 
     public void setTeamAWon() {
@@ -297,17 +304,22 @@ public class Match implements Serializable, Comparable<Match> {
     }
 
     public void addSet(Set set) {
+
         this.sets.add(set);
+        set.setSetNumber(this.sets.size());
 
     }
 
     public void renumberSets() {
         //Renumber set
-        List<Set> sets = new ArrayList<Set>(this.getSets());
+        Log.d("Match", "Renumber Set numbers");
+        List<Set> sets = new ArrayList<Set>(this.sets);
         Collections.sort(sets);
         for (int i = 0; i < sets.size(); i++) {
+
             Set s = sets.get(i);
             s.setSetNumber(i + 1);
+
         }
     }
 
@@ -317,10 +329,10 @@ public class Match implements Serializable, Comparable<Match> {
     }
 
     public Set getOnGoingSet() {
-        ArrayList<Set> setList = new ArrayList<Set>(this.sets);
-        if (setList.size() == 0) {
+        if ((this.sets==null)||(this.sets.size()==0)) {
             return null;
         }
+        ArrayList<Set> setList = new ArrayList<Set>(this.sets);
         Collections.sort(setList);
         Set last = setList.get(setList.size() - 1);
         if (last.isOnGoing()) {
@@ -329,6 +341,12 @@ public class Match implements Serializable, Comparable<Match> {
             return null;
         }
     }
+
+    /*
+    public void addPlayerEntry(PlayerEntry entry) {
+        this.playerEntries.add(entry);
+    }
+    */
 
     public boolean checkPlayerEntry(Player player) {
         // Returns true if the player is registered to the match
@@ -393,4 +411,21 @@ public class Match implements Serializable, Comparable<Match> {
 			return this.name.compareTo(another.name);
 		}
 	}
+
+    @Override
+    public String toString() {
+        String strTeamA;
+        String strTeamB;
+        if (teamA==null) {
+            strTeamA = "None";
+        } else {
+            strTeamA = teamA.toString();
+        }
+        if (teamB==null) {
+            strTeamB = "None";
+        } else {
+            strTeamB = teamB.toString();
+        }
+        return "Match: "+this.name+" - " +strTeamA+" vs. "+strTeamB;
+    }
 }

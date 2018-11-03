@@ -33,6 +33,37 @@ public class MatchTest extends OrmLiteAndroidTestCase {
         setDao = helper.getSetDao();
     }
 
+    public void testForeignCollections() throws Exception {
+
+        // Setup
+        setUp();
+        Team teamA = new Team("Team A");
+        Team teamB = new Team("Team B");
+        DatabaseHelper helper = getDatabaseHelper(getContext());
+        Dao<Team, Integer> teamDao = helper.getTeamDao();
+        // Team should be create on db before referred from match
+        teamDao.create(teamA);
+        teamDao.create(teamB);
+
+        //Exercise
+        Match sut = new Match("Test match", teamA, teamB);
+        matchDao.create(sut);
+        Set set1 = new Set(sut, 1);
+        Set set2 = new Set(sut, 2);
+        setDao.create(set1);
+        setDao.create(set2);
+
+        // Verify
+        assertEquals(null, sut.getSets());
+        matchDao.refresh(sut);
+        assertEquals(2, sut.getSetCount());
+
+
+        // TearDown
+        tearDown();
+    }
+
+
     public void testCreatingMatch() throws Exception {
         //Setup
         Team teamA = new Team("Team A");
@@ -57,6 +88,36 @@ public class MatchTest extends OrmLiteAndroidTestCase {
 
         //TearDown
         tearDown();
+    }
+
+    public void testSaveIntoDatabase() throws Exception {
+        //Setup
+        Team teamA = new Team("Team A");
+        Team teamB = new Team("Team B");
+        DatabaseHelper helper = getDatabaseHelper(getContext());
+        Dao<Team, Integer> teamDao = helper.getTeamDao();
+        teamDao.create(teamA);
+        teamDao.create(teamB);
+        Match sut = new Match("Test Match", teamA, teamB);
+
+        Dao<Match, Integer> matchDao = helper.getMatchDao();
+
+        // Exercise
+        matchDao.create(sut);
+
+        //Verify
+        assertEquals(1, matchDao.countOf());
+        assertTrue(sut.getId()!=null);
+        Match queried = matchDao.queryForId(sut.getId());
+        assertEquals(sut, queried);
+        assertEquals(sut.getId(), queried.getId());
+        assertEquals(sut.getName(), queried.getName());
+        assertEquals(sut.getTeamA(), queried.getTeamA());
+        assertEquals(sut.getTeamB(), queried.getTeamB());
+
+        // Tear Down
+        tearDown();
+
     }
 
     public void testCreatingMatchWithStartingDateTime() throws Exception {
@@ -319,6 +380,9 @@ public class MatchTest extends OrmLiteAndroidTestCase {
         //Verify
         Match queried = matchDao.queryForAll().get(0);
 
+
+        assertEquals(teamA, queried.getTeamA());
+        assertEquals(teamB, queried.getTeamB());
         assertEquals(true, queried.getPlayerEntries().contains(playerEntry1));
         assertEquals(true, queried.getPlayerEntries().contains(playerEntry2));
         assertEquals(true, queried.getPlayerEntriesToTeamA().contains(playerEntry1));
@@ -381,14 +445,14 @@ public class MatchTest extends OrmLiteAndroidTestCase {
         matchDao.create(sut);
 
         //Exercise
-        Set set1 = new Set(sut);
-        Set set2 = new Set(sut);
+        Set set1 = new Set(sut, 1);
+        Set set2 = new Set(sut, 2);
+        //sut.addSet(set1);
+        //sut.addSet(set2);
         setDao.create(set1);
         setDao.create(set2);
 
         //Verify
-        assertTrue(sut.getSets().contains(set1));
-        assertTrue(sut.getSets().contains(set2));
 
         Match queried = matchDao.queryForAll().get(0);
         assertEquals(false, queried.getSets()==null);
@@ -411,11 +475,11 @@ public class MatchTest extends OrmLiteAndroidTestCase {
         matchDao.create(sut);
 
         //Create & add sets
-        Set set1 = new Set(sut);
-        Set set2 = new Set(sut);
-        Set set3 = new Set(sut);
-        Set set4 = new Set(sut);
-        Set set5 = new Set(sut);
+        Set set1 = new Set(sut, 1);
+        Set set2 = new Set(sut, 2);
+        Set set3 = new Set(sut, 3);
+        Set set4 = new Set(sut, 4);
+        Set set5 = new Set(sut, 5);
         set1.setTeamAWon();
         set2.setTeamAWon();
         set3.setTeamBWon();
@@ -448,6 +512,7 @@ public class MatchTest extends OrmLiteAndroidTestCase {
         assertEquals(true, queried.getSetsWonByTeamB().contains(set4));
         assertEquals(false, queried.getSetsWonByTeamB().contains(set5));
 
+        /*
         assertEquals(5, sut.getSets().size());
         assertEquals(3, sut.getSetsWonByTeamA().size());
         assertEquals(2, sut.getSetsWonByTeamB().size());
@@ -456,6 +521,7 @@ public class MatchTest extends OrmLiteAndroidTestCase {
         assertEquals(true, sut.getSetsWonByTeamB().contains(set3));
         assertEquals(true, sut.getSetsWonByTeamB().contains(set4));
         assertEquals(true, sut.getSetsWonByTeamA().contains(set5));
+        */
 
         //TearDown
         tearDown();
@@ -476,23 +542,30 @@ public class MatchTest extends OrmLiteAndroidTestCase {
 
         //Exercise & Verify
         //Team A wins
-        Set set1 = new Set(sut);
+        Set set1 = new Set(sut, 1);
         set1.setTeamAWon();
-        Set set2 = new Set(sut);
+        Set set2 = new Set(sut, 2);
         set2.setTeamAWon();
-        Set set3 = new Set(sut);
+        Set set3 = new Set(sut, 3);
         set3.setTeamBWon();
         setDao.create(set1);
         setDao.create(set2);
         setDao.create(set3);
+        //sut.addSet(set1);
+        //sut.addSet(set2);
+        //sut.addSet(set3);
+        matchDao.refresh(sut);
         sut.updateTeamWon();
 
         assertEquals(true, sut.isOnGoing());
 
-        Set set4 = new Set(sut);
+        Set set4 = new Set(sut, 4);
+        //sut.addSet(set4);
         set4.setTeamAWon();
         setDao.create(set4);
+        matchDao.refresh(sut);
         sut.updateTeamWon();
+        matchDao.update(sut);
 
         assertEquals(4, sut.getSets().size());
         assertEquals(3, sut.getSetsWonByTeamA().size());
@@ -501,15 +574,19 @@ public class MatchTest extends OrmLiteAndroidTestCase {
         assertEquals(false, sut.isOnGoing());
 
         //Team B wins
-        Set s1 = new Set(sut2);
-        Set s2 = new Set(sut2);
-        Set s3 = new Set(sut2);
+        Set s1 = new Set(sut2, 1);
+        Set s2 = new Set(sut2, 2);
+        Set s3 = new Set(sut2, 3);
+        //sut2.addSet(s1);
+        //sut2.addSet(s2);
+        //sut2.addSet(s3);
         s1.setTeamBWon();
         s2.setTeamBWon();
         s3.setTeamBWon();
         setDao.create(s1);
         setDao.create(s2);
         setDao.create(s3);
+        matchDao.refresh(sut2);
         sut2.updateTeamWon();
 
         assertEquals(true, sut2.wonByTeamB());
@@ -531,39 +608,51 @@ public class MatchTest extends OrmLiteAndroidTestCase {
         teamDao.create(teamB);
         Match sut = new Match("Test Match", teamA, teamB);
         matchDao.create(sut);
-        Set s1 = new Set(sut);
-        Set s2 = new Set(sut);
-        Set s3 = new Set(sut);
+        Set s1 = new Set(sut, 1);
+        Set s2 = new Set(sut, 2);
+        Set s3 = new Set(sut, 3);
+        //sut.addSet(s1);
+        //sut.addSet(s2);
+        //sut.addSet(s3);
         setDao.create(s1);
         setDao.create(s2);
         setDao.create(s3);
 
         //Exercise
-        sut.removeSet(s2);
+        Match qmatch = matchDao.queryForId(sut.getId());
+        qmatch.removeSet(s2);
+        for (Set s: qmatch.getSets()) {
+            setDao.update(s);
+        }
         setDao.delete(s2);
-        matchDao.update(sut);
-        setDao.update(s1);
-        setDao.update(s3);
+        //matchDao.update(qmatch);
+        //setDao.update(s1);
+        //setDao.update(s3);
 
         //Verify
-        assertEquals(2, sut.getSetCount());
-        List<Set> sets = new ArrayList<Set>(sut.getSets());
+        assertEquals(2, qmatch.getSetCount());
+        List<Set> sets = new ArrayList<Set>(qmatch.getSets());
+        assertEquals(2, sets.size());
         Collections.sort(sets);
         assertEquals(1, sets.get(0).getSetNumber());
         assertEquals(2, sets.get(1).getSetNumber());
-
         assertEquals(2, setDao.queryForAll().size());
+
+        /*
         Match queried = matchDao.queryForAll().get(0);
         assertEquals(2, queried.getSets().size());
         sets = new ArrayList<Set>(queried.getSets());
         Collections.sort(sets);
         assertEquals(1, sets.get(0).getSetNumber());
         assertEquals(2, sets.get(1).getSetNumber());
+        */
 
         //Tear Down
         tearDown();
 
     }
+
+
 
 
 

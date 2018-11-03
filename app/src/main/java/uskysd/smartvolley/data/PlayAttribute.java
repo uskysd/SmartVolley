@@ -8,7 +8,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import uskysd.smartvolley.data.Play.PlayType;
 
 /**
  * Additional information of Play object, 
@@ -31,7 +30,7 @@ public class PlayAttribute implements Serializable {
 	private Integer id;
 	
 	@DatabaseField(columnName = PLAY_TYPE_FIELD_NAME)
-	private PlayType playType;
+	private Play.PlayType playType;
 	
 	@DatabaseField(columnName = NAME_FIELD_NAME)
 	private String name;
@@ -43,7 +42,7 @@ public class PlayAttribute implements Serializable {
 		//needed by ormlite
 	}
 	
-	public PlayAttribute(String name, PlayType playTypeFlag) {
+	public PlayAttribute(String name, Play.PlayType playTypeFlag) {
 		this.name = name;
 		this.playType = playTypeFlag;
 		this.plays = new ArrayList<Play>();
@@ -57,11 +56,11 @@ public class PlayAttribute implements Serializable {
 		this.id = id;
 	}
 
-	public PlayType getPlayType() {
+	public Play.PlayType getPlayType() {
 		return playType;
 	}
 
-	public void setPlayType(PlayType playType) {
+	public void setPlayType(Play.PlayType playType) {
 		this.playType = playType;
 	}
 
@@ -80,6 +79,9 @@ public class PlayAttribute implements Serializable {
 	public void addPlay(Play play) {
 		if (!this.plays.contains(play)) {
 			this.plays.add(play);
+		}
+		if (play.getAttribute()!=this) {
+			play.setAttribute(this);
 		}
 	}
 

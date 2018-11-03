@@ -27,12 +27,12 @@ public class PlayAttributeTest extends OrmLiteAndroidTestCase {
 
         Match match = new Match("Test Match");
         matchDao.create(match);
-        Set set = new Set(match);
+        Set set = new Set(match, 1);
         setDao.create(set);
+        matchDao.refresh(match);
+        setDao.refresh(set);// update Set.points
         Point point = new Point(set);
-        pointDao.create(point);
-
-
+        set.getPoints().add(point);
 
     }
 
@@ -97,7 +97,8 @@ public class PlayAttributeTest extends OrmLiteAndroidTestCase {
         attrDao.create(sut);
 
         // Exercise
-        p1.setAttribute(sut);
+        //p1.setAttribute(sut);
+        sut.addPlay(p1);
 
         // Verify
         assertEquals(sut, p1.getAttribute());

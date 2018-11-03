@@ -4,7 +4,6 @@ import android.content.Context;
 import android.util.Log;
 
 import com.j256.ormlite.dao.Dao;
-import com.j256.ormlite.stmt.QueryBuilder;
 
 import org.joda.time.DateTime;
 
@@ -54,6 +53,7 @@ public class TestDataGenerator extends OrmLiteObject {
     private Dao<PlayerRole, Integer> playerRoleDao;
     private Dao<MemberChange, Integer> memberChangeDao;
     private Context context;
+    private MatchDataManager matchDataManager;
 
 
 
@@ -70,7 +70,9 @@ public class TestDataGenerator extends OrmLiteObject {
         playDao = helper.getPlayDao();
         memberChangeDao = helper.getMemberChangeDao();
 
+
         // clear database
+        Log.d(TAG, "Clear database");
         helper.clearTables();
 
     }
@@ -85,10 +87,13 @@ public class TestDataGenerator extends OrmLiteObject {
 
         InputStream assetInStream = null;
 
+
+
         try {
             assetInStream = context.getAssets().open("testdata.csv");
         } catch (IOException e) {
             Log.d(TAG, e.getMessage());
+            throw e;
         }
 
 
@@ -102,24 +107,36 @@ public class TestDataGenerator extends OrmLiteObject {
             str2position.put("Front Right", Position.FRONT_RIGHT);
             str2position.put("Back Right", Position.BACK_RIGHT);
             str2position.put("Back Center", Position.BACK_CENTER);
-            str2position.put("BACK_LEFT", Position.BACK_LEFT);
+            str2position.put("Back Left", Position.BACK_LEFT);
+            Match match = null;
+
+
 
             br = new BufferedReader(new InputStreamReader(assetInStream, Charset.forName("UTF-8")));
             while ((line = br.readLine()) != null) {
                 Log.d(TAG, line);
                 String[] row = line.split(",");
-                if (row.length==0) {
+                if (row.length == 0) {
                     continue;
                 }
-                if (row[0]=="#Team") {
+                Log.d(TAG, "First item: " + row[0]);
+                if (row[0].trim().matches("#Team")) {
                     // Read team data
+                    Log.d(TAG, "Team data detected. Start loading...");
                     List<String> labels = Arrays.asList(br.readLine().split(","));
                     Integer indexId = labels.indexOf("ID");
                     Integer indexName = labels.indexOf("Team Name");
                     Integer indexLocation = labels.indexOf("Location");
                     Integer indexDescription = labels.indexOf("Description");
+
+                    Log.d(TAG, "Detecting indexes form label");
+                    Log.d(TAG, "ID: " + indexId.toString()
+                            + ", Name: " + indexName.toString()
+                            + ", Location: " + indexLocation.toString()
+                            + ", Description: " + indexDescription.toString());
+
                     row = br.readLine().split(",");
-                    while ((row.length!=0)&&(row[indexId]!="")) {
+                    while ((row.length != 0) && (row[indexId] != "")) {
                         try {
                             id = Integer.parseInt(row[indexId]);
                         } catch (ClassCastException e) {
@@ -130,13 +147,16 @@ public class TestDataGenerator extends OrmLiteObject {
                         team.setLocation(row[indexLocation]);
                         team.setDescription(row[indexDescription]);
                         teamDao.create(team);
+                        Log.d(TAG, "Created Team: " + team.toString());
 
                         // Next row
                         row = br.readLine().split(",");
 
                     }
-                } else if (row[0]=="#Player") {
+
+                } else if (row[0].trim().matches("#Player")) {
                     // Read player data
+                    Log.d(TAG, "Player data detected. Start loading...");
 
                     List<String> labels = Arrays.asList(br.readLine().split(","));
                     Integer indexId = labels.indexOf("ID");
@@ -149,186 +169,260 @@ public class TestDataGenerator extends OrmLiteObject {
                     Integer indexAge = labels.indexOf("Age");
                     Integer indexDescription = labels.indexOf("Description");
 
+                    Log.d(TAG, "Detecting indexes from label");
+                    Log.d(TAG, "ID: " + indexId.toString()
+                            + ", First Name: " + indexFirstName.toString()
+                            + ", Last Name: " + indexLastName.toString()
+                            + ", Team ID: " + indexTeamId.toString()
+                            + ", Starting Position: " + indexStartingPosition.toString()
+                            + ", Height: " + indexHeight.toString()
+                            + ", Weight: " + indexWeight.toString()
+                            + ", Age: " + indexAge.toString()
+                            + ", Description: " + indexDescription.toString());
+
                     row = br.readLine().split(",");
-                    while ((row.length!=0)&&(row[indexId]!="")) {
+                    while ((row.length != 0) && (row[indexId] != "")) {
+                        /*
                         try {
                             id = Integer.parseInt(row[indexId]);
                         } catch (ClassCastException e) {
                             Log.d(TAG, e.getMessage());
                         }
+                        */
                         Player player = new Player(row[indexFirstName], row[indexLastName]);
                         player.setId(Integer.parseInt(row[indexId]));
                         player.setTeam(teamDao.queryForId(Integer.parseInt(row[indexTeamId])));
+
                         if (str2position.keySet().contains(row[indexStartingPosition])) {
                             player.setStartingPosition(str2position.get(row[indexStartingPosition]));
                         }
-                        if (row[indexHeight]!="") {
+                        if (row[indexHeight] != "") {
                             player.setHeight(Float.parseFloat(row[indexHeight]));
                         }
-                        if (row[indexWeight]!="") {
+                        if (row[indexWeight] != "") {
                             player.setWeight(Float.parseFloat(row[indexWeight]));
                         }
-                        if (row[indexAge]!="") {
+                        if (row[indexAge] != "") {
                             player.setAge(Integer.parseInt(row[indexAge]));
                         }
                         playerDao.create(player);
+                        Log.d(TAG, "Created Player:" + player.toString());
 
                         //Next row
                         row = br.readLine().split(",");
 
                     }
-                } else if (row[0]=="#Match") {
+                } else if (row[0].trim().matches("#Match")) {
                     // Load match
+                    Log.d(TAG, "Match data detected. Start loading...");
                     row = br.readLine().split(",");
-                    Match match = new Match();
-                    List<String> labels = null;
+                    match = new Match("default");
+                    //matchDao.create(match);
 
-                    while (row.length!=0) {
-                        switch (row[0]) {
+                    while (row.length != 0) {
+                        Log.d(TAG, "Searching Match Info: " + row[0]);
+                        switch (row[0].trim()) {
                             case "ID":
+                                Log.d(TAG, "Match ID: " + row[1]);
                                 match.setId(Integer.parseInt(row[1]));
                             case "Match Name":
+                                Log.d(TAG, "Match Name: " + row[1]);
                                 match.setName(row[1]);
                                 break;
                             case "Match Date Time":
                                 String[] strdate = row[1].split("/");
-                                String[] strtime = row[2].split(";");
-                                match.setStartDateTime(
-                                        new DateTime(
-                                                Integer.parseInt(strdate[0]),
-                                                Integer.parseInt(strdate[1]),
-                                                Integer.parseInt(strdate[2]),
-                                                Integer.parseInt(strtime[0]),
-                                                Integer.parseInt(strtime[1]),
-                                                0, 0));
+                                String[] strtime = row[2].split(":");
+                                DateTime dt = new DateTime(
+                                        Integer.parseInt(strdate[0]),
+                                        Integer.parseInt(strdate[1]),
+                                        Integer.parseInt(strdate[2]),
+                                        Integer.parseInt(strtime[0]),
+                                        Integer.parseInt(strtime[1]),
+                                        0, 0);
+                                Log.d(TAG, "Match Start DateTime: " + dt.toString());
+                                match.setStartDateTime(dt);
                                 break;
                             case "Team A ID":
-                                match.setTeamA(teamDao.queryForId(Integer.parseInt(row[1])));
+                                Log.d(TAG, "Team A ID: " + row[1]);
+                                Team teamA = teamDao.queryForId(Integer.parseInt(row[1]));
+                                Log.d(TAG, "Team A: "+teamA.toString());
+                                match.setTeamA(teamA);
                                 break;
-                            case "Team B iD":
-                                match.setTeamB(teamDao.queryForId(Integer.parseInt(row[1])));
-                                // Create match on database
-                                matchDao.create(match);
+                            case "Team B ID":
+                                Log.d(TAG, "Team B ID: " + row[1]);
+                                Team teamB = teamDao.queryForId(Integer.parseInt(row[1]));
+                                Log.d(TAG, "Team B: " + teamB.toString());
+                                match.setTeamB(teamB);
                                 break;
-                            case "#Player Entry":
-                                // Create player entry
-                                Log.d(TAG, "Start loading player entries");
-                                labels = Arrays.asList(
-                                        br.readLine().split(",")
-                                );
-                                Integer indexPlayer = labels.indexOf("Player ID");
-                                Integer indexTeam = labels.indexOf("Team");
-                                Integer indexNumber = labels.indexOf("Number");
-                                Integer indexStartPos = labels.indexOf("Starting Position");
 
-                                row = br.readLine().split(",");
-                                while ((row.length!=0)&&(row[0]!="")) {
-                                    Player player = playerDao.queryForId(Integer.parseInt(row[indexPlayer]));
-                                    Integer number = Integer.parseInt(row[indexNumber]);
-                                    Boolean teamflag = null;
-                                    switch (row[indexTeam]){
-                                        case "A":
-                                            teamflag = TEAM_A;
-                                            break;
-                                        case "B":
-                                            teamflag = TEAM_B;
-                                            break;
-                                        default:
-                                            throw new IOException("Should select A or B for team");
-                                    }
-                                    Position startPos = Position.NONE;
-                                    if (row[indexStartPos]!="") {
-                                        if (str2position.keySet().contains(row[indexStartPos])) {
-                                            startPos = str2position.get(row[indexStartPos]);
-                                        } else {
-                                            throw new IOException("Unexpected position input: " + row[indexStartPos]);
-                                        }
-                                    }
-
-                                    // Create player entry
-                                    PlayerEntry entry = new PlayerEntry(match, player, number, teamflag, startPos);
-                                    playerEntryDao.create(entry);
-
-                                    // Next row
-                                    row = br.readLine().split(",");
-
-                                }
-                                break;
-                            case "#Event":
-                                Log.d(TAG, "Start loading match events");
-                                labels = Arrays.asList(
-                                        br.readLine().split(",")
-                                );
-                                Integer indexEventType = labels.indexOf("Event Type");
-                                Integer indexPlayer2 = labels.indexOf("Player ID");
-                                Integer indexPlayType = labels.indexOf("Play Type");
-                                Integer indexPlayResult = labels.indexOf("Play Result");
-                                Integer indexPlayAttr = labels.indexOf("Play Attribute");
-                                Integer indexPlayPosX = labels.indexOf("Play Position X");
-                                Integer indexPlayPosY = labels.indexOf("Play Position Y");
-                                Integer indexPlayerIn = labels.indexOf("Player IN ID");
-                                Integer indexPlayerOut = labels.indexOf("Player OUT ID");
-
-                                // Read first row
-                                row = br.readLine().split(",");
-                                while ((row.length!=0)&&(row[0]!="")) {
-                                    switch (row[indexEventType]) {
-                                        case "Play":
-                                            Player player = playerDao.queryForId(Integer.parseInt(row[indexPlayer2]));
-                                            Play.PlayType playType = Play.PlayType.fromString(row[indexPlayType]);
-                                            Play play = new Play(
-                                                    match.getOnGoingSet().getOnGoingPoint(),
-                                                    player,
-                                                    playType);
-                                            if (row[indexPlayAttr]=="") {
-                                                String attrName = row[indexPlayAttr];
-                                                QueryBuilder<PlayAttribute, Integer> qb = playAttributeDao.queryBuilder();
-                                                qb.where().eq(PlayAttribute.NAME_FIELD_NAME, attrName);
-
-                                                if (qb.countOf()==0) {
-                                                    // Create new PlayAttribute
-                                                    PlayAttribute attr = new PlayAttribute(attrName, playType);
-                                                    playAttributeDao.create(attr);
-                                                    play.setAttribute(attr);
-                                                } else {
-                                                    play.setAttribute(qb.queryForFirst());
-                                                }
-                                            }
-                                            playDao.create(play);
-
-                                            // New line
-                                            row = br.readLine().split(",");
-
-                                            break;
-                                        case "MemberChange":
-                                            Player playerIn = playerDao.queryForId(Integer.parseInt(row[indexPlayerIn]));
-                                            Player playerOut = playerDao.queryForId(Integer.parseInt(row[indexPlayerOut]));
-                                            MemberChange memberChange = new MemberChange(match.getOnGoingSet(), playerIn, playerOut);
-                                            memberChangeDao.create(memberChange);
-
-                                            //New line
-                                            row = br.readLine().split(",");
-
-                                            break;
-                                        default:
-                                            break;
-                                    }
-                                }
-
-                                break;
                             default:
                                 break;
                         }
                         // Next row
                         row = br.readLine().split(",");
                     }
-                    // Create Match on the database
+                    // Create match on database
+                    Log.d(TAG, "Create a new match: "+match.toString());
                     matchDao.create(match);
+                    matchDataManager = new MatchDataManager(context, match);
+                    Log.d(TAG, "Created match: " + match.toString());
+                } else if (row[0].trim().equals("#Player Entry")) {
+                    // Create player entry
+                    Log.d(TAG, "Start loading player entries");
+                    List<String> labels = Arrays.asList(
+                            br.readLine().split(",")
+                    );
+                    Integer indexPlayer = labels.indexOf("Player ID");
+                    Integer indexTeam = labels.indexOf("Team");
+                    Integer indexNumber = labels.indexOf("Number");
+                    Integer indexStartPos = labels.indexOf("Starting Position");
+
+                    Log.d(TAG, "Detecting indexes from label");
+                    Log.d(TAG, "Player: "+indexPlayer.toString()
+                                    +", Team: "+indexTeam.toString()
+                                    +", Number: "+indexNumber.toString()
+                                    +", Starting Position: "+indexStartPos.toString());
+
+                    row = br.readLine().split(",");
+                    while ((row.length != 0) && (row[0] != "")) {
+                        Player player = playerDao.queryForId(Integer.parseInt(row[indexPlayer]));
+                        Integer number = Integer.parseInt(row[indexNumber]);
+                        Boolean teamflag = null;
+                        switch (row[indexTeam]) {
+                            case "A":
+                                teamflag = TEAM_A;
+                                break;
+                            case "B":
+                                teamflag = TEAM_B;
+                                break;
+                            default:
+                                throw new IOException("Should select A or B for team");
+                        }
+                        Position startPos = Position.NONE;
+                        try {
+                            if (row[indexStartPos] != "") {
+                                if (str2position.keySet().contains(row[indexStartPos])) {
+                                    startPos = str2position.get(row[indexStartPos]);
+                                } else {
+                                    throw new IOException("Unexpected position input: " + row[indexStartPos]);
+                                }
+                            }
+                        } catch (ArrayIndexOutOfBoundsException e) {
+                            // Empty starting position
+                            // Do nothing
+                        }
 
 
+                        // Create player entry
+                        PlayerEntry entry = new PlayerEntry(match, player, number, teamflag, startPos);
+                        playerEntryDao.create(entry);
+                        Log.d(TAG, "Created Player Entry: " + entry.toString());
 
+                        // Next row
+                        row = br.readLine().split(",");
+
+                    }
+                } else if (row[0].trim().equals("#Event")) {
+                    Log.d(TAG, "Start loading match events");
+                    List<String> labels = Arrays.asList(
+                            br.readLine().split(",")
+                    );
+                    Integer indexEventType = labels.indexOf("Event Type");
+                    Integer indexPlayer2 = labels.indexOf("Player ID");
+                    Integer indexPlayType = labels.indexOf("Play Type");
+                    Integer indexPlayResult = labels.indexOf("Play Result");
+                    Integer indexPlayEval = labels.indexOf("Play Evaluation");
+                    Integer indexPlayAttr = labels.indexOf("Play Attribute");
+                    Integer indexPlayPosX = labels.indexOf("Play Position X");
+                    Integer indexPlayPosY = labels.indexOf("Play Position Y");
+                    Integer indexPlayerIn = labels.indexOf("Player IN ID");
+                    Integer indexPlayerOut = labels.indexOf("Player OUT ID");
+
+                    // Read first row
+                    row = br.readLine().split(",");
+                    while ((row.length != 0) && (row[0] != "")) {
+                        switch (row[indexEventType].trim()) {
+                            case "Play":
+                                matchDataManager.setPlayer(
+                                        playerDao.queryForId(Integer.parseInt(row[indexPlayer2])));
+                                Play.PlayType playType = Play.PlayType.fromString(row[indexPlayType]);
+                                matchDataManager.setPlayType(playType);
+                                matchDataManager.setPlayResult(
+                                        Play.PlayResult.fromString(row[indexPlayResult]));
+
+                                if ((row.length>indexPlayEval)&&(row[indexPlayEval].trim()!="")) {
+                                    matchDataManager.setPlayEvaluation(
+                                            Play.PlayEvaluation.fromString(row[indexPlayEval]));
+                                }
+
+                                if ((row.length>indexPlayAttr)&&(row[indexPlayAttr].trim()!="")) {
+                                    PlayAttribute attr = matchDataManager
+                                            .findPlayAttribute(playType, row[indexPlayAttr].trim());
+                                    matchDataManager.setPlayAttribute(attr);
+                                }
+
+                                matchDataManager.createPlay();
+                                /*
+                                Point point = null;
+                                Set set = match.getOnGoingSet();
+                                if (set==null) {
+                                    set = new Set(match);
+                                    setDao.create(set);
+                                    point = new Point(set);
+                                    pointDao.create(point);
+                                } else {
+                                    point = set.getOnGoingPoint();
+                                    if (point==null) {
+                                        point = new Point(set);
+                                        pointDao.create(point);
+                                    }
+                                }
+
+                                Play play = new Play(point, player, playType);
+
+
+                                //boolean teamflag = match.getPlayerEntryTeamFlag(player);
+
+                                if ((row.length>indexPlayAttr)&&(row[indexPlayAttr] == "")) {
+                                    String attrName = row[indexPlayAttr];
+                                    QueryBuilder<PlayAttribute, Integer> qb = playAttributeDao.queryBuilder();
+                                    qb.where().eq(PlayAttribute.NAME_FIELD_NAME, attrName);
+
+                                    if (qb.countOf() == 0) {
+                                        // Create new PlayAttribute
+                                        PlayAttribute attr = new PlayAttribute(attrName, playType);
+                                        playAttributeDao.create(attr);
+                                        play.setAttribute(attr);
+                                    } else {
+                                        play.setAttribute(qb.queryForFirst());
+                                    }
+                                }
+                                playDao.create(play);
+                                */
+                                //Log.d(TAG, "Created Play: "+play.toString());
+
+                                // New line
+                                row = br.readLine().split(",");
+
+                                break;
+                            case "Member Change":
+                                Player playerIn = playerDao.queryForId(Integer.parseInt(row[indexPlayerIn]));
+                                Player playerOut = playerDao.queryForId(Integer.parseInt(row[indexPlayerOut]));
+                                matchDataManager.createMemberChange(playerIn, playerOut);
+                                /*
+                                MemberChange memberChange = new MemberChange(match.getOnGoingSet(), playerIn, playerOut);
+                                memberChangeDao.create(memberChange);
+                                Log.d(TAG, "Created MemberChange: "+memberChange.toString());
+                                */
+                                //New line
+                                row = br.readLine().split(",");
+
+                                break;
+                            default:
+                                break;
+                        }
+                    }
                 }
-
             }
 
         } catch (FileNotFoundException e) {
@@ -425,7 +519,7 @@ public class TestDataGenerator extends OrmLiteObject {
 
 
         // Add some plays
-        Set set1 = new Set(match);
+        Set set1 = new Set(match, 1);
         setDao.create(set1);
 
         Point point1 = new Point(set1);

@@ -1,5 +1,7 @@
 package uskysd.smartvolley.data;
 
+import android.util.Log;
+
 import com.j256.ormlite.dao.Dao;
 
 import java.util.ArrayList;
@@ -44,7 +46,7 @@ public class SetTest extends OrmLiteAndroidTestCase {
         matchDao.create(match);
 
         //Exercise
-        Set sut = new Set(match);
+        Set sut = new Set(match, 1);
         setDao.create(sut);
 
         //Verify
@@ -73,7 +75,7 @@ public class SetTest extends OrmLiteAndroidTestCase {
         matchDao.create(match);
 
         //Create Set
-        Set sut = new Set(match);
+        Set sut = new Set(match, 1);
         setDao.create(sut);
 
         //Exrecise & Verify
@@ -101,7 +103,7 @@ public class SetTest extends OrmLiteAndroidTestCase {
         matchDao.create(match);
 
         //Create Set
-        Set sut = new Set(match);
+        Set sut = new Set(match, 1);
         setDao.create(sut);
 
         //Exercise & Verify
@@ -145,22 +147,29 @@ public class SetTest extends OrmLiteAndroidTestCase {
         matchDao.create(match);
 
         //Create Set
-        Set sut = new Set(match);
+        Set sut = new Set(match, 1);
         setDao.create(sut);
+        matchDao.refresh(match);//update Match.sets
+        setDao.refresh(sut); //update Set.points
 
         //Exercise
         Point p1 = new Point(sut);
+        sut.getPoints().add(p1);
         Point p2 = new Point(sut);
+        sut.getPoints().add(p2);
         Point p3 = new Point(sut);
+        sut.getPoints().add(p3);
         Point p4 = new Point(sut);
+        sut.getPoints().add(p4);
         p1.setTeamAWon();
         p2.setTeamAWon();
         p3.setTeamBWon();
         p4.setTeamBWon();
         List<Point> points = Arrays.asList(p1, p2, p3, p4);
         for (Point p: points) {
-            pointDao.create(p);
+            pointDao.update(p);
         }
+        setDao.refresh(sut);
 
 
         //Verify
@@ -197,8 +206,10 @@ public class SetTest extends OrmLiteAndroidTestCase {
         matchDao.create(match);
 
         //Create Set
-        Set sut = new Set(match);
+        Set sut = new Set(match, 1);
         setDao.create(sut);
+        matchDao.refresh(match);//update Match.sets
+        setDao.refresh(sut); // update Set.points
 
         //Exercise and Verify
         sut.updateTeamWon();
@@ -209,13 +220,13 @@ public class SetTest extends OrmLiteAndroidTestCase {
         for (int i=0;i<24;i++) {
             Point p = new Point(sut);
             p.setTeamAWon();
-            pointDao.create(p);
+            sut.getPoints().add(p);
             pointsA.add(p);
         }
         for (int i=0;i<24;i++) {
             Point p = new Point(sut);
             p.setTeamBWon();
-            pointDao.create(p);
+            sut.getPoints().add(p);
             pointsB.add(p);
         }
 
@@ -228,15 +239,15 @@ public class SetTest extends OrmLiteAndroidTestCase {
 
         Point p1 = new Point(sut);
         p1.setTeamAWon();
-        pointDao.create(p1);
+        sut.getPoints().add(p1);
         sut.updateTeamWon();
 
         assertEquals(25, sut.getPointsWonByTeamA().size());
         assertEquals(true, sut.isOnGoing());
 
-        Point p2 = new Point(sut);
+        Point p2 = new Point(sut);;
         p2.setTeamAWon();
-        pointDao.create(p2);
+        sut.getPoints().add(p2);
         sut.updateTeamWon();
 
         assertEquals(26, sut.getPointsWonByTeamA().size());
@@ -259,19 +270,26 @@ public class SetTest extends OrmLiteAndroidTestCase {
         matchDao.create(match);
 
         //Create Set
-        Set sut = new Set(match);
+        Set sut = new Set(match, 1);
         setDao.create(sut);
+        matchDao.refresh(match);//update Match.sets
+        setDao.refresh(sut); //update Set.points
 
         //Create points
         Point p1 = new Point(sut);
+        sut.getPoints().add(p1);
         Point p2 = new Point(sut);
+        sut.getPoints().add(p2);
         Point p3 = new Point(sut);
+        sut.getPoints().add(p3);
         Point p4 = new Point(sut);
+        sut.getPoints().add(p4);
         Point p5 = new Point(sut);
+        sut.getPoints().add(p5);
+
+        setDao.refresh(sut);
+
         List<Point> points = Arrays.asList(p1, p2, p3, p4, p5);
-        for (Point p: points) {
-            pointDao.create(p);
-        }
 
         //Change number of points
         p1.setNumber(3);
@@ -282,19 +300,22 @@ public class SetTest extends OrmLiteAndroidTestCase {
         for (Point p: points) {
             pointDao.update(p);
         }
+        for (Point p: sut.getPoints()) {
+            pointDao.refresh(p);
+        }
 
         //Renumber points
         sut.renumberPoints();
-        for (Point p: points) {
+        for (Point p: sut.getPoints()) {
             pointDao.update(p);
         }
 
         //Verify
-        assertEquals(1, p3.getNumber());
-        assertEquals(2, p1.getNumber());
-        assertEquals(3, p2.getNumber());
-        assertEquals(4, p4.getNumber());
-        assertEquals(5, p5.getNumber());
+        assertEquals(1, pointDao.queryForId(p3.getId()).getNumber());
+        assertEquals(2, pointDao.queryForId(p1.getId()).getNumber());
+        assertEquals(3, pointDao.queryForId(p2.getId()).getNumber());
+        assertEquals(4, pointDao.queryForId(p4.getId()).getNumber());
+        assertEquals(5, pointDao.queryForId(p5.getId()).getNumber());
 
         Set queried = setDao.queryForAll().get(0);
         List<Point> queriedPoints = new ArrayList<Point>(queried.getPoints());
@@ -329,18 +350,21 @@ public class SetTest extends OrmLiteAndroidTestCase {
         //Create match
         Match match = new Match("TestMatch", team1, team2);
         matchDao.create(match);
+        matchDao.refresh(match);
 
         //Create set
-        Set sut = new Set(match);
-        setDao.create(sut);
+        Set sut = new Set(match, 1);
+        match.getSets().add(sut);
+        setDao.refresh(sut);//update Set.points
 
         //Create points
         Point p1 = new Point(sut);
+        sut.getPoints().add(p1);
         Point p2 = new Point(sut);
+        sut.getPoints().add(p2);
         Point p3 = new Point(sut);
-        pointDao.create(p1);
-        pointDao.create(p2);
-        pointDao.create(p3);
+        sut.getPoints().add(p3);
+
 
         //Exercise
         sut.removePoint(p2);
@@ -365,6 +389,71 @@ public class SetTest extends OrmLiteAndroidTestCase {
 
         //Tear Down
         tearDown();
+    }
+
+    public void testAddSetToQueriedMatch() throws Exception {
+        // Setup
+        setUp();
+
+        // Create team
+        Team team1 = new Team("Team 1");
+        Team team2 = new Team("Team 2");
+        teamDao.create(team1);
+        teamDao.create(team2);
+
+        // Create match
+        Match match = new Match("TestMatch", team1, team2);
+        matchDao.create(match);
+        Match qmatch = matchDao.queryForId(match.getId());
+
+        Log.d("SetTest", "Original match"+match.toString());
+        Log.d("SetTest", "Queried match: "+qmatch.toString());
+
+
+
+        // Exercise
+        Set set1 = new Set(qmatch, 1);
+        setDao.create(set1);
+        matchDao.refresh(qmatch);
+        Set set2 = new Set(qmatch, 2);
+        qmatch.getSets().add(set2);//Set can also be created by adding into Match.sets
+        Set set3 = new Set(qmatch, 3);
+        qmatch.getSets().add(set3);
+        /*
+        for (Set s: Arrays.asList(set1, set2, set3)) {
+            setDao.create(s);
+        }
+
+        for (Set s: Arrays.asList(set1, set2, set3)) {
+            qmatch.addSet(s);
+        }
+        */
+
+
+        Log.d("SetTest", "Set Count: " +Integer.toString((int) setDao.countOf()));
+        for (Set s: setDao.queryForAll()) {
+            Log.d("SetTest", "Queried Sets: "+s.toString());
+        }
+
+
+        // Verify
+        assertEquals(match.getName(), qmatch.getName());
+        assertEquals(3, setDao.countOf());
+        assertEquals(qmatch, set1.getMatch());
+        assertEquals(qmatch, set1.getMatch());
+        assertEquals(qmatch, set3.getMatch());
+        assertTrue(qmatch.getSets().contains(set1));
+        assertTrue(qmatch.getSets().contains(set2));
+        assertTrue(qmatch.getSets().contains(set3));
+        assertEquals(1, set1.getSetNumber());
+        assertEquals(2, set2.getSetNumber());
+        assertEquals(3, set3.getSetNumber());
+
+        // Tear Down
+        tearDown();
+
+
+
     }
 
     // TODO Add member change testing

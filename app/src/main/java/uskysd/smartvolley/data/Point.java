@@ -8,7 +8,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 
 @DatabaseTable(tableName="points")
@@ -34,7 +33,7 @@ public class Point implements Serializable, Comparable<Point> {
 	@DatabaseField
 	private Boolean teamFlag;
 	
-	@ForeignCollectionField
+	@ForeignCollectionField (eager=true)
 	Collection<Play> plays;
 	
 	public Point() {
@@ -49,17 +48,11 @@ public class Point implements Serializable, Comparable<Point> {
 			throw new IllegalArgumentException("Cannot add point to set already ended");
 		}
 		this.set = set;
-		set.addPoint(this);
-		this.number = set.getPointCount();
-		if (this.plays==null) {
-			this.plays = new ArrayList<Play>();
-		}
+		this.number = set.getPointCount()+1;
 	}
 
-	public List<Play> getPlays() {
-		List<Play> playlist = new ArrayList<Play>(this.plays);
-		Collections.sort(playlist);
-		return playlist;
+	public Collection<Play> getPlays() {
+		return plays;
 	}
 
     /*
@@ -113,6 +106,12 @@ public class Point implements Serializable, Comparable<Point> {
 		} else {
 			return false;
 		}
+	}
+
+	public void setWinner(Boolean teamFlag) {
+		this.teamFlag = teamFlag;
+		// true: Team A
+		// false: Team B
 	}
 	
 	public void setTeamAWon() {

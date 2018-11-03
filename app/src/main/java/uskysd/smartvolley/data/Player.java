@@ -87,7 +87,7 @@ public class Player implements Serializable, Comparable<Player> {
 		this.lastName = lastName;
 		this.startingPosition = startingPosition;
 		// Initialize plays
-		this.plays = new ArrayList<Play>();
+		//this.plays = new ArrayList<Play>();
 	}
 
 	public Integer getId(){
@@ -172,9 +172,7 @@ public class Player implements Serializable, Comparable<Player> {
 			throw new IllegalArgumentException("Team should be created on db before referred from player");
 		}
 		this.team = team;
-		if (!(team.getPlayers().contains(this))) {
-			team.addPlayer(this);
-		}
+
 	}
 
 	public String getDescription() {
@@ -242,14 +240,19 @@ public class Player implements Serializable, Comparable<Player> {
 		this.uniformNumber = uniformNumber;
 	}
 
+	/*
 	public void addPlay(Play play) {
 		if (this.getId()==null||this.getId()==0) {
 			throw new IllegalArgumentException("Player must be created on database before adding a play");
 		}
+		if (!this.plays.contains(play)) {
+            this.plays.add(play);
+        }
 		if (play.getPlayer()!=this) {
 			play.setPlayer(this);
 		}
 	}
+	*/
 
 	public Collection<Play> getPlays() {
 		return this.plays;
@@ -283,7 +286,11 @@ public class Player implements Serializable, Comparable<Player> {
 
 	@Override
 	public String toString() {
-		return this.getFullName();
+		if (this.id==null) {
+			return this.getFullName();
+		} else {
+			return "ID: "+Integer.toString(this.id)+" "+this.getFullName();
+		}
 	}
 
 

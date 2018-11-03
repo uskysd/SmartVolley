@@ -38,10 +38,11 @@ public class MemberChange extends Event implements Serializable {
 
     public MemberChange(Set set, Player playerIn, Player playerOut) {
         this.set = set;
-        set.addMemberChange(this);
+        //set.addMemberChange(this);
         this.playerIn = playerIn;
         this.playerOut = playerOut;
         this.dateTime = DateTime.now();
+        this.eventOrder = set.getNextEventOrder();
 
     }
 
@@ -74,10 +75,14 @@ public class MemberChange extends Event implements Serializable {
         this.playerOut = playerOut;
     }
 
+    @Override
+    public String toString() {
+        return "IN: "+playerIn.toString()+"/OUT: "+playerOut.toString();
+    }
 
     @Override
     public String getEventTitle() {
-        return null;
+        return this.toString();
     }
 
     @Override

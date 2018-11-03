@@ -20,6 +20,7 @@ import android.widget.TextView;
 import com.j256.ormlite.android.apptools.OrmLiteBaseActivity;
 import com.j256.ormlite.dao.Dao;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -122,8 +123,6 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
 	    try {
             Dao<Match, Integer> dao = getHelper().getMatchDao();
 
-
-
             if (savedInstanceState != null) {
                 //Restore match from saved instance state
                 this.match = (Match) savedInstanceState.get(INSTANCE_STATE_KEY);
@@ -143,11 +142,24 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
                     Log.d(TAG, "Loading dummy data");
                     TestDataGenerator dgen = new TestDataGenerator(this);
                     //dgen.createTestDataCase001();
-                    //dgen.loadTestDataFromCsv();
+                    dgen.loadTestDataFromCsv();
 
-                    createNewMatch();
+                    //createNewMatch();
                     DatabaseHelper helper = getHelper();
                     Dao<Match, Integer> matchDao = helper.getMatchDao();
+                    Dao<Team, Integer> teamDao = helper.getTeamDao();
+                    for (Match m: matchDao.queryForAll()) {
+
+                        Log.d(TAG, "Match Found: " + m.toString());
+                        if (m!=null) {
+                            Team teamA = m.getTeamA();
+                            Team teamB = m.getTeamB();
+                            m.setTeamA(teamDao.queryForId(teamA.getId()));
+                            m.setTeamB(teamDao.queryForId(teamB.getId()));
+                            Log.d(TAG, "Restore teams: "+m.toString());
+
+                        }
+                    }
                     this.match = matchDao.queryForAll().get(0);
                     this.dataManager = new MatchDataManager(this, this.match);
                     loadMatchInfo();
@@ -157,6 +169,8 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        } catch (IOException e) {
+	        throw new RuntimeException(e);
         }
 
     }
@@ -232,7 +246,7 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
 
         Log.d(TAG, "Start creating set, point and plays");
 
-        Set set1 = new Set(newmatch);
+        Set set1 = new Set(newmatch, 1);
         setDao.create(set1);
 
         uskysd.smartvolley.data.Point point = new uskysd.smartvolley.data.Point(set1);
@@ -248,7 +262,7 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
 
     public void loadMatchInfo() throws SQLException {
         //TODO load match info to the match view
-        Log.d(TAG, "Loading match info");
+        Log.d(TAG, "Loading match info: "+match.toString());
 
         //TODO need to be changed to load current positions
         matchView.loadStartingPositions(match);

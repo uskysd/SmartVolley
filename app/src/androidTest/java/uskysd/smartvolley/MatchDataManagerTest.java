@@ -74,6 +74,7 @@ public class MatchDataManagerTest extends OrmLiteAndroidTestCase {
 
         PlayerEntry entry1 = new PlayerEntry(match, player1, 10, PlayerEntry.TEAM_A, Position.BACK_LEFT);
         PlayerEntry entry2 = new PlayerEntry(match, player2, 7, PlayerEntry.TEAM_B, Position.FRONT_RIGHT);
+        
         playerEntryDao.create(entry1);
         playerEntryDao.create(entry2);
 
@@ -90,6 +91,7 @@ public class MatchDataManagerTest extends OrmLiteAndroidTestCase {
         // Exercise
         dataManager.setPlayer(player1);
         dataManager.setPlayType(Play.PlayType.SERVICE);
+        dataManager.setPlayResult(Play.PlayResult.POINT);
         dataManager.createPlay();
 
         // Verify
@@ -98,6 +100,7 @@ public class MatchDataManagerTest extends OrmLiteAndroidTestCase {
         assertEquals(1, (int) plays.get(0).getId());
         assertEquals(player1, plays.get(0).getPlayer());
         assertEquals(Play.PlayType.SERVICE, plays.get(0).getPlayType());
+        assertEquals(Play.PlayResult.POINT, plays.get(0).getPlayResult());
 
         // Teardown
         tearDown();
@@ -110,10 +113,12 @@ public class MatchDataManagerTest extends OrmLiteAndroidTestCase {
 
         dataManager.setPlayer(player1);
         dataManager.setPlayType(Play.PlayType.ATTACK);
+        dataManager.setPlayResult(Play.PlayResult.CONTINUE);
         dataManager.createPlay();
         dataManager.setPlayer(player2);
         dataManager.setPlayType(Play.PlayType.BLOCK);
         dataManager.setPlayEvaluation(Play.PlayEvaluation.GOOD);
+        dataManager.setPlayResult(Play.PlayResult.POINT);
         dataManager.createPlay();
 
         // Exercise
@@ -126,9 +131,11 @@ public class MatchDataManagerTest extends OrmLiteAndroidTestCase {
         assertEquals(player1, play1.getPlayer());
         assertEquals(Play.PlayType.ATTACK, play1.getPlayType());
         assertEquals(null, play1.getEvaluation());
+        assertEquals(Play.PlayResult.CONTINUE, play1.getPlayResult());
         assertEquals(player2, play2.getPlayer());
         assertEquals(Play.PlayType.BLOCK, play2.getPlayType());
         assertEquals(Play.PlayEvaluation.GOOD, play2.getEvaluation());
+        assertEquals(Play.PlayResult.POINT, play2.getPlayResult());
 
         // Tear down
         tearDown();

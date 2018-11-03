@@ -1,5 +1,9 @@
 package uskysd.smartvolley.data;
+
 import com.j256.ormlite.dao.Dao;
+
+import java.util.Arrays;
+import java.util.List;
 
 import uskysd.smartvolley.OrmLiteAndroidTestCase;
 
@@ -13,6 +17,7 @@ public class PlayerTest extends OrmLiteAndroidTestCase {
     Dao<Player, Integer> playerDao;
     Dao<Team, Integer> teamDao;
     Team team1;
+    Team team2;
 
 
 
@@ -21,7 +26,9 @@ public class PlayerTest extends OrmLiteAndroidTestCase {
         playerDao = helper.getPlayerDao();
         teamDao = helper.getTeamDao();
         team1 = new Team("Team A");
+        team2 = new Team("Team B");
         teamDao.create(team1);
+        teamDao.create(team2);
     }
 
     public void testGettingFullname() {
@@ -166,22 +173,48 @@ public class PlayerTest extends OrmLiteAndroidTestCase {
     public void testSettingTeam() throws Exception {
         // Setup
         setUp();
-        Player sut = new Player("Yusuke", "Yoshida");
+        Player player1 = new Player("Cristiano", "Ronaldo");
+        Player player2 = new Player("Lionel", "Messi");
+        Player player3 = new Player("Romelu", "Lukaku");
+        Player player4 = new Player("Luka", "Modric");
+
+        Team qteam1 = teamDao.queryForId(team1.getId());
+        Team qteam2 = teamDao.queryForId(team2.getId());
+
+        for (Player p: Arrays.asList(player1, player2, player3, player4)) {
+            playerDao.create(p);
+        }
 
         // Exercise
-        sut.setTeam(team1);
-        playerDao.create(sut);
+
+
+        player1.setTeam(qteam1);
+        //playerDao.create(player1);
+        player2.setTeam(qteam1);
+        //playerDao.create(player2);
+        player3.setTeam(qteam2);
+        //playerDao.create(player3);
+        player4.setTeam(qteam2);
+        //playerDao.create(player4);
+
+        for (Player p: Arrays.asList(player1, player2, player3, player4)) {
+            playerDao.update(p);
+        }
+
+        List<Player> queriedPlayers = playerDao.queryForAll();
+
 
         // Verify
-        assertEquals(team1, sut.getTeam());
-        assertEquals(team1.getName(), sut.getTeam().getName());
+        assertEquals(4, queriedPlayers.size());
+        assertEquals(team1, player1.getTeam());
+        assertEquals(team1.getName(), player1.getTeam().getName());
         Player queried = playerDao.queryForAll().get(0);
-        assertEquals(sut, queried);
+        assertEquals(player1, queried);
         assertEquals(team1, queried.getTeam());
+        assertEquals(4, playerDao.countOf());
 
-        // By default, foreign object only have id
-        //assertEquals(team1.getName(), queried.getTeam().getName());
-
+        // Tear Down
+        tearDown();
 
 
     }

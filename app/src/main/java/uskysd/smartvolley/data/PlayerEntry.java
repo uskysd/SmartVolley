@@ -135,4 +135,15 @@ public class PlayerEntry implements Serializable {
 		}
 
 	}
+
+	@Override
+	public String toString() {
+		String strTeam;
+		if (teamFlag==TEAM_A) {
+			strTeam = "Team A";
+		} else {
+			strTeam = "Team B";
+		}
+		return "PlayerEntry("+strTeam+" #"+Integer.toString(number)+" "+player.toString()+")";
+	}
 }

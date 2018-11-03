@@ -70,8 +70,9 @@ public class MemberChangeTest extends OrmLiteAndroidTestCase {
         pe = new PlayerEntry(match, playerB2, 4, PlayerEntry.TEAM_B, Position.BACK_LEFT);
         playerEntryDao.create(pe);
 
-        set = new Set(match);
+        set = new Set(match, 1);
         setDao.create(set);
+        matchDao.refresh(match);
 
 
     }
@@ -84,12 +85,14 @@ public class MemberChangeTest extends OrmLiteAndroidTestCase {
         // Exercise
         MemberChange sut = new MemberChange(set, playerA1, playerA2);
         sut.setEventOrder(1);
+        setDao.refresh(set);
 
         // Verify
         assertEquals(set, sut.getSet());
         assertEquals(playerA1, sut.getPlayerIn());
         assertEquals(playerA2, sut.getPlayerOut());
         assertEquals(1, sut.getEventOrder());
+
 
         // TearDown
         tearDown();
@@ -125,17 +128,48 @@ public class MemberChangeTest extends OrmLiteAndroidTestCase {
 
         // Exercise
         MemberChange mc1 = new MemberChange(set, playerA1, playerA2);
+        memberChangeDao.create(mc1);
+        setDao.refresh(set);
         MemberChange mc2 = new MemberChange(set, playerB1, playerB2);
+        memberChangeDao.create(mc2);
+        setDao.refresh(set);
+        assertEquals(2, set.getMemberChanges().size());
+
         Point point = set.getOnGoingPoint();
         if (point==null) {
             point = new Point(set);
+            pointDao.create(point);
         }
-        pointDao.create(point);
+
+        setDao.refresh(set);
         Play p1 = new Play(point, playerA2, Play.PlayType.SERVICE);
+        playDao.create(p1);
+        pointDao.refresh(point);
         MemberChange mc3 = new MemberChange(set, playerB2, playerB1);
+        set.getMemberChanges().add(mc3);
         Play p2 = new Play(point, playerB1, Play.PlayType.ATTACK);
+        playDao.create(p2);
+        pointDao.refresh(point);
+        matchDao.refresh(match);
+
+        /*
+        for (Set s: match.getSets()) {
+            setDao.refresh(s);
+            for (MemberChange mc: s.getMemberChanges()) {
+                memberChangeDao.refresh(mc);
+            }
+            for (Point p: s.getPoints()) {
+                pointDao.refresh(p);
+                for (Play play: p.getPlays()) {
+                    pointDao.refresh(p);
+                }
+            }
+        }
+        */
+
 
         // Verify
+        assertEquals(5, match.getAllEvents().size());
         assertEquals(1, mc1.getEventOrder());
         assertEquals(2, mc2.getEventOrder());
         assertEquals(3, p1.getEventOrder());

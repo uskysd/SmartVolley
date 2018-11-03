@@ -1,17 +1,10 @@
 package uskysd.smartvolley.data;
 
 
-
 import com.j256.ormlite.dao.Dao;
-import com.j256.ormlite.support.ConnectionSource;
-import com.j256.ormlite.support.DatabaseConnection;
 
-
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
+import java.util.Iterator;
 
 import uskysd.smartvolley.OrmLiteAndroidTestCase;
 
@@ -77,12 +70,14 @@ public class TeamTest extends OrmLiteAndroidTestCase {
             // Team should be created before referred from player
         }
         teamDao.create(sut);
-        sut.addPlayer(p1);
-        sut.addPlayer(p2);
+        p1.setTeam(sut);
+        p2.setTeam(sut);
+        //sut.addPlayer(p1);
+        //sut.addPlayer(p2);
         playerDao.create(p1);
         playerDao.create(p2);
 
-        assertEquals(2, sut.getPlayers().size());
+        assertEquals(2, teamDao.queryForId(sut.getId()).getPlayers().size());
 
 
     }
@@ -122,22 +117,27 @@ public class TeamTest extends OrmLiteAndroidTestCase {
         Player p2 = new Player("Jiro", "Ball");
         Dao<Team, Integer> teamDao = helper.getTeamDao();
         Dao<Player, Integer> playerDao = helper.getPlayerDao();
+        //playerDao.create(p1);
+        //playerDao.create(p2);
 
         // Exercise
         teamDao.create(sut);
-        p1.setTeam(sut);
-        p2.setTeam(sut);
-        playerDao.create(p1);
-        playerDao.create(p2);
+        Collection<Player> players = teamDao.queryForId(sut.getId()).getPlayers();
+
+        // Added player will be created on database when added to foreign collection.
+        players.add(p1);
+        players.add(p2);
+        playerDao.update(p1);
+        playerDao.update(p2);
 
         //Verify
 
         Team queriedTeam = teamDao.queryForAll().get(0);
-        Collection<Player> players = queriedTeam.getPlayers();
+        Collection<Player> teamplayers = queriedTeam.getPlayers();
         Collection<Player> queriedPlayers = playerDao.queryForAll();
-        assertEquals(2, sut.getPlayers().size());
+        //assertEquals(2, sut.getPlayers().size());
         assertEquals(2, queriedPlayers.size());
-        assertEquals(2, players.size());
+        assertEquals(2, teamplayers.size());
 
         for (Player p: playerDao.queryForAll()) {
             assertEquals(true, players.contains(p));
@@ -146,6 +146,49 @@ public class TeamTest extends OrmLiteAndroidTestCase {
 
         //TearDown
         tearDown();
+
+    }
+
+    public void testAddingPlayersToQueriedTeam() throws Exception {
+
+        //Setup
+        DatabaseHelper helper = getDatabaseHelper(getContext());
+        Dao<Team, Integer> teamDao = helper.getTeamDao();
+        Dao<Player, Integer> playerDao = helper.getPlayerDao();
+        Team sut = new Team("Test Team");
+        teamDao.create(sut);
+
+        Team qteam = teamDao.queryForId(sut.getId());
+
+        Player p1 = new Player("Taro", "Volley");
+        Player p2 = new Player("Jiro", "Ball");
+        playerDao.create(p1);
+        playerDao.create(p2);
+
+        // Exercise
+
+        p1.setTeam(qteam);
+        //qteam.addPlayer(p1);
+        p2.setTeam(qteam);
+        //qteam.addPlayer(p2);
+
+        playerDao.update(p1);
+        playerDao.update(p2);
+
+        // Verify
+        assertEquals(1, teamDao.countOf());
+        assertEquals(2, playerDao.countOf());
+        assertTrue(qteam.getPlayers().contains(p1));
+        assertTrue(qteam.getPlayers().contains(p2));
+        Iterator<Player> iterator = qteam.getPlayers().iterator();
+        assertEquals(p1.getFullName(), iterator.next().getFullName());
+        assertEquals(p2.getFullName(), iterator.next().getFullName());
+
+        // Tear down
+        tearDown();
+
+
+
 
     }
 

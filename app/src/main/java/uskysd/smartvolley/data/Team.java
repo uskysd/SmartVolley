@@ -1,14 +1,11 @@
 package uskysd.smartvolley.data;
 
-import java.io.Serializable;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
+
+import java.io.Serializable;
+import java.util.Collection;
 
 
 @DatabaseTable(tableName="teams")
@@ -49,18 +46,7 @@ public class Team implements Serializable, Comparable<Team> {
 	
 	public Team(String name) {
 		this.name = name;
-		initialize();
 
-	}
-
-	private void initialize() {
-
-		if (this.players==null) {
-			this.players = new ArrayList<Player>();
-		}
-		if (this.matches==null) {
-			this.matches = new ArrayList<Match>();
-		}
 
 	}
 
@@ -68,7 +54,9 @@ public class Team implements Serializable, Comparable<Team> {
 		if ((this.getId()==null)||this.getId()==0) {
 			throw new IllegalArgumentException("Team must be created on db before referred from player.");
 		}
-		this.players.add(player);
+		if (!this.players.contains(player)) {
+			this.players.add(player);
+		}
 		if (player.getTeam()!=this) {
 			player.setTeam(this);
 		}
@@ -84,7 +72,7 @@ public class Team implements Serializable, Comparable<Team> {
 	}
 
 	public Collection<Player> getPlayers() {
-		return players;
+        return players;
 	}
 	
 	public Collection<Match> getMatches() {

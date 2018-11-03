@@ -50,10 +50,16 @@ public class PlayTest extends OrmLiteAndroidTestCase {
         playerDao.create(player1);
         playerDao.create(player2);
         playerDao.create(player3);
-        set = new Set(match);
+        set = new Set(match, 1);
+        matchDao.refresh(match);
         setDao.create(set);
+        setDao.refresh(set);
         point = new Point(set);
         pointDao.create(point);
+        setDao.refresh(set);
+
+
+
     }
 
 
@@ -66,6 +72,7 @@ public class PlayTest extends OrmLiteAndroidTestCase {
         Play sut1 = new Play(point, player1, Play.PlayType.ATTACK);
         Play sut2 = new Play(point, player2, Play.PlayType.RECEIVE);
         Play sut3 = new Play(point, player3, Play.PlayType.BLOCK);
+
 
         // Verify
         assertEquals(point, sut1.getPoint());
