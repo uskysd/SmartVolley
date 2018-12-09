@@ -202,6 +202,7 @@ public class MatchDataManager extends OrmLiteObject {
 
         Play play = new Play(point, player, playType);
         play.setPlayResult(playResult);
+
         if (playEvaluation!=null) {
             play.setEvaluation(playEvaluation);
         }
@@ -217,19 +218,23 @@ public class MatchDataManager extends OrmLiteObject {
                 break;
             case POINT:
                 // The player's team wins current point
-                setPointWinner(teamFlag);
+                // setPointWinner(teamFlag);
                 break;
             case FAILURE:
                 // The player's team looses current point
-                setPointWinner(!teamFlag);
+                // setPointWinner(!teamFlag);
                 break;
                 default:
                     break;
+
         }
         Log.d(TAG, "Play count in the current point: "+Integer.toString(point.getPlays().size()));
 
         //clearEmptyPlays();
 
+        // Reset PlayResult and PlayEvaluation
+        playResult = Play.PlayResult.CONTINUE;
+        playEvaluation = Play.PlayEvaluation.NONE;
     }
 
     public void createMemberChange(Player playerIn, Player playerOut) throws SQLException {
@@ -341,9 +346,11 @@ public class MatchDataManager extends OrmLiteObject {
         List<Event> events = new ArrayList<Event>();
         for (Play p: match.getPlays()) {
             // Restore player info since foreign objects have only id.
+            playDao.refresh(p);
             if (p.getPlayer()!=null) {
-                p.setPlayer(playerDao.queryForId(p.getPlayer().getId()));
+                //p.setPlayer(playerDao.queryForId(p.getPlayer().getId()));
                 events.add(p);
+
             } else {
                 Log.d(TAG, "No player assigned to the play: "+ p.toString());
             }
@@ -586,6 +593,8 @@ public class MatchDataManager extends OrmLiteObject {
         return rotations;
 
     }
+
+
 
 
 }

@@ -6,6 +6,8 @@ import com.j256.ormlite.table.DatabaseTable;
 import org.joda.time.DateTime;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
 
 @DatabaseTable(tableName="plays")
 public class Play extends Event implements Serializable {
@@ -62,8 +64,8 @@ public class Play extends Event implements Serializable {
     }
 
     public enum PlayResult {
-	    POINT("Point"), FAILURE("Failure"), CONTINUE("Continue"), CHALLENGED("Challenged"),
-        NONE("None");
+	    POINT("Point"), FAILURE("Failure"), EFFECTIVE("Effective"),
+		CONTINUE("Continue"), NONE("None"), CHALLENGED("Challenged");
 	    private final String str;
 	    private PlayResult(String str) {this.str = str;}
 
@@ -78,6 +80,30 @@ public class Play extends Event implements Serializable {
 			return null;
 		}
     }
+
+    public static List<PlayResult> playResultCandidates(PlayType playType) {
+		switch (playType) {
+            case SERVICE:
+                return Arrays.asList(PlayResult.POINT, PlayResult.EFFECTIVE,
+                        PlayResult.FAILURE, PlayResult.CONTINUE);
+            case RECEPTION:
+                return Arrays.asList(PlayResult.EFFECTIVE, PlayResult.FAILURE, PlayResult.CONTINUE);
+            case RECEIVE:
+                return Arrays.asList(PlayResult.EFFECTIVE, PlayResult.FAILURE, PlayResult.CONTINUE);
+            case TOSS:
+                return Arrays.asList(PlayResult.EFFECTIVE, PlayResult.FAILURE, PlayResult.CONTINUE);
+            case ATTACK:
+                return Arrays.asList(PlayResult.POINT, PlayResult.EFFECTIVE,
+                        PlayResult.FAILURE, PlayResult.CONTINUE);
+            case BLOCK:
+                return Arrays.asList(PlayResult.POINT, PlayResult.EFFECTIVE,
+                        PlayResult.FAILURE, PlayResult.CONTINUE);
+            case PASS:
+                return Arrays.asList(PlayResult.CONTINUE, PlayResult.FAILURE);
+            default:
+                return Arrays.asList(PlayResult.values());
+        }
+	}
 
 	@DatabaseField(generatedId=true)
 	private Integer id;
@@ -256,6 +282,10 @@ public class Play extends Event implements Serializable {
 	}
 
 
+	public Boolean getTeamFlag() {
+	    return getMatch().getPlayerEntryTeamFlag(this.player);
+    }
+
 	@Override
 	public boolean equals(Object o) {
 		if (o==this) return true;
@@ -279,9 +309,28 @@ public class Play extends Event implements Serializable {
         }
     }
 
+    public EventType getEventType() {
+	    return EventType.PLAY;
+    }
+
 	public String getEventTitle() {
-		return Integer.toString(this.getId()) + ":" + this.toString();
-	    //return this.playType.toString()+" by "+this.player.toString();
+
+	    String team = "";
+	    if (getTeamFlag()==Match.TEAM_A) {
+	        team = "A";
+        } else {
+	        team = "B";
+        }
+
+        String strnum = "-";
+        PlayerEntry pe = getMatch().getPlayerEntry(this.player);
+	    if (pe!=null) {
+	    	strnum = Integer.toString(pe.getNumber());
+		} else {
+	        strnum = Integer.toString(this.player.getUniformNumber());
+        }
+
+	    return team+" #"+strnum+": "+this.playType.toString()+">"+this.playResult.toString();
 	}
 
 	public DateTime getTimeStamp() {

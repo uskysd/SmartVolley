@@ -46,7 +46,6 @@ public class MemberChange extends Event implements Serializable {
 
     }
 
-
     public Integer getId() {
         return id;
     }
@@ -78,6 +77,11 @@ public class MemberChange extends Event implements Serializable {
     @Override
     public String toString() {
         return "IN: "+playerIn.toString()+"/OUT: "+playerOut.toString();
+    }
+
+    @Override
+    public EventType getEventType() {
+        return EventType.MEMBERCHANGE;
     }
 
     @Override

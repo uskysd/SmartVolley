@@ -1,9 +1,11 @@
 package uskysd.smartvolley.graphics;
 
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.util.Log;
 
 public class RectangleArea extends Token {
 	
@@ -16,16 +18,20 @@ public class RectangleArea extends Token {
 	private String text;
 	private int textSize;
 	private int textColor;
+
+	private Bitmap image;
 	
 	public RectangleArea(int x, int y, int width, int height, int color) {
 		super(x, y);
-		this.width = width;
-		this.height = height;
+		setWidth(width);
+		setHeight(height);
 		this.color = color;
 		this.strokeWidth = 10;
 		this.text = null;
-		this.textSize = (int) (0.8*height);
+		this.textSize = 10;
 		this.textColor = Color.BLACK;
+		this.image = null;
+
 	}
 	
 	@Override
@@ -39,6 +45,11 @@ public class RectangleArea extends Token {
 		paint.setColor(this.color);
 		paint.setStrokeWidth(this.strokeWidth);
 		canvas.drawRect(getX(), getY(), getX()+getWidth(), getY()+getHeight(), paint);
+
+		if (image != null) {
+		    canvas.drawBitmap(image, null, new Rect(getX(), getY(),
+                    getRightX(), getBottomY()), null);
+        }
 
 		if (text != null) {
 			Paint paint2 = new Paint();
@@ -54,6 +65,7 @@ public class RectangleArea extends Token {
 			canvas.drawText(text, getCenterX(), getCenterY()+(int)(0.5*r.height()), paint2);
 
 		}
+
 
 
 
@@ -139,5 +151,13 @@ public class RectangleArea extends Token {
 	public void setTextColor(int color) {
 		this.textColor = color;
 	}
+
+	public void setImage(Bitmap image) {
+	    this.image = image;
+    }
+
+    public void removeImage() {
+	    this.image = null;
+    }
 	
 }

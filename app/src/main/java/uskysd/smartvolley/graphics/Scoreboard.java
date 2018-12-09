@@ -19,7 +19,7 @@ public class Scoreboard extends AdjustableDrawable {
     private int leftSetCount = 0;
     private int rightPointCount = 0;
     private int rightSetCount = 0;
-    //private int textSize = 20;
+
 
     private RectangleArea leftPointBoard;
     private RectangleArea leftSetBoard;

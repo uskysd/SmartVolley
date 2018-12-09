@@ -2,6 +2,7 @@ package uskysd.smartvolley;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,6 +25,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import uskysd.smartvolley.data.DatabaseHelper;
@@ -34,6 +36,10 @@ import uskysd.smartvolley.data.Player;
 import uskysd.smartvolley.data.PlayerEntry;
 import uskysd.smartvolley.data.Set;
 import uskysd.smartvolley.data.Team;
+import uskysd.smartvolley.graphics.PlayerToken;
+import uskysd.smartvolley.scores.PlayScore;
+import uskysd.smartvolley.scores.ReceptionScore;
+import uskysd.smartvolley.scores.ServiceEffectiveness;
 
 //import uskysd.smartvolley.data.Point;
 
@@ -47,6 +53,8 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
     private Match match;
     private InputListener mInputListener;
     private MatchDataManager dataManager;
+    private DataAnalyzer analyzer;
+    private PlayScore playScore;
 
 
 
@@ -66,8 +74,15 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
         mListView = (ListView) findViewById(R.id.event_list_view);
         mInputListener = new NormalModeInputListener();
         matchView.setInputListener(mInputListener);
+
+        // Data Analyzer
+        analyzer = new DataAnalyzer(getBaseContext());
+        playScore = new ServiceEffectiveness();
+
         reInit(savedInstanceState);
         Log.d(TAG, "View added");
+
+
 
 	}
 
@@ -161,6 +176,9 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
                         }
                     }
                     this.match = matchDao.queryForAll().get(0);
+                    matchDao.refresh(this.match);
+                    Log.d(TAG, "Check player entries");
+                    Dao<PlayerEntry, Integer> playerEntryDao = helper.getPlayerEntryDao();
                     this.dataManager = new MatchDataManager(this, this.match);
                     loadMatchInfo();
 
@@ -267,12 +285,24 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
         //TODO need to be changed to load current positions
         matchView.loadStartingPositions(match);
 
+        // Set team names
+        Dao<Team, Integer> teamDao = getHelper().getTeamDao();
+        Team teamA = match.getTeamA();
+        Team teamB = match.getTeamB();
+        teamDao.refresh(teamA);
+        teamDao.refresh(teamB);
+
+        matchView.setTeamA("A: "+teamA.getName());
+        matchView.setTeamB("B: "+teamB.getName());
 
         // Update Scoreboard
         updateScore();
 
         // load events
         listEvents();
+
+        // Show player score
+        showPlayerScore(playScore);
 
         //Define view size requirements
 
@@ -390,20 +420,59 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
                         lastPlay.setPlayResult(Play.PlayResult.CONTINUE);
                     }
 
-                    // Create new play
-                    dataManager.createPlay();
+                    // List play results to let user select
+                    listPlayResults();
 
-                } catch (SQLException e) {
+                    // Create new play
+                    //dataManager.createPlay();
+
+                } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
+                /*
                 try {
                     listEvents();
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
                 }
+                */
 
             }
             });
+
+    }
+
+    public void listPlayResults() {
+	    Log.d(TAG, "List candidates for play results");
+	    List<Play.PlayResult> results = Arrays.asList(Play.PlayResult.values());
+	    ArrayAdapter<Play.PlayResult> adapter = new ArrayAdapter<Play.PlayResult>(this,
+                android.R.layout.simple_list_item_1,
+                results);
+	    mListView.setAdapter(adapter);
+
+	    // Set listener
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Play.PlayResult value = (Play.PlayResult) adapterView.getItemAtPosition(i);
+                dataManager.setPlayResult(value);
+
+                // Create play
+                try {
+                    dataManager.createPlay();
+
+                    // Update score
+                    updateScore();
+                    showPlayerScore(playScore);
+
+                    // List events again
+                    listEvents();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+
 
     }
 
@@ -461,9 +530,9 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
 
         //let user input how the team won the point
 
-        listPointScenarios(MatchDataManager.TEAM_A);
-        //dataManager.setPointWinner(MatchDataManager.TEAM_A);
-        //updateScore();
+        //listPointScenarios(MatchDataManager.TEAM_A);
+        dataManager.setPointWinner(MatchDataManager.TEAM_A);
+        updateScore();
 
     }
 
@@ -471,9 +540,9 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
 	    // Add pint to Team B (Right)
 
         //let user input how the team won the point
-        listPointScenarios(MatchDataManager.TEAM_B);
-        //dataManager.setPointWinner(MatchDataManager.TEAM_B);
-        //updateScore();
+        //listPointScenarios(MatchDataManager.TEAM_B);
+        dataManager.setPointWinner(MatchDataManager.TEAM_B);
+        updateScore();
 
     }
 
@@ -505,6 +574,32 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
 	    for (Player p: getHelper().getPlayerDao().queryForAll()) {
 	        Log.d(TAG, p.toString());
         }
+    }
+
+    public void showPlayerScore(PlayScore playScore) throws SQLException {
+	    //TODO Show play score for each player
+        Dao<Player, Integer> playerDao = getHelper().getPlayerDao();
+        PlayScore serviceScore = new ServiceEffectiveness();
+        PlayScore receptionScore = new ReceptionScore();
+
+        for (PlayerToken token: matchView.getPlayerTokens()) {
+
+            // Clear comments
+            token.clearComments();
+
+            Player player = playerDao.queryForId(token.getPlayerId());
+            // Service Score
+            HashMap<String, String> score =
+                    analyzer.getPlayerScore(serviceScore, player,
+                            DataAnalyzer.TargetDataKey.MATCH_ID, match.getId());
+            token.addComment("SRV:"+score.get(PlayScore.SUMMARY), Color.RED);
+            // Reception Score
+            score = analyzer.getPlayerScore(receptionScore, player,
+                    DataAnalyzer.TargetDataKey.MATCH_ID, match.getId());
+            token.addComment("RCP:"+score.get(PlayScore.SUMMARY), Color.BLUE);
+        }
+
+
     }
 
 
@@ -591,6 +686,16 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
             super.onRightSideBackLeftSwipeToServiceArea(playerId, x, y);
 //            startService(playerId, x, y);
         }
+
+        @Override
+        public void onAnalysisButtonTouched(int x, int y) {
+            super.onAnalysisButtonTouched(x, y);
+
+            matchView.deactivate();
+
+            //MatchAnalysisActivity.callMe(getBaseContext());
+            StartMenuActivity.callMe(getBaseContext());
+        }
     }
 
     public class PlayTargetInputListenener extends InputListener {
@@ -617,7 +722,26 @@ public class MatchActivity extends OrmLiteBaseActivity<DatabaseHelper> {
                 v = vi.inflate(R.layout.event_row, null);
 	        }
 	        Event event = getItem(position);
-	        fillText(v, R.id.event_row_title, event.getEventTitle());
+
+	        // Color settings
+            switch (event.getEventType()) {
+                case PLAY:
+                    v.setBackgroundColor(Color.GRAY);
+                    Play play = (Play) event;
+                    String strteam = (play.getTeamFlag()==Match.TEAM_A)? "A":"B";
+                    PlayerEntry pe = match.getPlayerEntry(play.getPlayer());
+                    String num = (pe!=null)? Integer.toString(pe.getNumber()):"--";
+                    fillText(v, R.id.event_row_title,
+                            strteam+"#"+num+": "+play.getPlayType().toString()
+                                    +">"+play.getPlayResult().toString());
+                    break;
+                case MEMBERCHANGE:
+                    v.setBackgroundColor(Color.YELLOW);
+                    fillText(v, R.id.event_row_title, event.getEventTitle());
+                    break;
+                    default:
+                        break;
+            }
 	        return v;
         }
 

@@ -268,6 +268,14 @@ public class Set implements Serializable, Comparable<Set> {
 	}
 	*/
 
+	public List<Play> getAllPlays() {
+	    List<Play> plays = new ArrayList<Play>();
+	    for (Point point: getPoints()) {
+	        plays.addAll(point.getPlays());
+        }
+        return plays;
+    }
+
 
 	@Override
 	public boolean equals(Object o) {

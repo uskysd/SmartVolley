@@ -144,6 +144,6 @@ public class PlayerEntry implements Serializable {
 		} else {
 			strTeam = "Team B";
 		}
-		return "PlayerEntry("+strTeam+" #"+Integer.toString(number)+" "+player.toString()+")";
+		return "PlayerEntry("+strTeam+" #"+Integer.toString(number)+" Player ID: "+Integer.toString(player.getId())+")";
 	}
 }

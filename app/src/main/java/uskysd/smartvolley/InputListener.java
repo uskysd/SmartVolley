@@ -30,6 +30,10 @@ public class InputListener {
         // Rotation right team
     }
 
+    public void onAnalysisButtonTouched(int x, int y) {
+        // Show analysis
+    }
+
     public void onPlayerSwiped(int playerId, int startX, int startY, int endX, int endY) {
 
     }

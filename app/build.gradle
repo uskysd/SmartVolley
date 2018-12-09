@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "uskysd.smartvolley"
-        minSdkVersion 15
+        minSdkVersion 22
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
@@ -28,4 +28,6 @@ dependencies {
 
 
 
+    implementation 'com.android.support:design:23.0.1'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
 }

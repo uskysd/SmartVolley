@@ -22,8 +22,8 @@ public class Match implements Serializable, Comparable<Match> {
      *
      */
     private static final long serialVersionUID = 403945017757332672L;
-    private static final Boolean TEAM_A = true;
-    private static final Boolean TEAM_B = false;
+    public static final Boolean TEAM_A = true;
+    public static final Boolean TEAM_B = false;
 
 
     @DatabaseField(generatedId = true)
@@ -80,16 +80,6 @@ public class Match implements Serializable, Comparable<Match> {
         //initCollections();
     }
 
-    private void initCollections() {
-        if (this.sets == null) {
-            this.sets = new ArrayList<Set>();
-        }
-        if (this.playerEntries == null) {
-            this.playerEntries = new ArrayList<PlayerEntry>();
-        }
-
-    }
-
 
     public Collection<PlayerEntry> getPlayerEntries() {
         return playerEntries;
@@ -133,6 +123,15 @@ public class Match implements Serializable, Comparable<Match> {
             }
         }
         return players;
+    }
+
+    public PlayerEntry getPlayerEntry(Player player) {
+        for (PlayerEntry pe: this.getPlayerEntries()) {
+            if (pe.getPlayer().getId()==player.getId()) {
+                return pe;
+            }
+        }
+        return null;
     }
 
 
@@ -348,18 +347,36 @@ public class Match implements Serializable, Comparable<Match> {
     }
     */
 
+    public List<Player> getRegisteredPlayers(Boolean teamflag) {
+        List<Player> players = new ArrayList<Player>();
+        for (PlayerEntry entry: this.getPlayerEntries()) {
+            if (((teamflag==TEAM_A) && (entry.isForTeamA()))||
+                    (teamflag==TEAM_B)&&(entry.isForTeamB())) {
+                players.add(entry.getPlayer());
+            }
+        }
+        return players;
+    }
+
     public boolean checkPlayerEntry(Player player) {
         // Returns true if the player is registered to the match
-        if ((this.teamA.getPlayers().contains(player)) || (this.teamB.getPlayers().contains(player))) {
+        if ((getRegisteredPlayers(TEAM_A).contains(player)) ||
+                (this.getRegisteredPlayers(TEAM_B).contains(player))) {
             return true;
         } else {
             return false;
         }
     }
 
-    public boolean getPlayerEntryTeamFlag(Player player) {
-        //TODO
-        return true;
+
+    public Boolean getPlayerEntryTeamFlag(Player player) {
+        if (getRegisteredPlayers(TEAM_A).contains(player)) {
+            return TEAM_A;
+        } else if (getRegisteredPlayers(TEAM_B).contains(player)) {
+            return TEAM_B;
+        } else {
+            return null;
+        }
     }
 
     public List<Event> getAllEvents() {
@@ -384,6 +401,16 @@ public class Match implements Serializable, Comparable<Match> {
         }
 	}
 
+	public List<Play> getAllPlays() {
+        // Returns all Play in the match
+        List<Play> plays = new ArrayList<Play>();
+        for (Set set: getSets()) {
+            for (Point point: set.getPoints()) {
+                plays.addAll(point.getPlays());
+            }
+        }
+        return plays;
+    }
 
 
 	@Override

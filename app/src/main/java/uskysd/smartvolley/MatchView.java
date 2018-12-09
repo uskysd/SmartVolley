@@ -1,7 +1,10 @@
 package uskysd.smartvolley;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -25,8 +28,10 @@ import uskysd.smartvolley.graphics.ArrowMarker;
 import uskysd.smartvolley.graphics.Court;
 import uskysd.smartvolley.graphics.CrossMarker;
 import uskysd.smartvolley.graphics.PlayerToken;
+import uskysd.smartvolley.graphics.RectangleArea;
 import uskysd.smartvolley.graphics.RotationBoard;
 import uskysd.smartvolley.graphics.Scoreboard;
+import uskysd.smartvolley.graphics.TeamNameField;
 import uskysd.smartvolley.graphics.Token;
 
 public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
@@ -44,6 +49,8 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
 //	private GraphicSet graphic;
 	private Court court;
 	private Scoreboard scoreboard;
+	private TeamNameField teamNameField;
+
     private PlayerToken[] leftPlayerTokens;
     private PlayerToken[] rightPlayerTokens;
     //private ArrayList<PlayerToken> playerMakers = new ArrayList<PlayerToken>();
@@ -51,6 +58,8 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
     private ArrayList<ArrowMarker> arrowMarkers = new ArrayList<ArrowMarker>();
     private RotationBoard leftRotation;
     private RotationBoard rightRotation;
+    private RectangleArea analysisButton;
+
 
     //Cash touched token
     private Token touchedToken;
@@ -94,6 +103,11 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
         thread = new MatchThread(getHolder(), this);
         setFocusable(true);
 
+    }
+
+    public void deactivate() {
+	    // Interrupt thread
+	    thread.interrupt();
     }
 
 
@@ -244,6 +258,7 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
 
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
+	    Log.d(TAG, "Surface destroyed");
 		boolean retry = true;
 		while (retry) {
 			try {
@@ -251,10 +266,14 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
 				retry = false;
 			} catch (InterruptedException e) {
 				// TODO try again shutting down the thread
+                Log.d(TAG, "Shutting down the thread");
+                thread.interrupt();
 
 			}
 		}
 	}
+
+
 
 
 
@@ -313,6 +332,11 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
         }
         if (rightRotation.checkTouched(x, y)) {
             inputListener.onRotationBoardRightTouched(x, y);
+        }
+
+        // Check analysis button touched
+        if (analysisButton.checkTouched(x, y)) {
+            inputListener.onAnalysisButtonTouched(x, y);
         }
 
     }
@@ -417,12 +441,20 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
 		//Init tokens
 //		graphic = new GraphicSet();
         court = new Court();
+
         scoreboard = new Scoreboard();
+        teamNameField = new TeamNameField();
+        //teamNameField.setTeamNameA("A");
+        //teamNameField.setTeamNameB("B");
         leftPlayerTokens = new PlayerToken[6];
         rightPlayerTokens = new PlayerToken[6];
 
         leftRotation = new RotationBoard(0, 0, 0, 0, ROTATION_COLOR);
         rightRotation = new RotationBoard(0, 0,0, 0, ROTATION_COLOR);
+
+        analysisButton = new RectangleArea(0, 0, 0, 0, Color.TRANSPARENT);
+        Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.icon_analysis);
+        analysisButton.setImage(bm);
 
         //List<Position> positions = Arrays.asList(Position.values());
         List<Position> positions = Arrays.asList(
@@ -458,8 +490,12 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
 			height = display.getHeight(); //deprecated
 		}
 
+		// Adjust layout size
+
         court.initLayout(width, height);
 		scoreboard.adjustLayout(width, height);
+		teamNameField.adjustLayout(width, height);
+
 
 		// Adjust rotation boards
         int rotsize = (int) (0.1*height);
@@ -470,12 +506,19 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
         leftRotation.setTextSize(rottextsize);
         rightRotation.setTextSize(rottextsize);
 
-
+        // Adjust player token size
         PlayerToken.setRadius((int) (0.05*height));
         PlayerToken.setTextSize((int) (0.05*height));
 
         updatePlayerTokenLocation();
 //		graphic.initLayout(width, height);
+
+
+        // Adjust analysis button
+        int margin = (int) (0.01*height);
+        int buttonsize = (int) (0.1*height);
+        analysisButton.updateCoordinate(width-buttonsize-margin, height-buttonsize-margin,
+                buttonsize, buttonsize);
 
 
 
@@ -536,9 +579,19 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
         // Draw scoreboard
         scoreboard.draw(canvas);
 
+        // Draw team name field
+        teamNameField.draw(canvas);
+        //teamA.draw(canvas);
+        //teamB.draw(canvas);
+
+
         // Draw rotation boards
         leftRotation.draw(canvas);
         rightRotation.draw(canvas);
+
+        // Draw analysis button
+        analysisButton.draw(canvas);
+
 
         //Draw player marker
         /*
@@ -566,6 +619,15 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
 
 	}
 
+
+    public void setTeamA(String name) {
+	    teamNameField.setTeamNameA(name);
+    }
+
+    public void setTeamB(String name) {
+	    teamNameField.setTeamNameB(name);
+    }
+
     public PlayerToken getPlayerToken(Court.Side side, Position position) {
         switch (side) {
             case LEFT_COURT:
@@ -584,6 +646,12 @@ public class MatchView extends SurfaceView implements SurfaceHolder.Callback {
                 break;
         }
         return null;
+    }
+
+    public List<PlayerToken> getPlayerTokens() {
+	    ArrayList<PlayerToken> tokens = new ArrayList<PlayerToken>(Arrays.asList(leftPlayerTokens));
+	    tokens.addAll(Arrays.asList(rightPlayerTokens));
+	    return tokens;
     }
 
     public void addArrowMarker(int startX, int startY, int stopX, int stopY, boolean swiping) {

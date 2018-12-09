@@ -1,5 +1,7 @@
 package uskysd.smartvolley;
 
+import android.content.Context;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -33,5 +35,9 @@ public class StartMenuActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public static void callMe(Context context) {
+        context.startActivity(new Intent(context, StartMenuActivity.class));
     }
 }

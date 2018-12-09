@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -13,10 +14,29 @@ import uskysd.smartvolley.Position;
 
 public class PlayerToken extends Token {
 
+	public class Comment {
+		private String text;
+		private int color;
+
+		public Comment(String text, int color) {
+			this.text = text;
+			this.color = color;
+		}
+
+		public String getText() {
+			return text;
+		}
+
+		public int getColor() {
+			return color;
+		}
+	}
+
 	private static final String TAG = PlayerToken.class.getSimpleName();
 	
     private int playerId = -1;
 	private int number;
+	private List<Comment> comments = new ArrayList<Comment>();
 
 	//private int bodyColor = Color.parseColor(String.valueOf(R.color.player_token_normal));
 	private int bodyColor = Color.GRAY;
@@ -29,6 +49,9 @@ public class PlayerToken extends Token {
 	private Position position;
 	private Position initialPosition;
 	private Court.Side side;
+
+	private static int commentTextSize = 30;
+	private int commentColor = Color.BLACK;
 
 
 	private static List<Position> positions = Arrays.asList(
@@ -51,6 +74,8 @@ public class PlayerToken extends Token {
 		super(x, y);
 		this.number = number;
         this.playerId = playerId;
+
+
 
 	}
 	
@@ -99,7 +124,19 @@ public class PlayerToken extends Token {
 			super.setY(y);
 		}
 	}
-	
+
+	public List<Comment> getComments() {
+	    return comments;
+    }
+
+	public void addComment(String text, int color) {
+		this.comments.add(new Comment(text, color));
+	}
+
+	public void clearComments() {
+		this.comments = new ArrayList<Comment>();
+	}
+
 	@Override
 	public void update() {
 		// TODO Auto-generated method stub
@@ -127,6 +164,17 @@ public class PlayerToken extends Token {
 
 		// Draw text
 		canvas.drawText(strnumber, getX(), getY()+(int)(0.5*r.height()), paint);
+
+		// Draw comments
+		Comment comment = null;
+		for (int i=0; i<comments.size(); i++) {
+			comment = comments.get(i);
+			paint.setColor(comment.getColor());
+			paint.setTextSize(this.commentTextSize);
+			paint.getTextBounds(comment.text, 0, comment.text.length(), r);
+			canvas.drawText(comment.text, getX(), getY()+getRadius()+r.height()*(i+1), paint);
+		}
+
 
 	}
 	

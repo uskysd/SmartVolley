@@ -7,6 +7,12 @@ import org.joda.time.DateTime;
  */
 public abstract class Event implements Comparable<Event> {
 
+    public enum EventType {
+        PLAY, MEMBERCHANGE, NOTIFICATION;
+    }
+
+    abstract public EventType getEventType();
+
     abstract public String getEventTitle();
 
     abstract public int getEventOrder();
